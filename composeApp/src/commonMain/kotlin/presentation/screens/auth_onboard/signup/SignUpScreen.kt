@@ -17,9 +17,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 
 
-data class SignUpScreen(
-    val name: String,
-) : Screen {
+ class SignUpScreen : Screen {
     // Login screen implementation
     @Composable
     override fun Content() {
@@ -53,7 +51,7 @@ data class SignUpScreen(
                 Button(onClick = {
                     // Navigate to SignUpScreen
                 }) {
-                    Text("Name : $name")
+                    Text("Name :")
                 }
             }
         }
