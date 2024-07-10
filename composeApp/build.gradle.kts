@@ -45,7 +45,9 @@ kotlin {
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tab.navigator)
             implementation(libs.voyager.transitions)
-            // other common dependencies
+            implementation(libs.voyager.koin)
+            implementation(libs.screen.model)
+            implementation(libs.koin.core)
             implementation(compose.components.resources)
         }
 //        iosMain.dependencies {
@@ -93,5 +95,8 @@ android {
     dependencies {
         debugImplementation(compose.uiTooling)
     }
+}
+dependencies {
+    implementation(libs.androidx.ui.android)
 }
 
