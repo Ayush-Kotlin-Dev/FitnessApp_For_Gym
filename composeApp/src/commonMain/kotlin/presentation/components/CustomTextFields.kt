@@ -123,6 +123,4 @@ fun PasswordEyeIcon(
         )
 
     }
-
-
 }

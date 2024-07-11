@@ -32,6 +32,9 @@ class LoginScreenViewModel : ScreenModel {
             _uiState.value = _uiState.value.copy(isAuthenticating = false)
         }
     }
+    fun togglePasswordVisibility() {
+        _uiState.value = _uiState.value.copy(passwordVisibility = !_uiState.value.passwordVisibility)
+    }
 }
 
 
@@ -40,5 +43,6 @@ data class LoginUiState(
     val password: String = "",
     val isAuthenticating: Boolean = false,
     val authErrorMessage: String? = null,
-    val authenticationSucceed: Boolean = false
+    val authenticationSucceed: Boolean = false,
+    val passwordVisibility: Boolean = true,
 )

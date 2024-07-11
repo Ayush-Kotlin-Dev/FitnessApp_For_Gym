@@ -1,68 +1,97 @@
 package presentation.screens.auth_onboard.login
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults.textFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import avikfitness.composeapp.generated.resources.Res
+import avikfitness.composeapp.generated.resources.img
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
-import presentation.components.CustomTextFields
-import presentation.screens.auth_onboard.signup.SignUpScreen
+import org.jetbrains.compose.resources.painterResource
 
 class LoginScreen : Screen {
     // Login screen implementation
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel = rememberScreenModel { LoginScreenViewModel()}
+        val viewModel = rememberScreenModel { LoginScreenViewModel() }
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(color = androidx.compose.ui.graphics.Color.Black)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(Res.drawable.img),
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth()
+            )
 
-            CustomTextFields(
+            TextField(
                 value = viewModel.uiState.value.emailOrUsername,
                 onValueChange = { viewModel.onEmailOrUsernameChange(it) },
-                hint = "Email or Username",
-                leadingIcon = null
+                label = { Text("Email or Username") },
+                colors = textFieldColors(
+                    textColor = Color.White,
+                    backgroundColor = Color.Transparent,
+                    cursorColor = Color.White,
+                    unfocusedIndicatorColor = Color.White,
+                ),
             )
             Spacer(modifier = Modifier.height(8.dp))
-            CustomTextFields(
+            TextField(
                 value = viewModel.uiState.value.password,
                 onValueChange = { viewModel.onPasswordChange(it) },
-                hint = "Password",
-                isPasswordTextField = true
+                label = { Text("Password") },
+                colors = textFieldColors(
+                    textColor = Color.White,
+                    backgroundColor = Color.Transparent,
+                    cursorColor = Color.White
+                ),
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = {
-                viewModel.login()
-            }) {
-                Text("Login")
-            }
+            OutlinedButton(
+                onClick = { viewModel.login() },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.Transparent,
+                ),
+                border = BorderStroke(2.dp, outlinedButtonBorderColor())
 
-            TextButton(onClick = { navigator?.push(SignUpScreen())}) {
-                Text(text = "Don't have an account? Sign up")
+            ) {
+                Text(
+                    text = "Login",
+                    color = Color.Red.copy(0.9f)
+                )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             TextButton(onClick = { /*TODO*/ }) {
-                Text(text = "Forgot password? Reset here")
+                Text(text = "Forgot password?")
             }
             if (viewModel.uiState.value.isAuthenticating) {
                 CircularProgressIndicator()
@@ -71,6 +100,15 @@ class LoginScreen : Screen {
                 Text(text = it)
             }
         }
+    }
+}
 
+
+@Composable
+fun outlinedButtonBorderColor(): Color {
+    return if (isSystemInDarkTheme()) {
+        Color.Gray
+    } else {
+        Color.Black
     }
 }

@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults.buttonColors
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,11 +30,15 @@ import androidx.compose.ui.unit.sp
 import avikfitness.composeapp.generated.resources.Res
 import avikfitness.composeapp.generated.resources.login_signup_dark
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
 import org.jetbrains.compose.resources.painterResource
+import presentation.screens.auth_onboard.login.LoginScreen
+import ui.GymAppTheme
 
 class AuthScreen : Screen {
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.current
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -49,7 +56,6 @@ class AuthScreen : Screen {
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.Start
             ) {
-                // First Text
                 Text(
                     "NO MORE EXCUSES | ",
                     style = TextStyle(
@@ -59,11 +65,10 @@ class AuthScreen : Screen {
                     )
                 )
 
-                // Second Text in a Box
                 Box(
                     modifier = Modifier
                         .wrapContentSize()
-                        .background(Color.Red, shape = RoundedCornerShape(10.dp))
+                        .background(Color.Red.copy(0.9f), shape = RoundedCornerShape(10.dp))
                 ) {
                     Text(
                         "GET STARTED",
@@ -76,7 +81,6 @@ class AuthScreen : Screen {
                     )
                 }
 
-                // Third Text
                 Text(
                     "Embark on your fitness journey with AvikFitness. Our programs, guidance, and facilities ensure you achieve your goals.",
                     modifier = Modifier.padding(top = 10.dp, end = 25.dp),
@@ -87,15 +91,19 @@ class AuthScreen : Screen {
                     )
                 )
 
-                // Row for Buttons
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier.fillMaxWidth().padding(16.dp)
                 ) {
                     // Login Button
                     Button(onClick = {
-                        // Navigate to LoginScreen
-                    },shape = RoundedCornerShape(15.dp)
+                        navigator?.push(LoginScreen())
+                    },shape = RoundedCornerShape(10.dp),
+                        colors = buttonColors(
+                            backgroundColor = colors.primary.copy(alpha = 0.9f),
+                            contentColor = Color.Black
+                        )
+
                     ) {
                         Text("Login")
                     }
@@ -103,7 +111,11 @@ class AuthScreen : Screen {
                     // SignUp Button
                     Button(onClick = {
                         // Navigate to SignUpScreen
-                    },shape = RoundedCornerShape(15.dp)
+                    },shape = RoundedCornerShape(10.dp),
+                        colors = buttonColors(
+                            backgroundColor = colors.primary.copy(alpha = 0.9f),
+                            contentColor = Color.Black
+                        )
 
                     ) {
                         Text("SignUp")
