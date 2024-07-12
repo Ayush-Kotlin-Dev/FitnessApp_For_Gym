@@ -49,7 +49,6 @@ class LoginScreen : Screen {
                 .fillMaxSize()
                 .background(color = Color.Black)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
@@ -68,6 +67,7 @@ class LoginScreen : Screen {
                     cursorColor = Color.White,
                     unfocusedIndicatorColor = Color.White,
                 ),
+                singleLine = true
             )
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
@@ -86,7 +86,8 @@ class LoginScreen : Screen {
                         isPasswordVisible = isPasswordVisible,
                         onPasswordToggleClick = { isPasswordVisible = !isPasswordVisible }
                     )
-                }
+                },
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -96,7 +97,7 @@ class LoginScreen : Screen {
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color.Transparent,
                 ),
-                border = BorderStroke(2.dp, outlinedButtonBorderColor())
+                border = BorderStroke(2.dp, Color.Gray)
 
             ) {
                 Text(
@@ -117,15 +118,5 @@ class LoginScreen : Screen {
                 Text(text = it)
             }
         }
-    }
-}
-
-
-@Composable
-fun outlinedButtonBorderColor(): Color {
-    return if (isSystemInDarkTheme()) {
-        Color.Gray
-    } else {
-        Color.Black
     }
 }

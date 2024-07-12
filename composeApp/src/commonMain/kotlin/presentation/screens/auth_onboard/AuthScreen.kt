@@ -33,6 +33,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import org.jetbrains.compose.resources.painterResource
 import presentation.screens.auth_onboard.login.LoginScreen
+import presentation.screens.auth_onboard.signup.SignUpScreen
 import ui.GymAppTheme
 
 class AuthScreen : Screen {
@@ -110,7 +111,7 @@ class AuthScreen : Screen {
 
                     // SignUp Button
                     Button(onClick = {
-                        // Navigate to SignUpScreen
+                        navigator?.push(SignUpScreen())
                     },shape = RoundedCornerShape(10.dp),
                         colors = buttonColors(
                             backgroundColor = colors.primary.copy(alpha = 0.9f),
