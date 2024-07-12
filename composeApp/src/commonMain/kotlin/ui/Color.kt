@@ -36,7 +36,7 @@ internal val LightColors = lightColors(
     background = White76,
     onBackground = Black87,
     surface = White,
-    onSurface = Black87
+    onSurface = White87
 )
 
 internal val DarkColors = darkColors(
@@ -46,7 +46,6 @@ internal val DarkColors = darkColors(
     onBackground = White87,
     surface = Black24,
     onSurface = White87,
-
 )
 object AppColors {
     val bgLight = Color.White
