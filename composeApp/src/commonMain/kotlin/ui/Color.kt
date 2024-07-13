@@ -42,9 +42,9 @@ internal val LightColors = lightColors(
 internal val DarkColors = darkColors(
     primary = Red,
     primaryVariant = Blue,
-    background = Black87,
+    background = Black,
     onBackground = White87,
-    surface = Black24,
+    surface = Black,
     onSurface = White87,
 )
 object AppColors {

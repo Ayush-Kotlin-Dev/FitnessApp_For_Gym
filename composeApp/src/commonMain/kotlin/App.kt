@@ -2,18 +2,24 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.FadeTransition
-import presentation.screens.auth_onboard.AuthScreen
-import presentation.screens.auth_onboard.login.LoginScreen
-import presentation.screens.auth_onboard.signup.SignUpScreen
+import di.appModule
+import org.koin.core.context.startKoin
 import ui.GymAppTheme
 
 @Composable
 fun App() {
-    GymAppTheme{
+    initKoin()
+    GymAppTheme {
         Surface {
-            Navigator(AuthScreen()){ navigator ->
+            Navigator(UserInfoFormScreen()) { navigator ->
                 FadeTransition(navigator)
             }
         }
+    }
+}
+
+fun initKoin() {
+    startKoin {
+        modules(appModule)
     }
 }

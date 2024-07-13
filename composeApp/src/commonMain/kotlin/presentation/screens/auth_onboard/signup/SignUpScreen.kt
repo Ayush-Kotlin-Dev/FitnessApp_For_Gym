@@ -1,6 +1,7 @@
 package presentation.screens.auth_onboard.signup
 
 // Login screen implementation
+import UserInfoFormScreen
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,7 +15,6 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults.textFieldColors
 import androidx.compose.runtime.Composable
@@ -30,9 +30,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import avikfitness.composeapp.generated.resources.Res
 import avikfitness.composeapp.generated.resources.img
-import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import presentation.components.PasswordEyeIcon
 
@@ -41,7 +44,7 @@ class SignUpScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel = rememberScreenModel { SignupViewModel() }
+        val viewModel = koinScreenModel<SignupViewModel>()
         var isPasswordVisible by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
@@ -60,7 +63,7 @@ class SignUpScreen : Screen {
             TextField(
                 value = viewModel.uiState.value.fullName,
                 onValueChange = { viewModel.onFullNameChange(it) },
-                label = { Text("Full Name") },
+                label = { Text("Username") },
                 colors = textFieldColors(
                     textColor = Color.White,
                     backgroundColor = Color.Transparent,
@@ -72,7 +75,7 @@ class SignUpScreen : Screen {
             TextField(
                 value = viewModel.uiState.value.emailOrUsername,
                 onValueChange = { viewModel.onEmailOrUsernameChange(it) },
-                label = { Text("Email or Username") },
+                label = { Text("Email") },
                 colors = textFieldColors(
                     textColor = Color.White,
                     backgroundColor = Color.Transparent,
@@ -105,7 +108,14 @@ class SignUpScreen : Screen {
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedButton(
                 enabled = !viewModel.uiState.value.isAuthenticating,
-                onClick = { viewModel.login() },
+                onClick = {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        viewModel.SignUp()
+                        if (viewModel.uiState.value.authenticationSucceed) {
+                            navigator?.push(UserInfoFormScreen())
+                        }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color.Transparent,
                 ),

@@ -24,7 +24,7 @@ class SignupViewModel : ScreenModel {
         _uiState.value = _uiState.value.copy(password = newPassword)
     }
 
-    fun login() {
+    fun SignUp() {
         // Implement login logic
         screenModelScope.launch {
             // Set isAuthenticating to true
@@ -35,6 +35,8 @@ class SignupViewModel : ScreenModel {
 
             // Set isAuthenticating to false
             _uiState.value = _uiState.value.copy(isAuthenticating = false)
+            _uiState.value = _uiState.value.copy(authenticationSucceed = true)
+
         }
     }
     fun togglePasswordVisibility() {

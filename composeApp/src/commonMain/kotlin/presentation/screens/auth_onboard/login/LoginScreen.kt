@@ -33,6 +33,7 @@ import avikfitness.composeapp.generated.resources.Res
 import avikfitness.composeapp.generated.resources.img
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import org.jetbrains.compose.resources.painterResource
 import presentation.components.PasswordEyeIcon
@@ -42,7 +43,7 @@ class LoginScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel = rememberScreenModel { LoginScreenViewModel() }
+        val viewModel = koinScreenModel<LoginScreenViewModel>()
         var isPasswordVisible by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
