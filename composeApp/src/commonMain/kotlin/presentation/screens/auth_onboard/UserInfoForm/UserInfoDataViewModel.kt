@@ -14,22 +14,21 @@ class UserInfoDataViewModel : ScreenModel {
         _uiState.value = _uiState.value.copy(fullName = newFullName)
     }
 
-    fun onAgeChange(newAge: Int) {
-        _uiState.value = _uiState.value.copy(age = newAge)
+    fun onAgeChange(newAge: String) {
+        _uiState.value = _uiState.value.copy(age = newAge.toInt())
     }
 
-    fun onGenderChange(newGender: String) {
-        _uiState.value = _uiState.value
-
+    fun setGender(gender: String) {
+        _uiState.value = _uiState.value.copy(gender = gender)
     }
 
     // Physical Measurements
-    fun onHeightChange(newHeight: Float) {
-        _uiState.value = _uiState.value.copy(height = newHeight)
+    fun onHeightChange(height: String) {
+        _uiState.value = _uiState.value.copy(height = height.toFloatOrNull())
     }
 
-    fun onWeightChange(newWeight: Float) {
-        _uiState.value = _uiState.value.copy(weight = newWeight)
+    fun onWeightChange(weight: String) {
+        _uiState.value = _uiState.value.copy(weight = weight.toFloatOrNull())
     }
 
 
@@ -65,10 +64,10 @@ class UserInfoDataViewModel : ScreenModel {
 
 data class UserInfoDataUiState(
     val fullName: String = "",
-    val age: Int = 0,
+    val age: Int? = null,
     val gender: String = "",
-    val height: Float = 0f,
-    val weight: Float = 0f,
+    val height: Float? = null,
+    val weight: Float? = null,
     val fitnessGoals: String = "",
     val activityLevel: String = "",
     val dietaryPreferences: String = "",
