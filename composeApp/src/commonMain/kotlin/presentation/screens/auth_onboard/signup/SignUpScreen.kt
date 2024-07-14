@@ -15,8 +15,6 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults.textFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -37,7 +36,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
-import presentation.components.PasswordEyeIcon
+import presentation.components.CustomTextField
 
 class SignUpScreen : Screen {
     // Login screen implementation
@@ -60,49 +59,26 @@ class SignUpScreen : Screen {
             )
 
             //full name
-            TextField(
+            CustomTextField(
                 value = viewModel.uiState.value.fullName,
                 onValueChange = { viewModel.onFullNameChange(it) },
-                label = { Text("Username") },
-                colors = textFieldColors(
-                    textColor = Color.White,
-                    backgroundColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White,
-                ),
-                singleLine = true
-            )
-            TextField(
+                label = "Username",
+                keyboardType = KeyboardType.Text,
+                )
+            CustomTextField(
                 value = viewModel.uiState.value.emailOrUsername,
                 onValueChange = { viewModel.onEmailOrUsernameChange(it) },
-                label = { Text("Email") },
-                colors = textFieldColors(
-                    textColor = Color.White,
-                    backgroundColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White,
-                ),
-                singleLine = true
-            )
+                label = "Email",
+                keyboardType = KeyboardType.Email,
+                )
             Spacer(modifier = Modifier.height(8.dp))
-            TextField(
+            CustomTextField(
                 value = viewModel.uiState.value.password,
                 onValueChange = { viewModel.onPasswordChange(it) },
-                label = { Text("Password") },
-                colors = textFieldColors(
-                    textColor = Color.White,
-                    backgroundColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White,
-                ),
+                label = "Password",
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    PasswordEyeIcon(
-                        isPasswordVisible = isPasswordVisible,
-                        onPasswordToggleClick = { isPasswordVisible = !isPasswordVisible }
-                    )
-                },
-                singleLine = true
+                isPasswordTextField = true,
+                keyboardType = KeyboardType.Password,
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -123,7 +99,7 @@ class SignUpScreen : Screen {
 
             ) {
                 Text(
-                    text = "Sign Up",
+                    text = if(viewModel.uiState.value.isAuthenticating) "Signing up..." else "Sign Up",
                     color = Color.Red.copy(0.9f)
                 )
             }

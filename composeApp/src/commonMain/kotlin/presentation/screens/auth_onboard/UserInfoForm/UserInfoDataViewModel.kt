@@ -3,6 +3,9 @@ package presentation.screens.auth_onboard.UserInfoForm
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class UserInfoDataViewModel : ScreenModel {
 
@@ -56,10 +59,19 @@ class UserInfoDataViewModel : ScreenModel {
     }
 
     fun submitUserData() {
-        //TODO
+        screenModelScope.launch {
+            // Set isAuthenticating to true
+            _uiState.value = _uiState.value.copy(isLoading = true)
+
+            // Perform login logic here
+            delay(2000)
+
+            // Set isAuthenticating to false
+            _uiState.value = _uiState.value.copy(isLoading = false)
+            _uiState.value = _uiState.value.copy(submitSuccess = true)
+
+        }
     }
-
-
 }
 
 data class UserInfoDataUiState(
@@ -71,5 +83,7 @@ data class UserInfoDataUiState(
     val fitnessGoals: String = "",
     val activityLevel: String = "",
     val dietaryPreferences: String = "",
-    val workoutPreferences: String = ""
+    val workoutPreferences: String = "",
+    val isLoading: Boolean = false,
+    val submitSuccess: Boolean = false
 )

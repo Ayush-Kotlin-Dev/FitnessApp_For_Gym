@@ -1,4 +1,5 @@
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RadioButton
 import androidx.compose.material.RadioButtonDefaults
 import androidx.compose.material.Text
@@ -32,15 +34,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import avikfitness.composeapp.generated.resources.Res
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
+import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import presentation.components.CustomTextField
 import presentation.screens.auth_onboard.UserInfoForm.UserInfoDataViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 class UserInfoFormScreen : Screen {
     @Composable
     override fun Content() {
+
         val pagerState = rememberPagerState(pageCount = { 4 })
         val coroutineScope = rememberCoroutineScope()
         val viewModel = koinScreenModel<UserInfoDataViewModel>()
@@ -49,11 +59,27 @@ class UserInfoFormScreen : Screen {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState())
         ) {
+            Text(
+                text = when (pagerState.currentPage) {
+                    0 -> "1) Basic Info"
+                    1 -> "2) Physical Measurements"
+                    2 -> "3) Fitness Goals & Activity Level"
+                    3 -> "4) Dietary & Workout Preferences"
+                    else -> "Basic Info"
+                },
+                modifier = Modifier.padding(bottom = 16.dp),
+                color = Color.White,
+                style = MaterialTheme.typography.h5,
+
+                )
+            Spacer(modifier = Modifier.height(16.dp))
+
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .weight(1f)
             ) { page ->
                 when (page) {
                     0 -> BasicInfoStep(viewModel)
@@ -87,48 +113,64 @@ class UserInfoFormScreen : Screen {
                     }
                 } else {
                     Button(onClick = { viewModel.submitUserData() }) {
-                        Text("Submit")
+                        Text(if (viewModel.uiState.value.isLoading) "Submitting..." else "Submit")
                     }
                 }
             }
         }
     }
 
+    @OptIn(ExperimentalResourceApi::class)
     @Composable
     fun BasicInfoStep(viewModel: UserInfoDataViewModel) {
         var expanded by remember { mutableStateOf(false) }
         var ageInput by remember { mutableStateOf(viewModel.uiState.value.age?.toString() ?: "") }
         var ageError by remember { mutableStateOf(false) }
-        Column(modifier = Modifier.fillMaxSize()) {
-            TextField(
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val composition by rememberLottieComposition {
+                LottieCompositionSpec.JsonString(
+                    Res.readBytes("drawable/anim.json").decodeToString()
+                )
+            }
+            val progress by animateLottieCompositionAsState(composition)
+
+            Image(
+                painter = rememberLottiePainter(
+                    composition = composition,
+                    progress = { progress },
+                ),
+                contentDescription = "Lottie animation"
+            )
+
+            CustomTextField(
                 value = viewModel.uiState.value.fullName,
                 onValueChange = { viewModel.onFullNameChange(it) },
-                label = { Text("Full Name") }
+                label = "Full Name",
+                keyboardType = KeyboardType.Text
             )
             Spacer(modifier = Modifier.height(16.dp))
-            TextField(
+            CustomTextField(
                 value = ageInput,
                 onValueChange = {
                     ageInput = it
                     ageError = it.toIntOrNull() == null || it.toInt() > 100
                     if (!ageError) viewModel.onAgeChange(it)
                 },
-                label = { Text("Age") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                isError = ageError
+                label = "Age",
+                keyboardType = KeyboardType.Number,
+                isError = ageError,
+                errorMessage = "Please enter a valid age"
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            if(ageError){
-                Text(
-                    text = "Please enter a valid age ",
-                    color = Color.Red
-                )
-            }
 
             val genders = listOf("Male", "Female", "Transgender")
 
             Text("Gender")
-            Box(modifier = Modifier.fillMaxWidth()) {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Button(onClick = { expanded = true }) {
                     Text(viewModel.uiState.value.gender.ifEmpty { "Select Gender" })
                 }
@@ -151,52 +193,55 @@ class UserInfoFormScreen : Screen {
 
     @Composable
     fun PhysicalMeasurementsStep(viewModel: UserInfoDataViewModel) {
-        var heightInput by remember { mutableStateOf(viewModel.uiState.value.height?.toString() ?: "") }
-        var weightInput by remember { mutableStateOf(viewModel.uiState.value.weight?.toString() ?: "") }
+        var heightInput by remember {
+            mutableStateOf(
+                viewModel.uiState.value.height?.toString() ?: ""
+            )
+        }
+        var weightInput by remember {
+            mutableStateOf(
+                viewModel.uiState.value.weight?.toString() ?: ""
+            )
+        }
         var heightError by remember { mutableStateOf(false) }
         var weightError by remember { mutableStateOf(false) }
 
         Column(modifier = Modifier.fillMaxSize()) {
-            TextField(
+            CustomTextField(
                 value = heightInput,
                 onValueChange = {
                     heightInput = it
-                    heightError = it.toFloatOrNull() == null
+                    heightError = it.toFloatOrNull() == null || it.toFloat() > 200.0
                     if (!heightError) viewModel.onHeightChange(it)
                 },
-                label = { Text("Height (cm)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                isError = heightError
+                label = "Height (cm)",
+                keyboardType = KeyboardType.Decimal,
+                isError = heightError,
+                errorMessage = "Please enter a valid height"
             )
-            if (heightError) {
-                Text(
-                    text = "Please enter a valid float value",
-                    color = Color.Red
-                )
-            }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextField(
+            CustomTextField(
                 value = weightInput,
                 onValueChange = {
                     weightInput = it
-                    weightError = it.toFloatOrNull() == null
+                    weightError = it.toFloatOrNull() == null || it.toFloat() > 200.0
                     if (!weightError) viewModel.onWeightChange(it)
                 },
-                label = { Text("Weight (kg)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                isError = weightError
+                label = "Weight (kg)",
+                keyboardType = KeyboardType.Decimal,
+                isError = weightError,
             )
             if (weightError) {
                 Text(
-                    text = "Please enter a valid float value",
-                    color = androidx.compose.ui.graphics.Color.Red
+                    text = "Please enter a valid weight",
+                    color = Color.Red
                 )
             }
         }
     }
-
 
     @Composable
     fun FitnessGoalsActivityLevelStep(viewModel: UserInfoDataViewModel) {
@@ -304,7 +349,6 @@ class UserInfoFormScreen : Screen {
                     }
                 }
             }
-
         }
     }
 }

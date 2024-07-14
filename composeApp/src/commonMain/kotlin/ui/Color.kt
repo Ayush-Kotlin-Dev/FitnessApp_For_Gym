@@ -33,9 +33,9 @@ val ShimmerDarkGray = Color(0xFF1D1D1D)
 internal val LightColors = lightColors(
     primary = Red,
     primaryVariant = Blue,
-    background = White76,
-    onBackground = Black87,
-    surface = White,
+    background = Black,
+    onBackground = White87,
+    surface = Black,
     onSurface = White87
 )
 

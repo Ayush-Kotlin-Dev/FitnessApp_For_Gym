@@ -3,14 +3,13 @@ package presentation.screens.auth_onboard.login
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedButton
@@ -26,16 +25,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import avikfitness.composeapp.generated.resources.Res
 import avikfitness.composeapp.generated.resources.img
-import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import org.jetbrains.compose.resources.painterResource
+import presentation.components.CustomTextField
 import presentation.components.PasswordEyeIcon
 
 class LoginScreen : Screen {
@@ -58,37 +58,20 @@ class LoginScreen : Screen {
                 modifier = Modifier.size(320.dp).padding(30.dp)
             )
 
-            TextField(
+            CustomTextField(
                 value = viewModel.uiState.value.emailOrUsername,
                 onValueChange = { viewModel.onEmailOrUsernameChange(it) },
-                label = { Text("Email or Username") },
-                colors = textFieldColors(
-                    textColor = Color.White,
-                    backgroundColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White,
-                ),
-                singleLine = true
+                label = "Email or Username",
+                keyboardType = KeyboardType.Email,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            TextField(
+            CustomTextField(
                 value = viewModel.uiState.value.password,
                 onValueChange = { viewModel.onPasswordChange(it) },
-                label = { Text("Password") },
-                colors = textFieldColors(
-                    textColor = Color.White,
-                    backgroundColor = Color.Transparent,
-                    cursorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White,
-                ),
+                label =  "Password" ,
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    PasswordEyeIcon(
-                        isPasswordVisible = isPasswordVisible,
-                        onPasswordToggleClick = { isPasswordVisible = !isPasswordVisible }
-                    )
-                },
-                singleLine = true
+                isPasswordTextField = true,
+                keyboardType = KeyboardType.Password,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -102,7 +85,7 @@ class LoginScreen : Screen {
 
             ) {
                 Text(
-                    text = "Login",
+                    text = if (viewModel.uiState.value.isAuthenticating) "Authenticating..." else "Login",
                     color = Color.Red.copy(0.9f)
                 )
             }

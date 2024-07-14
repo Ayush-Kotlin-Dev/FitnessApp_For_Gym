@@ -1,5 +1,3 @@
-import org.jetbrains.compose.ExperimentalComposeLibrary
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -7,7 +5,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler) }
+    alias(libs.plugins.compose.compiler)
+}
 
 kotlin {
     androidTarget {
@@ -16,7 +15,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -27,9 +26,9 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -49,6 +48,11 @@ kotlin {
             implementation(libs.screen.model)
             implementation(libs.koin.core)
             implementation(compose.components.resources)
+            implementation(libs.compottie.vversion)
+            //dependencies versions
+            val coroutinesVersion = "1.6.4"
+            val ktorVersion = "2.2.1"
+
         }
 //        iosMain.dependencies {
 //            implementation(compose.runtime)
@@ -56,6 +60,7 @@ kotlin {
 //            implementation(compose.material)
 //            implementation(compose.ui)
 //            implementation(compose.components.resources)
+
 //        }
     }
 }
