@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+
 }
 
 kotlin {
@@ -40,7 +41,6 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.tab.navigator)
             implementation(libs.voyager.transitions)
@@ -49,9 +49,16 @@ kotlin {
             implementation(libs.koin.core)
             implementation(compose.components.resources)
             implementation(libs.compottie.vversion)
+            implementation(libs.kotlinx.serialization.json.v151)
+
             //dependencies versions
             val coroutinesVersion = "1.6.4"
+            val koinVersion = "3.3.2"
             val ktorVersion = "2.2.1"
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+            implementation ("io.ktor:ktor-client-cio:$ktorVersion")
+            implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+            api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
         }
 //        iosMain.dependencies {
