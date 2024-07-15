@@ -50,10 +50,10 @@ import presentation.screens.auth_onboard.UserInfoForm.UserInfoDataViewModel
 class UserInfoFormScreen : Screen {
     @Composable
     override fun Content() {
-
         val pagerState = rememberPagerState(pageCount = { 4 })
         val coroutineScope = rememberCoroutineScope()
         val viewModel = koinScreenModel<UserInfoDataViewModel>()
+        val scrollState = rememberScrollState()
 
         Column(
             modifier = Modifier
@@ -71,14 +71,13 @@ class UserInfoFormScreen : Screen {
                 modifier = Modifier.padding(bottom = 16.dp),
                 color = Color.White,
                 style = MaterialTheme.typography.h5,
-
-                )
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .weight(1f)
             ) { page ->
                 when (page) {
@@ -123,7 +122,7 @@ class UserInfoFormScreen : Screen {
     @OptIn(ExperimentalResourceApi::class)
     @Composable
     fun BasicInfoStep(viewModel: UserInfoDataViewModel) {
-        var expanded by remember { mutableStateOf(false) }
+        var genderExpanded by remember { mutableStateOf(false) }
         var ageInput by remember { mutableStateOf(viewModel.uiState.value.age?.toString() ?: "") }
         var ageError by remember { mutableStateOf(false) }
 
@@ -171,17 +170,17 @@ class UserInfoFormScreen : Screen {
 
             Text("Gender")
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Button(onClick = { expanded = true }) {
+                Button(onClick = { genderExpanded = true }) {
                     Text(viewModel.uiState.value.gender.ifEmpty { "Select Gender" })
                 }
                 DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    expanded = genderExpanded,
+                    onDismissRequest = { genderExpanded = false }
                 ) {
                     genders.forEach { gender ->
                         DropdownMenuItem(onClick = {
                             viewModel.setGender(gender)
-                            expanded = false
+                            genderExpanded = false
                         }) {
                             Text(gender)
                         }

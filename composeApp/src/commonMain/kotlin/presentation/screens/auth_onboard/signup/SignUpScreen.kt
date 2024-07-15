@@ -44,7 +44,7 @@ class SignUpScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.current
         val viewModel = koinScreenModel<SignupViewModel>()
-        var isPasswordVisible by remember { mutableStateOf(false) }
+        val isPasswordVisible by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -82,11 +82,39 @@ class SignUpScreen : Screen {
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            when {
+                viewModel.uiState.value.isAuthenticating -> {
+                    CircularProgressIndicator()
+                }
+                viewModel.uiState.value.authenticationSucceed -> {
+                    if (viewModel.uiState.value.isFormFilled) {
+//                        navigator?.navigateToHome()
+                        navigator?.replaceAll(UserInfoFormScreen())
+                    } else {
+                        navigator?.replaceAll(UserInfoFormScreen())
+                    }
+                }
+                else -> {
+                    OutlinedButton(
+                        onClick = { viewModel.signUp() },
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Color.Transparent,
+                        ),
+                        border = BorderStroke(2.dp, Color.Gray)
+                    ) {
+                        Text(
+                            text = if (viewModel.uiState.value.authErrorMessage != null) "Retry" else "Login",
+                            color = Color.Red.copy(0.9f)
+                        )
+                    }
+                }
+            }
             OutlinedButton(
                 enabled = !viewModel.uiState.value.isAuthenticating,
                 onClick = {
                     CoroutineScope(Dispatchers.Main).launch {
-                        viewModel.SignUp()
+                        viewModel.signUp()
                         if (viewModel.uiState.value.authenticationSucceed) {
                             navigator?.push(UserInfoFormScreen())
                         }
@@ -103,16 +131,18 @@ class SignUpScreen : Screen {
                     color = Color.Red.copy(0.9f)
                 )
             }
+            viewModel.uiState.value.authErrorMessage?.let {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
 
-            if (viewModel.uiState.value.isAuthenticating) {
-                CircularProgressIndicator()
-            }
-            viewModel.uiState.value.authErrorMessage?.let {
-                Text(text = it)
-            }
+
         }
     }
 }

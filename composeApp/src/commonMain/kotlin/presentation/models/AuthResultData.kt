@@ -1,9 +1,10 @@
 package presentation.models
 
 data class AuthResultData(
-    val id: Long,
-    val name: String,
+    val userId: Long,
+    val userName: String,
+    val email: String,
     val bio: String,
-    val avatar: String? = null,
     val token: String,
+    val isFormFilled : Boolean,
 )

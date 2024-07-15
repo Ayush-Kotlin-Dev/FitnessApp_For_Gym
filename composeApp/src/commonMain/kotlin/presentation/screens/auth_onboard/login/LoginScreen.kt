@@ -1,5 +1,6 @@
 package presentation.screens.auth_onboard.login
 
+import UserInfoFormScreen
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,13 +16,10 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults.textFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,12 +37,12 @@ import presentation.components.CustomTextField
 import presentation.components.PasswordEyeIcon
 
 class LoginScreen : Screen {
-    // Login screen implementation
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
         val viewModel = koinScreenModel<LoginScreenViewModel>()
-        var isPasswordVisible by remember { mutableStateOf(false) }
+        val isPasswordVisible by remember { mutableStateOf(false) }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -68,26 +66,40 @@ class LoginScreen : Screen {
             CustomTextField(
                 value = viewModel.uiState.value.password,
                 onValueChange = { viewModel.onPasswordChange(it) },
-                label =  "Password" ,
+                label = "Password",
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 isPasswordTextField = true,
                 keyboardType = KeyboardType.Password,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            OutlinedButton(
-                enabled = !viewModel.uiState.value.isAuthenticating,
-                onClick = { viewModel.login() },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.Transparent,
-                ),
-                border = BorderStroke(2.dp, Color.Gray)
 
-            ) {
-                Text(
-                    text = if (viewModel.uiState.value.isAuthenticating) "Authenticating..." else "Login",
-                    color = Color.Red.copy(0.9f)
-                )
+            when {
+                viewModel.uiState.value.isAuthenticating -> {
+                    CircularProgressIndicator()
+                }
+                viewModel.uiState.value.authenticationSucceed -> {
+                    if (viewModel.uiState.value.isFormFilled) {
+//                        navigator?.navigateToHome()
+                        navigator?.replaceAll(UserInfoFormScreen())
+                    } else {
+                        navigator?.replaceAll(UserInfoFormScreen())
+                    }
+                }
+                else -> {
+                    OutlinedButton(
+                        onClick = { viewModel.login() },
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Color.Transparent,
+                        ),
+                        border = BorderStroke(2.dp, Color.Gray)
+                    ) {
+                        Text(
+                            text = if (viewModel.uiState.value.authErrorMessage != null) "Retry" else "Login",
+                            color = Color.Red.copy(0.9f)
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -95,11 +107,13 @@ class LoginScreen : Screen {
             TextButton(onClick = { /*TODO*/ }) {
                 Text(text = "Forgot password?")
             }
-            if (viewModel.uiState.value.isAuthenticating) {
-                CircularProgressIndicator()
-            }
+
             viewModel.uiState.value.authErrorMessage?.let {
-                Text(text = it)
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
         }
     }

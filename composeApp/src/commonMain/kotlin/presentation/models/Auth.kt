@@ -1,16 +1,16 @@
 package presentation.models
 
 import kotlinx.serialization.Serializable
+
 @Serializable
- data class SignUpRequest(
+data class SignUpRequest(
     val name: String,
     val email: String,
     val password: String
 )
 
 @Serializable
-
- data class SignInRequest(
+data class SignInRequest(
     val email: String,
     val password: String
 
@@ -23,11 +23,11 @@ data class AuthResponse(
 )
 
 @Serializable
-
- data class AuthResponseData(
-    val id: Long,
-    val name: String,
+data class AuthResponseData(
+    val userId: Long,
+    val userName: String,
+    val email: String,
     val bio: String,
-    val avatar: String? = null,
     val token: String,
+    val isFormFilled : Boolean,
 )

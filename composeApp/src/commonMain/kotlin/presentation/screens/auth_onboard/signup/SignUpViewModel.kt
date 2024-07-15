@@ -4,10 +4,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import kotlinx.coroutines.delay
+import domain.usecases.auth.SignUpUseCase
+import util.Result
 import kotlinx.coroutines.launch
 
-class SignupViewModel : ScreenModel {
+class SignupViewModel(
+    private val signUpUseCase: SignUpUseCase
+) : ScreenModel {
 
     private val _uiState = mutableStateOf(SignUpUiState())
     val uiState: State<SignUpUiState> = _uiState
@@ -24,24 +27,39 @@ class SignupViewModel : ScreenModel {
         _uiState.value = _uiState.value.copy(password = newPassword)
     }
 
-    fun SignUp() {
-        // Implement login logic
+    fun signUp() {
         screenModelScope.launch {
-            // Set isAuthenticating to true
             _uiState.value = _uiState.value.copy(isAuthenticating = true)
+            val authResultData = signUpUseCase(
+                _uiState.value.emailOrUsername,
+                _uiState.value.emailOrUsername,
+                _uiState.value.password
+            )
+            _uiState.value = when (authResultData) {
+                is Result.Error -> {
+                    _uiState.value.copy(
+                        isAuthenticating = false,
+                        authErrorMessage = authResultData.message ?: "An error occurred"
+                    )
+                }
+                is Result.Success -> {
+                    val isFormFilled = authResultData.data?.isFormFilled
+                    _uiState.value.copy(
+                        authenticationSucceed = true,
+                        isAuthenticating = false,
+                        isFormFilled = isFormFilled ?: false
+                    )
+                }
+                is Result.Loading -> {
+                    _uiState.value.copy(isAuthenticating = true)
+                }
+            }
 
-            // Perform login logic here
-            delay(2000)
 
-            // Set isAuthenticating to false
-            _uiState.value = _uiState.value.copy(isAuthenticating = false)
-            _uiState.value = _uiState.value.copy(authenticationSucceed = true)
 
         }
     }
-    fun togglePasswordVisibility() {
-        _uiState.value = _uiState.value.copy(passwordVisibility = !_uiState.value.passwordVisibility)
-    }
+
 }
 
 
@@ -52,5 +70,5 @@ data class SignUpUiState(
     val isAuthenticating: Boolean = false,
     val authErrorMessage: String? = null,
     val authenticationSucceed: Boolean = false,
-    val passwordVisibility: Boolean = true,
+    val isFormFilled: Boolean = false
 )

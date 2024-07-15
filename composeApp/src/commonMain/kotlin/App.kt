@@ -8,6 +8,7 @@ import di.repositoryModule
 import di.useCaseModule
 import di.viewModelModule
 import org.koin.core.context.startKoin
+import presentation.screens.auth_onboard.AuthScreen
 import ui.GymAppTheme
 
 @Composable
@@ -15,9 +16,7 @@ fun App() {
     initKoin()
     GymAppTheme {
         Surface {
-            Navigator(UserInfoFormScreen()) { navigator ->
-                FadeTransition(navigator)
-            }
+            Navigator(AuthScreen())
         }
     }
 }
@@ -26,10 +25,10 @@ fun initKoin() {
     startKoin {
         modules(
             appModule,
-            apiModule,
-            repositoryModule,
-            useCaseModule,
-            viewModelModule
+//            apiModule,
+//            repositoryModule,
+//            useCaseModule,
+//            viewModelModule
         )
     }
 }

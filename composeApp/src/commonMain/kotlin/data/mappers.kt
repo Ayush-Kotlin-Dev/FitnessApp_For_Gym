@@ -5,10 +5,11 @@ import presentation.models.AuthResultData
 
 fun AuthResponseData.toAuthResultData() : AuthResultData {
     return AuthResultData(
-        id = id,
-        name = name,
+        userId = userId,
+        userName = userName,
+        email = email,
         bio = bio,
-        avatar = avatar,
-        token = token
+        token = token,
+        isFormFilled = isFormFilled
     )
 }
