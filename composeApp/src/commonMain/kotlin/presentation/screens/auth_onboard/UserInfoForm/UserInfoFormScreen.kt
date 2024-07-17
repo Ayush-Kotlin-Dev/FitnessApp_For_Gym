@@ -77,7 +77,7 @@ class UserInfoFormScreen : Screen {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier
-                    .verticalScroll(scrollState)
+//                    .verticalScroll(scrollState)
                     .weight(1f)
             ) { page ->
                 when (page) {
@@ -128,7 +128,8 @@ class UserInfoFormScreen : Screen {
 
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val composition by rememberLottieComposition {
@@ -165,28 +166,37 @@ class UserInfoFormScreen : Screen {
                 isError = ageError,
                 errorMessage = "Please enter a valid age"
             )
+            Spacer(modifier = Modifier.height(16.dp))
 
-            val genders = listOf("Male", "Female", "Transgender")
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
+                horizontalArrangement = Arrangement.Start,
 
-            Text("Gender")
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Button(onClick = { genderExpanded = true }) {
-                    Text(viewModel.uiState.value.gender.ifEmpty { "Select Gender" })
-                }
-                DropdownMenu(
-                    expanded = genderExpanded,
-                    onDismissRequest = { genderExpanded = false }
-                ) {
-                    genders.forEach { gender ->
-                        DropdownMenuItem(onClick = {
-                            viewModel.setGender(gender)
-                            genderExpanded = false
-                        }) {
-                            Text(gender)
+            ) {
+                val genders = listOf("Male", "Female", "Transgender")
+
+                Text("Gender" , modifier = Modifier.padding(start = 8.dp))
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Button(onClick = { genderExpanded = true }) {
+                        Text(viewModel.uiState.value.gender.ifEmpty { "Select Gender" })
+                    }
+                    DropdownMenu(
+                        expanded = genderExpanded,
+                        onDismissRequest = { genderExpanded = false }
+                    ) {
+                        genders.forEach { gender ->
+                            DropdownMenuItem(onClick = {
+                                viewModel.setGender(gender)
+                                genderExpanded = false
+                            }) {
+                                Text(gender)
+                            }
                         }
                     }
                 }
             }
+
+
         }
     }
 
@@ -247,7 +257,7 @@ class UserInfoFormScreen : Screen {
         var expanded by remember { mutableStateOf(false) }
         val fitnessGoals = listOf("Weight Loss", "Weight Gain", "Muscle Gain", "General Fitness")
 
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             Text("Fitness Goals")
             Box(modifier = Modifier.fillMaxWidth()) {
                 Button(onClick = { expanded = true }) {

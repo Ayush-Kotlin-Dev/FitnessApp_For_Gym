@@ -30,7 +30,6 @@ kotlin {
     }
 
     sourceSets {
-
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -54,13 +53,13 @@ kotlin {
 
             //dependencies versions
             val coroutinesVersion = "1.6.4"
-            val koinVersion = "3.3.2"
             val ktorVersion = "2.3.12"
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
             implementation ("io.ktor:ktor-client-cio:$ktorVersion")
             implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
             api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-
+            api(libs.datastore.preferences)
+            api(libs.datastore)
         }
 //        iosMain.dependencies {
 //            implementation(compose.runtime)
