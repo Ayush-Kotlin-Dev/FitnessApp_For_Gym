@@ -1,6 +1,10 @@
 package data.auth.data
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import data.auth.domain.AuthRepository
+import data.local.saveUserSettings
+import data.local.toUserSettings
 import data.toAuthResultData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -12,6 +16,7 @@ import util.Result
 
 class AuthRepositoryImpl(
     private val authService: AuthService,
+    private val dataStore: DataStore<Preferences>  // Add DataStore as a dependency
 ) : AuthRepository {
 
     override suspend fun signUp(
@@ -20,7 +25,6 @@ class AuthRepositoryImpl(
         password: String
     ): Result<AuthResultData> = withContext(Dispatchers.IO) {
         try {
-
             val request = SignUpRequest(name, email, password)
             val authResponse = authService.signUp(request)
             if (authResponse.data == null) {
@@ -29,16 +33,16 @@ class AuthRepositoryImpl(
                 )
             } else {
                 val authResultData = authResponse.data.toAuthResultData()
-
+                // Save user info
+                saveUserSettings(dataStore, authResultData.toUserSettings())
                 Result.Success(authResultData)
             }
         } catch (e: Exception) {
             Result.Error(e.message ?: "Oops! we could not send your request. Please try again later.")
         }
-
     }
 
-override suspend fun signIn(
+    override suspend fun signIn(
         email: String,
         password: String
     ): Result<AuthResultData> = withContext(Dispatchers.IO) {
@@ -51,11 +55,12 @@ override suspend fun signIn(
                 )
             } else {
                 val authResultData = authResponse.data.toAuthResultData()
+                // Save user info
+                saveUserSettings(dataStore, authResultData.toUserSettings())
                 Result.Success(authResultData)
             }
         } catch (e: Exception) {
             Result.Error(e.message ?: "Oops! we could not send your request. Please try again later.")
         }
     }
-
 }

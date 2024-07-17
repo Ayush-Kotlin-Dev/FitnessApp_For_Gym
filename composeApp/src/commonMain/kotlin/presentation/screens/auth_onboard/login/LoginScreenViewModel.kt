@@ -5,11 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import domain.usecases.auth.SignInUseCase
-import util.Result
 import kotlinx.coroutines.launch
+import util.Result
 
 class LoginScreenViewModel(
-    private val signInUseCase: SignInUseCase
+    private val signInUseCase: SignInUseCase,
 ) : ScreenModel {
     private val _uiState = mutableStateOf(LoginUiState())
     val uiState: State<LoginUiState> = _uiState

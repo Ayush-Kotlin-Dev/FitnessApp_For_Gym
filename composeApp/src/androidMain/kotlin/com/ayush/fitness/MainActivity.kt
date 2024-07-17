@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.koin.core.logger.Logger
 import android.util.Log
+import androidx.compose.runtime.remember
 import data.local.createDataStore
 
 class MainActivity : ComponentActivity() {
@@ -15,7 +16,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             App(
-                prefs = createDataStore(applicationContext)
+                prefs = remember {
+                    createDataStore(applicationContext)
+                }
             )
         }
     }
