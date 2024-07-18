@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import data.models.UserInfoData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -41,3 +42,36 @@ fun getUserSettingsFlow(dataStore: DataStore<Preferences>): Flow<UserSettings> {
         )
     }
 }
+suspend fun saveUserInfo(dataStore: DataStore<Preferences>, userInfo: UserInfoData) {
+    dataStore.edit { preferences ->
+        preferences[PreferencesKeys.USER_ID] = userInfo.userId
+        preferences[PreferencesKeys.FULL_NAME] = userInfo.fullName
+        preferences[PreferencesKeys.AGE] = userInfo.age
+        preferences[PreferencesKeys.GENDER] = userInfo.gender
+        preferences[PreferencesKeys.HEIGHT] = userInfo.height
+        preferences[PreferencesKeys.WEIGHT] = userInfo.weight
+        preferences[PreferencesKeys.FITNESS_GOALS] = userInfo.fitnessGoals
+        preferences[PreferencesKeys.ACTIVITY_LEVEL] = userInfo.activityLevel
+        preferences[PreferencesKeys.DIETARY_PREFERENCES] = userInfo.dietaryPreferences
+        preferences[PreferencesKeys.WORKOUT_PREFERENCES] = userInfo.workoutPreferences
+        preferences[PreferencesKeys.IS_FORM_FILLED] = true
+    }
+}
+fun getUserInfoFlow(dataStore: DataStore<Preferences>): Flow<UserInfoData> {
+    return dataStore.data.map { preferences ->
+        UserInfoData(
+            userId = preferences[PreferencesKeys.USER_ID] ?: -1,
+            fullName = preferences[PreferencesKeys.FULL_NAME] ?: "",
+            age = preferences[PreferencesKeys.AGE] ?: 0,
+            gender = preferences[PreferencesKeys.GENDER] ?: "",
+            height = preferences[PreferencesKeys.HEIGHT] ?: 0f,
+            weight = preferences[PreferencesKeys.WEIGHT] ?: 0f,
+            fitnessGoals = preferences[PreferencesKeys.FITNESS_GOALS] ?: "",
+            activityLevel = preferences[PreferencesKeys.ACTIVITY_LEVEL] ?: "",
+            dietaryPreferences = preferences[PreferencesKeys.DIETARY_PREFERENCES] ?: "",
+            workoutPreferences = preferences[PreferencesKeys.WORKOUT_PREFERENCES] ?: ""
+        )
+    }
+}
+
+

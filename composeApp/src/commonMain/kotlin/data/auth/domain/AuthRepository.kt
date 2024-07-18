@@ -1,6 +1,6 @@
 package data.auth.domain
 
-import presentation.models.AuthResultData
+import data.models.AuthResultData
 import util.Result
 
 interface AuthRepository {

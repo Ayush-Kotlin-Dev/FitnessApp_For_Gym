@@ -20,7 +20,7 @@ class AppContainerScreen : Screen {
         } else {
             LaunchedEffect(userSettings?.token) {
                 if (userSettings?.token.isNullOrEmpty()) {
-                    navigator?.push(LoginScreen())
+                    navigator?.replace(LoginScreen())
                 } else {
                     if(userSettings?.isFormFilled == true) {
                         navigator?.replace(HomeScreen())

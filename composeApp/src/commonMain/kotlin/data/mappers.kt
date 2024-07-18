@@ -1,7 +1,8 @@
 package data
 
-import presentation.models.AuthResponseData
-import presentation.models.AuthResultData
+import data.models.AuthResponseData
+import data.models.AuthResultData
+import data.models.UserInfoData
 
 fun AuthResponseData.toAuthResultData() : AuthResultData {
     return AuthResultData(
@@ -11,5 +12,20 @@ fun AuthResponseData.toAuthResultData() : AuthResultData {
         bio = bio,
         token = token,
         isFormFilled = isFormFilled
+    )
+}
+
+fun UserInfoData.toUserInfoData() : UserInfoData {
+    return UserInfoData(
+        userId = userId,
+        fullName = fullName,
+        age = age,
+        gender = gender,
+        weight = weight,
+        height = height,
+        fitnessGoals = fitnessGoals,
+        activityLevel = activityLevel,
+        dietaryPreferences = dietaryPreferences,
+        workoutPreferences = workoutPreferences
     )
 }

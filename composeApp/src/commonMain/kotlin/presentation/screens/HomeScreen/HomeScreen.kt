@@ -1,7 +1,9 @@
 package presentation.screens.HomeScreen
 
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import cafe.adriel.voyager.core.screen.Screen
@@ -14,6 +16,8 @@ class HomeScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.current
         val viewModel = koinScreenModel<HomeScreenViewModel>()
-
+        Column {
+            Text("Home Screen")
+        }
     }
 }

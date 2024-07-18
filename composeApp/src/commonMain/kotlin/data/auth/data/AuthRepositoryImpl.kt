@@ -9,9 +9,9 @@ import data.toAuthResultData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
-import presentation.models.AuthResultData
-import presentation.models.SignInRequest
-import presentation.models.SignUpRequest
+import data.models.AuthResultData
+import data.models.SignInRequest
+import data.models.SignUpRequest
 import util.Result
 
 class AuthRepositoryImpl(

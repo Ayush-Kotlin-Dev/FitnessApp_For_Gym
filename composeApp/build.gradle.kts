@@ -60,6 +60,8 @@ kotlin {
             api("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
             api(libs.datastore.preferences)
             api(libs.datastore)
+            implementation("com.stevdza-san:messagebarkmp:1.0.5")
+
         }
 //        iosMain.dependencies {
 //            implementation(compose.runtime)

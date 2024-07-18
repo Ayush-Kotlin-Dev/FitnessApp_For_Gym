@@ -3,7 +3,7 @@ package domain.usecases.auth
 import data.auth.domain.AuthRepository
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import presentation.models.AuthResultData
+import data.models.AuthResultData
 import util.Result
 
 class SignInUseCase : KoinComponent {

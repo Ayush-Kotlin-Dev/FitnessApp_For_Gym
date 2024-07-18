@@ -1,34 +1,8 @@
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.RadioButton
-import androidx.compose.material.RadioButtonDefaults
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,14 +11,13 @@ import androidx.compose.ui.unit.dp
 import avikfitness.composeapp.generated.resources.Res
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
-import io.github.alexzhirkevich.compottie.LottieCompositionSpec
-import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
-import io.github.alexzhirkevich.compottie.rememberLottieComposition
-import io.github.alexzhirkevich.compottie.rememberLottiePainter
+import cafe.adriel.voyager.navigator.LocalNavigator
+import io.github.alexzhirkevich.compottie.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import presentation.components.CustomTextField
-import presentation.screens.auth_onboard.UserInfoForm.UserInfoDataViewModel
+import presentation.screens.HomeScreen.HomeScreen
+import presentation.screens.auth_onboard.userInfoForm.UserInfoFormViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 class UserInfoFormScreen : Screen {
@@ -52,8 +25,10 @@ class UserInfoFormScreen : Screen {
     override fun Content() {
         val pagerState = rememberPagerState(pageCount = { 4 })
         val coroutineScope = rememberCoroutineScope()
-        val viewModel = koinScreenModel<UserInfoDataViewModel>()
-        val scrollState = rememberScrollState()
+        val viewModel = koinScreenModel<UserInfoFormViewModel>()
+
+        val navigator = LocalNavigator.current
+
 
         Column(
             modifier = Modifier
@@ -76,9 +51,7 @@ class UserInfoFormScreen : Screen {
 
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier
-//                    .verticalScroll(scrollState)
-                    .weight(1f)
+                modifier = Modifier.weight(1f)
             ) { page ->
                 when (page) {
                     0 -> BasicInfoStep(viewModel)
@@ -111,17 +84,33 @@ class UserInfoFormScreen : Screen {
                         Text("Next")
                     }
                 } else {
-                    Button(onClick = { viewModel.submitUserData() }) {
+                    Button(onClick = {
+                        viewModel.submitUserData()
+                    }) {
                         Text(if (viewModel.uiState.value.isLoading) "Submitting..." else "Submit")
                     }
                 }
+            }
+
+            if (viewModel.uiState.value.errorMessage.isNotEmpty()) {
+                Text(
+                    text = viewModel.uiState.value.errorMessage,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        }
+
+        LaunchedEffect(viewModel.uiState) {
+            if (viewModel.uiState.value.submitSuccess) {
+                navigator?.replace(HomeScreen())
             }
         }
     }
 
     @OptIn(ExperimentalResourceApi::class)
     @Composable
-    fun BasicInfoStep(viewModel: UserInfoDataViewModel) {
+    fun BasicInfoStep(viewModel: UserInfoFormViewModel) {
         var genderExpanded by remember { mutableStateOf(false) }
         var ageInput by remember { mutableStateOf(viewModel.uiState.value.age?.toString() ?: "") }
         var ageError by remember { mutableStateOf(false) }
@@ -169,13 +158,14 @@ class UserInfoFormScreen : Screen {
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp),
                 horizontalArrangement = Arrangement.Start,
-
             ) {
                 val genders = listOf("Male", "Female", "Transgender")
 
-                Text("Gender" , modifier = Modifier.padding(start = 8.dp))
+                Text("Gender", modifier = Modifier.padding(start = 8.dp))
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Button(onClick = { genderExpanded = true }) {
                         Text(viewModel.uiState.value.gender.ifEmpty { "Select Gender" })
@@ -195,13 +185,11 @@ class UserInfoFormScreen : Screen {
                     }
                 }
             }
-
-
         }
     }
 
     @Composable
-    fun PhysicalMeasurementsStep(viewModel: UserInfoDataViewModel) {
+    fun PhysicalMeasurementsStep(viewModel: UserInfoFormViewModel) {
         var heightInput by remember {
             mutableStateOf(
                 viewModel.uiState.value.height?.toString() ?: ""
@@ -229,7 +217,6 @@ class UserInfoFormScreen : Screen {
                 errorMessage = "Please enter a valid height"
             )
 
-
             Spacer(modifier = Modifier.height(16.dp))
 
             CustomTextField(
@@ -242,22 +229,21 @@ class UserInfoFormScreen : Screen {
                 label = "Weight (kg)",
                 keyboardType = KeyboardType.Decimal,
                 isError = weightError,
+                errorMessage = "Please enter a valid weight"
             )
-            if (weightError) {
-                Text(
-                    text = "Please enter a valid weight",
-                    color = Color.Red
-                )
-            }
         }
     }
 
     @Composable
-    fun FitnessGoalsActivityLevelStep(viewModel: UserInfoDataViewModel) {
+    fun FitnessGoalsActivityLevelStep(viewModel: UserInfoFormViewModel) {
         var expanded by remember { mutableStateOf(false) }
         val fitnessGoals = listOf("Weight Loss", "Weight Gain", "Muscle Gain", "General Fitness")
 
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
             Text("Fitness Goals")
             Box(modifier = Modifier.fillMaxWidth()) {
                 Button(onClick = { expanded = true }) {
@@ -300,10 +286,9 @@ class UserInfoFormScreen : Screen {
                     RadioButton(
                         selected = viewModel.uiState.value.activityLevel == level,
                         onClick = { viewModel.setActivityLevel(level) },
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = Color.Red
-                        )
+                        colors = RadioButtonDefaults.colors(selectedColor = Color.Green)
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(level)
                 }
             }
@@ -311,49 +296,54 @@ class UserInfoFormScreen : Screen {
     }
 
     @Composable
-    fun DietaryWorkoutPreferencesStep(viewModel: UserInfoDataViewModel) {
-        var dietExpanded by remember { mutableStateOf(false) }
-        var workoutExpanded by remember { mutableStateOf(false) }
-        val dietaryPreferences = listOf("Vegetarian", "Vegan", "Non-Vegetarian")
-        val workoutPreferences = listOf("Cardio", "Strength Training", "Yoga", "Pilates")
+    fun DietaryWorkoutPreferencesStep(viewModel: UserInfoFormViewModel) {
+        var dietaryPreferencesExpanded by remember { mutableStateOf(false) }
+        var workoutPreferencesExpanded by remember { mutableStateOf(false) }
+        val dietaryOptions = listOf("Vegan", "Vegetarian", "Non-Vegetarian")
+        val workoutOptions = listOf("Strength Training", "Cardio", "Mixed")
 
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
             Text("Dietary Preferences")
             Box(modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = { dietExpanded = true }) {
+                Button(onClick = { dietaryPreferencesExpanded = true }) {
                     Text(viewModel.uiState.value.dietaryPreferences.ifEmpty { "Select Dietary Preference" })
                 }
                 DropdownMenu(
-                    expanded = dietExpanded,
-                    onDismissRequest = { dietExpanded = false }
+                    expanded = dietaryPreferencesExpanded,
+                    onDismissRequest = { dietaryPreferencesExpanded = false }
                 ) {
-                    dietaryPreferences.forEach { preference ->
+                    dietaryOptions.forEach { option ->
                         DropdownMenuItem(onClick = {
-                            viewModel.setDietaryPreferences(preference)
-                            dietExpanded = false
+                            viewModel.setDietaryPreferences(option)
+                            dietaryPreferencesExpanded = false
                         }) {
-                            Text(preference)
+                            Text(option)
                         }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
             Text("Workout Preferences")
             Box(modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = { workoutExpanded = true }) {
+                Button(onClick = { workoutPreferencesExpanded = true }) {
                     Text(viewModel.uiState.value.workoutPreferences.ifEmpty { "Select Workout Preference" })
                 }
                 DropdownMenu(
-                    expanded = workoutExpanded,
-                    onDismissRequest = { workoutExpanded = false }
+                    expanded = workoutPreferencesExpanded,
+                    onDismissRequest = { workoutPreferencesExpanded = false }
                 ) {
-                    workoutPreferences.forEach { preference ->
+                    workoutOptions.forEach { option ->
                         DropdownMenuItem(onClick = {
-                            viewModel.setWorkoutPreferences(preference)
-                            workoutExpanded = false
+                            viewModel.setWorkoutPreferences(option)
+                            workoutPreferencesExpanded = false
                         }) {
-                            Text(preference)
+                            Text(option)
                         }
                     }
                 }

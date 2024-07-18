@@ -1,4 +1,4 @@
-package presentation.models
+package data.models
 
 data class AuthResultData(
     val userId: Long,

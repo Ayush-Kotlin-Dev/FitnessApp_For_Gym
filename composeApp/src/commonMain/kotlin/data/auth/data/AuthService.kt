@@ -5,9 +5,9 @@ import data.KtorApi
 import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import presentation.models.AuthResponse
-import presentation.models.SignInRequest
-import presentation.models.SignUpRequest
+import data.models.AuthResponse
+import data.models.SignInRequest
+import data.models.SignUpRequest
 
 class AuthService  : KtorApi(){
 
