@@ -5,11 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import domain.usecases.auth.SignInUseCase
+import domain.usecases.userinfo.GetUserInfoUseCase
 import kotlinx.coroutines.launch
 import util.Result
 
 class LoginScreenViewModel(
     private val signInUseCase: SignInUseCase,
+    private val GetUserInfoUseCase: GetUserInfoUseCase
 ) : ScreenModel {
     private val _uiState = mutableStateOf(LoginUiState())
     val uiState: State<LoginUiState> = _uiState
@@ -35,11 +37,17 @@ class LoginScreenViewModel(
                 }
                 is Result.Success -> {
                     val isFormFilled = authResultData.data?.isFormFilled
+                    if(isFormFilled == true) {
+                        GetUserInfoUseCase(authResultData.data.userId)
+                    }else {
+                        // Show the form to fill the missing fields
+                    }
                     _uiState.value.copy(
                         authenticationSucceed = true,
                         isAuthenticating = false,
                         isFormFilled = isFormFilled ?: false
                     )
+
                 }
                 is Result.Loading -> {
                     _uiState.value.copy(isAuthenticating = true)

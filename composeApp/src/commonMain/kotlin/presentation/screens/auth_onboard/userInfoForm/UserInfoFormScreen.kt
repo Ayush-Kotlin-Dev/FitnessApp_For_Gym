@@ -96,8 +96,8 @@ class UserInfoFormScreen : Screen {
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
                 ) {
 
                     if (pagerState.currentPage < pagerState.pageCount - 1) {

@@ -7,7 +7,7 @@ interface UserInfoRepository   {
 
     suspend fun addUserInfo(userInfo: UserInfoData): Result<UserInfoResponseData>
 
-    suspend fun getUserInfo(userId: String): Result<UserInfoResponseData>
+    suspend fun getUserInfo(userId: Long): Result<UserInfoResponseData>
 
     suspend fun updateUserInfo(userInfo: UserInfoData) : Result<UserInfoResponseData>
 }

@@ -20,7 +20,7 @@ class UserInfoService : KtorApi() {
 
 
     suspend fun getUserInfo(
-        userId: String
+        userId: Long
     ): UserInfoResponseData = client.get {
         endPoint(path = "getUserInfo")
         parameter("userId", userId)

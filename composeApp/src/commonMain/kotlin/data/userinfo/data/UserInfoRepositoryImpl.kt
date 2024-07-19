@@ -32,7 +32,7 @@ class UserInfoRepositoryImpl(
         }
     }
 
-    override suspend fun getUserInfo(userId: String): Result<UserInfoResponseData> {
+    override suspend fun getUserInfo(userId: Long): Result<UserInfoResponseData> {
         return try {
             val response = userInfoService.getUserInfo(userId)
             if(response.data != null) {
