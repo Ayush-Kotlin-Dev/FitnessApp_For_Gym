@@ -2,6 +2,8 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,6 +17,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import io.github.alexzhirkevich.compottie.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import presentation.components.CustomTextField
 import presentation.screens.HomeScreen.HomeScreen
 import presentation.screens.auth_onboard.userInfoForm.UserInfoFormViewModel
@@ -26,78 +29,101 @@ class UserInfoFormScreen : Screen {
         val pagerState = rememberPagerState(pageCount = { 4 })
         val coroutineScope = rememberCoroutineScope()
         val viewModel = koinScreenModel<UserInfoFormViewModel>()
-
         val navigator = LocalNavigator.current
 
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = when (pagerState.currentPage) {
+                                0 -> "Step 1 of 4"
+                                1 -> "Step 2 of 4"
+                                2 -> "Step 3 of 4"
+                                3 -> "Step 4 of 4"
+                                else -> "Step 1 of 4"
+                            },
+                            color = Color.White
+                        )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = when (pagerState.currentPage) {
-                    0 -> "1) Basic Info"
-                    1 -> "2) Physical Measurements"
-                    2 -> "3) Fitness Goals & Activity Level"
-                    3 -> "4) Dietary & Workout Preferences"
-                    else -> "Basic Info"
-                },
-                modifier = Modifier.padding(bottom = 16.dp),
-                color = Color.White,
-                style = MaterialTheme.typography.h5,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.weight(1f)
-            ) { page ->
-                when (page) {
-                    0 -> BasicInfoStep(viewModel)
-                    1 -> PhysicalMeasurementsStep(viewModel)
-                    2 -> FitnessGoalsActivityLevelStep(viewModel)
-                    3 -> DietaryWorkoutPreferencesStep(viewModel)
-                }
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (pagerState.currentPage > 0) {
-                    Button(onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                    },
+                    navigationIcon = if (pagerState.currentPage > 0) {
+                        {
+                            IconButton(onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                }
+                            }) {
+                                Icon(Icons.Filled.ArrowBack, contentDescription = "Back" , tint = Color.Red)
+                            }
                         }
-                    }) {
-                        Text("Previous")
-                    }
-                }
-
-                if (pagerState.currentPage < pagerState.pageCount - 1) {
-                    Button(onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                        }
-                    }) {
-                        Text("Next")
-                    }
-                } else {
-                    Button(onClick = {
-                        viewModel.submitUserData()
-                    }) {
-                        Text(if (viewModel.uiState.value.isLoading) "Submitting..." else "Submit")
-                    }
-                }
-            }
-
-            if (viewModel.uiState.value.errorMessage.isNotEmpty()) {
-                Text(
-                    text = viewModel.uiState.value.errorMessage,
-                    color = Color.Red,
-                    modifier = Modifier.padding(top = 16.dp)
+                    } else null,
+                    backgroundColor = Color.Transparent,
                 )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = when (pagerState.currentPage) {
+                        0 -> "Basic Info"
+                        1 -> "Physical Measurements"
+                        2 -> "Fitness Goals & Activity Level"
+                        3 -> "Dietary & Workout Preferences"
+                        else -> "User Info"
+                    },
+                    color = Color.Red,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    style = MaterialTheme.typography.h5
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.weight(1f)
+                ) { page ->
+                    when (page) {
+                        0 -> BasicInfoStep(viewModel)
+                        1 -> PhysicalMeasurementsStep(viewModel)
+                        2 -> FitnessGoalsActivityLevelStep(viewModel)
+                        3 -> DietaryWorkoutPreferencesStep(viewModel)
+                    }
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    if (pagerState.currentPage < pagerState.pageCount - 1) {
+                        Button(onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            }
+                        }) {
+                            Text("Next")
+                        }
+                    } else {
+                        Button(onClick = {
+                            viewModel.submitUserData()
+                        }) {
+                            Text(if (viewModel.uiState.value.isLoading) "Submitting..." else "Submit")
+                        }
+                    }
+                }
+
+                if (viewModel.uiState.value.errorMessage.isNotEmpty()) {
+                    Text(
+                        text = viewModel.uiState.value.errorMessage,
+                        color = Color.Red,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                }
             }
         }
 

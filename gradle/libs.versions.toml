@@ -22,6 +22,7 @@ annotationJvm = "1.8.0"
 uiAndroid = "1.6.8"
 compottieVersion="2.0.0-beta02"
 datastore = "1.1.1"
+navigationRuntimeKtx = "2.7.7"
 
 [libraries]
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
@@ -48,6 +49,7 @@ androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jv
 androidx-ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "uiAndroid" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }

@@ -24,7 +24,7 @@ fun App(
     initKoin(prefs)
     GymAppTheme {
         Surface {
-            Navigator(AppContainerScreen())
+            Navigator(UserInfoFormScreen())
         }
     }
 }
