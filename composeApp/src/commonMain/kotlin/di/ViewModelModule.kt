@@ -10,7 +10,7 @@ import presentation.screens.auth_onboard.userInfoForm.UserInfoFormViewModel
 val viewModelModule = module {
     // Provide ViewModels as factories
     factory { AppContainerViewModel(get()) }
-    factory { LoginScreenViewModel(get() )}
+    factory { LoginScreenViewModel(get() ,get() )}
     factory { SignupViewModel(get()) }
     factory { UserInfoFormViewModel(get()) }
     factory { HomeScreenViewModel() }
