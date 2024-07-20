@@ -184,11 +184,6 @@ object CartTab : Tab {
     }
 }
 
-
-
-
-
-
 @Composable
 fun HeaderSection() {
 

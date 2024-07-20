@@ -33,10 +33,10 @@ fun CustomTextField(
     isPasswordTextField : Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     leadingIcon: ImageVector? = null,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    isPasswordVisible: Boolean = false,
+    onPasswordVisibilityToggle: () -> Unit = {}
 ) {
-    var isPasswordVisible by remember { mutableStateOf(false) }
-
     Column {
         TextField(
             value = value,
@@ -52,7 +52,7 @@ fun CustomTextField(
                 {
                     PasswordEyeIcon(
                         isPasswordVisible = isPasswordVisible,
-                        onPasswordVisibilityToggle = {isPasswordVisible = !isPasswordVisible}
+                        onPasswordVisibilityToggle = onPasswordVisibilityToggle
                     )
                 }
             } else null,
@@ -65,10 +65,9 @@ fun CustomTextField(
                 }
             },
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            visualTransformation = visualTransformation,
+            visualTransformation = if (isPasswordVisible) VisualTransformation.None else visualTransformation,
             isError = isError,
-            singleLine = singleLine,
-
+            singleLine = singleLine
         )
         if (isError && errorMessage != null) {
             Text(
@@ -79,20 +78,19 @@ fun CustomTextField(
         }
     }
 }
+
 @Composable
 fun PasswordEyeIcon(
     isPasswordVisible: Boolean,
     onPasswordVisibilityToggle: () -> Unit
 ) {
-
-    val image = if (isPasswordVisible){
+    val image = if (isPasswordVisible) {
         painterResource(Res.drawable.show_eye_icon_filled)
-    }else{
+    } else {
         painterResource(Res.drawable.hide_eye_icon_filled)
     }
 
     IconButton(onClick = onPasswordVisibilityToggle) {
         Icon(painter = image, contentDescription = null)
     }
-
 }

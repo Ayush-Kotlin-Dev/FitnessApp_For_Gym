@@ -35,86 +35,119 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import org.jetbrains.compose.resources.painterResource
 import presentation.components.CustomTextField
 import presentation.components.PasswordEyeIcon
+import presentation.screens.HomeScreen.HomeScreen
 
 class LoginScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
         val viewModel = koinScreenModel<LoginScreenViewModel>()
-        val isPasswordVisible by remember { mutableStateOf(false) }
+        val isPasswordVisible = remember { mutableStateOf(false) }
+        val uiState = viewModel.uiState.value
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color.Black)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        LoginContent(
+            uiState = uiState,
+            isPasswordVisible = isPasswordVisible.value,
+            onPasswordVisibilityChanged = { isPasswordVisible.value = it },
+            onEmailOrUsernameChange = viewModel::onEmailOrUsernameChange,
+            onPasswordChange = viewModel::onPasswordChange,
+            onLoginClick = { viewModel.login() },
+            onForgotPasswordClick = { /* TODO */ }
         ) {
-            Image(
-                painter = painterResource(Res.drawable.img),
-                contentDescription = null,
-                modifier = Modifier.size(320.dp).padding(30.dp)
-            )
-
-            CustomTextField(
-                value = viewModel.uiState.value.emailOrUsername,
-                onValueChange = { viewModel.onEmailOrUsernameChange(it) },
-                label = "Email or Username",
-                keyboardType = KeyboardType.Email,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            CustomTextField(
-                value = viewModel.uiState.value.password,
-                onValueChange = { viewModel.onPasswordChange(it) },
-                label = "Password",
-                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                isPasswordTextField = true,
-                keyboardType = KeyboardType.Password,
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            when {
-                viewModel.uiState.value.isAuthenticating -> {
-                    CircularProgressIndicator()
-                }
-                viewModel.uiState.value.authenticationSucceed -> {
-                    if (viewModel.uiState.value.isFormFilled) {
-//                        navigator?.navigateToHome()
-                        navigator?.replaceAll(UserInfoFormScreen())
-                    } else {
-                        navigator?.replaceAll(UserInfoFormScreen())
-                    }
-                }
-                else -> {
-                    OutlinedButton(
-                        onClick = { viewModel.login() },
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = Color.Transparent,
-                        ),
-                        border = BorderStroke(2.dp, Color.Gray)
-                    ) {
-                        Text(
-                            text = if (viewModel.uiState.value.authErrorMessage != null) "Retry" else "Login",
-                            color = Color.Red.copy(0.9f)
-                        )
-                    }
+            if (uiState.authenticationSucceed) {
+                if (uiState.isFormFilled) {
+                    navigator?.replaceAll(HomeScreen())
+                } else {
+                    navigator?.replaceAll(UserInfoFormScreen())
                 }
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(20.dp))
+@Composable
+fun LoginContent(
+    uiState: LoginUiState,
+    isPasswordVisible: Boolean,
+    onPasswordVisibilityChanged: (Boolean) -> Unit,
+    onEmailOrUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLoginClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
+    onAuthSuccess: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(Res.drawable.img),
+            contentDescription = null,
+            modifier = Modifier
+                .size(320.dp)
+                .padding(30.dp)
+        )
 
-            TextButton(onClick = { /*TODO*/ }) {
-                Text(text = "Forgot password?")
+        CustomTextField(
+            value = uiState.emailOrUsername,
+            onValueChange = onEmailOrUsernameChange,
+            label = "Email or Username",
+            keyboardType = KeyboardType.Email
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        CustomTextField(
+            value = uiState.password,
+            onValueChange = onPasswordChange,
+            label = "Password",
+            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            isPasswordTextField = true,
+            keyboardType = KeyboardType.Password,
+            isPasswordVisible = isPasswordVisible,
+            onPasswordVisibilityToggle = { onPasswordVisibilityChanged(!isPasswordVisible) }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        when {
+            uiState.isAuthenticating -> {
+                CircularProgressIndicator()
             }
-
-            viewModel.uiState.value.authErrorMessage?.let {
-                Text(
-                    text = it,
-                    color = Color.Red,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
+            uiState.authenticationSucceed -> {
+                onAuthSuccess()
             }
+            else -> {
+                OutlinedButton(
+                    onClick = onLoginClick,
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.Transparent
+                    ),
+                    border = BorderStroke(2.dp, Color.Gray)
+                ) {
+                    Text(
+                        text = if (uiState.authErrorMessage != null) "Retry" else "Login",
+                        color = Color.Red.copy(0.9f)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        TextButton(onClick = onForgotPasswordClick) {
+            Text(text = "Forgot password?")
+        }
+
+        uiState.authErrorMessage?.let {
+            Text(
+                text = it,
+                color = Color.Red,
+                modifier = Modifier.padding(top = 16.dp)
+            )
         }
     }
 }

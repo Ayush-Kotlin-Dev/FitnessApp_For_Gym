@@ -46,7 +46,7 @@ class AuthScreen : Screen {
             // Background Image
             Image(
                 painter = painterResource(Res.drawable.login_signup_dark),
-                contentDescription = null, // Provide content description if needed
+                contentDescription = "Background image for login/signup", // Added content description
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
@@ -61,9 +61,14 @@ class AuthScreen : Screen {
                     "NO MORE EXCUSES | ",
                     style = TextStyle(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp, // TextUnit.Sp
+                        fontSize = 24.sp,
                         color = Color.White
                     )
+                )
+                val buttonStyle = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    color = Color.Black
                 )
 
                 Box(
@@ -74,11 +79,7 @@ class AuthScreen : Screen {
                     Text(
                         "GET STARTED",
                         modifier = Modifier.padding(4.dp),
-                        style = TextStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 24.sp,
-                            color = Color.Black
-                        )
+                        style = buttonStyle // Using extracted style
                     )
                 }
 
@@ -87,37 +88,35 @@ class AuthScreen : Screen {
                     modifier = Modifier.padding(top = 10.dp, end = 25.dp),
                     style = TextStyle(
                         fontWeight = FontWeight.Normal,
-                        fontSize = 14.sp, // TextUnit.Sp
+                        fontSize = 14.sp,
                         color = Color.White.copy(alpha = 0.8f)
                     )
                 )
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 ) {
-                    // Login Button
-                    Button(onClick = {
-                        navigator?.push(LoginScreen())
-                    },shape = RoundedCornerShape(10.dp),
-                        colors = buttonColors(
-                            backgroundColor = colors.primary.copy(alpha = 0.9f),
-                            contentColor = Color.Black
-                        )
+                    // Extracted button colors for reusability
+                    val buttonColors = buttonColors(
+                        backgroundColor = colors.primary.copy(alpha = 0.9f),
+                        contentColor = Color.Black
+                    )
 
+                    Button(
+                        onClick = { navigator?.push(LoginScreen()) },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = buttonColors // Using extracted colors
                     ) {
                         Text("Login")
                     }
 
-                    // SignUp Button
-                    Button(onClick = {
-                        navigator?.push(SignUpScreen())
-                    },shape = RoundedCornerShape(10.dp),
-                        colors = buttonColors(
-                            backgroundColor = colors.primary.copy(alpha = 0.9f),
-                            contentColor = Color.Black
-                        )
-
+                    Button(
+                        onClick = { navigator?.push(SignUpScreen()) },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = buttonColors // Using extracted colors
                     ) {
                         Text("SignUp")
                     }

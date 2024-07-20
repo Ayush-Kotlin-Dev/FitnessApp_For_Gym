@@ -5,6 +5,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import presentation.screens.HomeScreen.HomeScreen
+import presentation.screens.auth_onboard.AuthScreen
 import presentation.screens.auth_onboard.login.LoginScreen
 
 class AppContainerScreen : Screen {
@@ -20,7 +21,7 @@ class AppContainerScreen : Screen {
         } else {
             LaunchedEffect(userSettings?.token) {
                 if (userSettings?.token.isNullOrEmpty()) {
-                    navigator?.replace(LoginScreen())
+                    navigator?.replace(AuthScreen())
                 } else {
                     if(userSettings?.isFormFilled == true) {
                         navigator?.replace(HomeScreen())

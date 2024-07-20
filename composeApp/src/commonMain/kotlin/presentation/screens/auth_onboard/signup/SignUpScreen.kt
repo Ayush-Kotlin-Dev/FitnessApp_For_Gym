@@ -44,7 +44,7 @@ class SignUpScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.current
         val viewModel = koinScreenModel<SignupViewModel>()
-        val isPasswordVisible by remember { mutableStateOf(false) }
+        val isPasswordVisible = remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -76,9 +76,11 @@ class SignUpScreen : Screen {
                 value = viewModel.uiState.value.password,
                 onValueChange = { viewModel.onPasswordChange(it) },
                 label = "Password",
-                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (isPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                 isPasswordTextField = true,
                 keyboardType = KeyboardType.Password,
+                isPasswordVisible = isPasswordVisible.value,
+                onPasswordVisibilityToggle = { isPasswordVisible.value = !isPasswordVisible.value }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -93,20 +95,6 @@ class SignUpScreen : Screen {
                         navigator?.replaceAll(UserInfoFormScreen())
                     } else {
                         navigator?.replaceAll(UserInfoFormScreen())
-                    }
-                }
-                else -> {
-                    OutlinedButton(
-                        onClick = { viewModel.signUp() },
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = Color.Transparent,
-                        ),
-                        border = BorderStroke(2.dp, Color.Gray)
-                    ) {
-                        Text(
-                            text = if (viewModel.uiState.value.authErrorMessage != null) "Retry" else "Login",
-                            color = Color.Red.copy(0.9f)
-                        )
                     }
                 }
             }
@@ -127,7 +115,7 @@ class SignUpScreen : Screen {
 
             ) {
                 Text(
-                    text = if(viewModel.uiState.value.isAuthenticating) "Signing up..." else "Sign Up",
+                    text = if(viewModel.uiState.value.isAuthenticating) "Signing up..." else if (viewModel.uiState.value.authErrorMessage!=null) "Retry" else "Sign up",
                     color = Color.Red.copy(0.9f)
                 )
             }
