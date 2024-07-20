@@ -61,6 +61,7 @@ kotlin {
             api(libs.datastore.preferences)
             api(libs.datastore)
             implementation("com.stevdza-san:messagebarkmp:1.0.5")
+            implementation("io.coil-kt:coil-compose:2.7.0")
 
         }
 //        iosMain.dependencies {
