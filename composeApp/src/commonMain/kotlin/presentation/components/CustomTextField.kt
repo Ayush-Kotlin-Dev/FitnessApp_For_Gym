@@ -53,7 +53,6 @@ fun CustomTextField(
                 focusedContainerColor = Color.Transparent,
                 cursorColor = Color.White,
                 unfocusedIndicatorColor = Color.White,
-                focusedPlaceholderColor = Color.White,
             ),
             trailingIcon = if (isPasswordTextField) {
                 {

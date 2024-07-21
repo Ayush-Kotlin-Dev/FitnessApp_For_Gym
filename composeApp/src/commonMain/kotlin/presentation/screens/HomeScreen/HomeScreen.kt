@@ -1,6 +1,6 @@
 package presentation.screens.HomeScreen
 
-
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,14 +21,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,7 +51,9 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import org.jetbrains.compose.resources.painterResource
+import presentation.screens.Plans.PlansTab
 import presentation.screens.profile.ProfileTab
+import presentation.screens.stats.Stats
 
 class HomeScreen : Screen {
     @Composable
@@ -63,8 +63,10 @@ class HomeScreen : Screen {
 
         TabNavigator(HomeTab) {
             Scaffold(
-                content = {
-                    CurrentTab()
+                content = { paddingValues ->
+                    Box(modifier = Modifier.padding(paddingValues)) {
+                        CurrentTab()
+                    }
                 },
                 bottomBar = {
                     BottomNavigationBar()
@@ -80,12 +82,20 @@ class HomeScreen : Screen {
         NavigationBarItem(
             selected = tabNavigator.current == tab,
             onClick = { tabNavigator.current = tab },
-            icon = { tab.options.icon?.let { Icon(painter = it, contentDescription = tab.options.title) } },
+            icon = {
+                tab.options.icon?.let {
+                    Icon(
+                        painter = it,
+                        contentDescription = tab.options.title
+                    )
+                }
+            },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color.Red.copy(alpha = 0.7f),
                 unselectedIconColor = Color.White.copy(alpha = 0.7f)
             ),
-            label = { Text(text = tab.options.title) }
+            label = { Text(text = tab.options.title) },
+            alwaysShowLabel = false,
         )
     }
 
@@ -93,15 +103,16 @@ class HomeScreen : Screen {
     private fun BottomNavigationBar() {
         NavigationBar(
             containerColor = Color.Black,
-            tonalElevation = 8.dp
+            tonalElevation = 8.dp,
         ) {
             TabNavigationItem(HomeTab)
-            TabNavigationItem(SearchTab)
-            TabNavigationItem(CartTab)
+            TabNavigationItem(Stats)
+            TabNavigationItem(PlansTab)
             TabNavigationItem(ProfileTab)
         }
     }
 }
+
 object HomeTab : Tab {
 
     override val options: TabOptions
@@ -124,7 +135,6 @@ object HomeTab : Tab {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
@@ -137,55 +147,8 @@ object HomeTab : Tab {
     }
 }
 
-object SearchTab : Tab {
-
-    override val options: TabOptions
-        @Composable
-        get() {
-            val title = "Search"
-            val icon = rememberVectorPainter(Icons.Default.Search)
-
-            return remember {
-                TabOptions(
-                    index = 1u,
-                    title = title,
-                    icon = icon
-                )
-            }
-        }
-
-    @Composable
-    override fun Content() {
-        Text("Search")
-    }
-}
-
-object CartTab : Tab {
-
-    override val options: TabOptions
-        @Composable
-        get() {
-            val title = "Cart"
-            val icon = rememberVectorPainter(Icons.Default.ShoppingCart)
-
-            return remember {
-                TabOptions(
-                    index = 2u,
-                    title = title,
-                    icon = icon
-                )
-            }
-        }
-
-    @Composable
-    override fun Content() {
-        Text("Cart")
-    }
-}
-
 @Composable
 fun HeaderSection() {
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -207,14 +170,25 @@ fun HeaderSection() {
         }
     }
     Spacer(modifier = Modifier.height(16.dp))
-    Button(
+    OutlinedButton(
         onClick = { /* TODO */ },
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow),
-//            modifier = Modifier.align(Alignment.CenterHorizontally)
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+
+            ),
+        border = BorderStroke(2.dp, Color.Gray)
     ) {
-        Text(text = "SAT", color = Color.Black)
+        Text(
+            text = " SAT ",
+            color = Color.Black,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .background(Color.Yellow)
+        )
+
         Spacer(modifier = Modifier.width(8.dp))
-        Text(text = "Time to workout", color = Color.Black)
+        Text(text = "Time to workout", color = Color.White)
     }
 }
 
