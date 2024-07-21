@@ -1,10 +1,40 @@
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.*
-import androidx.compose.material.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,15 +44,17 @@ import avikfitness.composeapp.generated.resources.Res
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
-import io.github.alexzhirkevich.compottie.*
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
+import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import presentation.components.CustomTextField
 import presentation.screens.HomeScreen.HomeScreen
 import presentation.screens.auth_onboard.userInfoForm.UserInfoFormViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 class UserInfoFormScreen : Screen {
     @Composable
     override fun Content() {
@@ -47,18 +79,15 @@ class UserInfoFormScreen : Screen {
                         )
 
                     },
-                    navigationIcon = if (pagerState.currentPage > 0) {
-                        {
+                    navigationIcon = {
+                        if (pagerState.currentPage > 0) {
                             IconButton(onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
-                                }
+                                navigator?.pop()
                             }) {
-                                Icon(Icons.Filled.ArrowBack, contentDescription = "Back" , tint = Color.Red)
+                                Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                             }
                         }
-                    } else null,
-                    backgroundColor = Color.Transparent,
+                    }
                 )
             }
         ) { innerPadding ->
@@ -78,7 +107,7 @@ class UserInfoFormScreen : Screen {
                     },
                     color = Color.Red,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    style = MaterialTheme.typography.h5
+                    style = MaterialTheme.typography.bodyMedium
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -96,10 +125,10 @@ class UserInfoFormScreen : Screen {
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .align(Alignment.CenterHorizontally)
                 ) {
-
                     if (pagerState.currentPage < pagerState.pageCount - 1) {
                         Button(onClick = {
                             coroutineScope.launch {
@@ -201,12 +230,13 @@ class UserInfoFormScreen : Screen {
                         onDismissRequest = { genderExpanded = false }
                     ) {
                         genders.forEach { gender ->
-                            DropdownMenuItem(onClick = {
-                                viewModel.setGender(gender)
-                                genderExpanded = false
-                            }) {
-                                Text(gender)
-                            }
+                            DropdownMenuItem(
+                                text = { Text(gender) },
+                                onClick = {
+                                    viewModel.setGender(gender)
+                                    genderExpanded = false
+                                }
+                            )
                         }
                     }
                 }
@@ -262,30 +292,38 @@ class UserInfoFormScreen : Screen {
 
     @Composable
     fun FitnessGoalsActivityLevelStep(viewModel: UserInfoFormViewModel) {
-        var expanded by remember { mutableStateOf(false) }
-        val fitnessGoals = listOf("Weight Loss", "Weight Gain", "Muscle Gain", "General Fitness")
+        var selectedGoal by remember { mutableStateOf(viewModel.uiState.value.fitnessGoals) }
+        var selectedActivityLevel by remember { mutableStateOf(viewModel.uiState.value.activityLevel) }
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Fitness Goals")
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = { expanded = true }) {
-                    Text(viewModel.uiState.value.fitnessGoals.ifEmpty { "Select Fitness Goal" })
-                }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    fitnessGoals.forEach { goal ->
-                        DropdownMenuItem(onClick = {
+            Text("Fitness Goal")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val goals = listOf("Lose Weight", "Gain Muscle", "Maintain Weight")
+                goals.forEach { goal ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            selectedGoal = goal
                             viewModel.setFitnessGoals(goal)
-                            expanded = false
-                        }) {
-                            Text(goal)
                         }
+                    ) {
+                        RadioButton(
+                            selected = goal == selectedGoal,
+                            onClick = {
+                                selectedGoal = goal
+                                viewModel.setFitnessGoals(goal)
+                            },
+                            colors = RadioButtonDefaults.colors(selectedColor = Color.Red)
+                        )
+                        Text(goal)
                     }
                 }
             }
@@ -293,29 +331,30 @@ class UserInfoFormScreen : Screen {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Activity Level")
-            val activityLevels = listOf(
-                "Sedentary",
-                "Lightly active",
-                "Moderately active",
-                "Very active",
-                "Super active"
-            )
-
-            activityLevels.forEach { level ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(vertical = 4.dp)
-                        .clickable { viewModel.setActivityLevel(level) }
-                        .fillMaxWidth()
-                ) {
-                    RadioButton(
-                        selected = viewModel.uiState.value.activityLevel == level,
-                        onClick = { viewModel.setActivityLevel(level) },
-                        colors = RadioButtonDefaults.colors(selectedColor = Color.Green)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(level)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val activityLevels = listOf("Sedentary", "Lightly Active", "Active", "Very Active")
+                activityLevels.forEach { activityLevel ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            selectedActivityLevel = activityLevel
+                            viewModel.setActivityLevel(activityLevel)
+                        }
+                    ) {
+                        RadioButton(
+                            selected = activityLevel == selectedActivityLevel,
+                            onClick = {
+                                selectedActivityLevel = activityLevel
+                                viewModel.setActivityLevel(activityLevel)
+                            },
+                            colors = RadioButtonDefaults.colors(selectedColor = Color.Red)
+                        )
+                        Text(activityLevel)
+                    }
                 }
             }
         }
@@ -323,54 +362,69 @@ class UserInfoFormScreen : Screen {
 
     @Composable
     fun DietaryWorkoutPreferencesStep(viewModel: UserInfoFormViewModel) {
-        var dietaryPreferencesExpanded by remember { mutableStateOf(false) }
-        var workoutPreferencesExpanded by remember { mutableStateOf(false) }
-        val dietaryOptions = listOf("Vegan", "Vegetarian", "Non-Vegetarian")
-        val workoutOptions = listOf("Strength Training", "Cardio", "Mixed")
+        var dietaryPreferences by remember { mutableStateOf(viewModel.uiState.value.dietaryPreferences) }
+        var workoutFrequency by remember { mutableStateOf(viewModel.uiState.value.workoutPreferences) }
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("Dietary Preferences")
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = { dietaryPreferencesExpanded = true }) {
-                    Text(viewModel.uiState.value.dietaryPreferences.ifEmpty { "Select Dietary Preference" })
-                }
-                DropdownMenu(
-                    expanded = dietaryPreferencesExpanded,
-                    onDismissRequest = { dietaryPreferencesExpanded = false }
-                ) {
-                    dietaryOptions.forEach { option ->
-                        DropdownMenuItem(onClick = {
-                            viewModel.setDietaryPreferences(option)
-                            dietaryPreferencesExpanded = false
-                        }) {
-                            Text(option)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val preferences = listOf("Vegetarian", "Non-Vegetarian", "Vegan", "Keto")
+                preferences.forEach { preference ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            dietaryPreferences = preference
+                            viewModel.setDietaryPreferences(preference)
                         }
+                    ) {
+                        RadioButton(
+                            selected = preference == dietaryPreferences,
+                            onClick = {
+                                dietaryPreferences = preference
+                                viewModel.setDietaryPreferences(preference)
+                            },
+                            colors = RadioButtonDefaults.colors(selectedColor = Color.Red)
+                        )
+                        Text(preference)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text("Workout Preferences")
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = { workoutPreferencesExpanded = true }) {
-                    Text(viewModel.uiState.value.workoutPreferences.ifEmpty { "Select Workout Preference" })
-                }
-                DropdownMenu(
-                    expanded = workoutPreferencesExpanded,
-                    onDismissRequest = { workoutPreferencesExpanded = false }
-                ) {
-                    workoutOptions.forEach { option ->
-                        DropdownMenuItem(onClick = {
-                            viewModel.setWorkoutPreferences(option)
-                            workoutPreferencesExpanded = false
-                        }) {
-                            Text(option)
+            Text("Workout Frequency")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val frequencies =
+                    listOf("1-2 times a week", "3-4 times a week", "5-6 times a week", "Every day")
+                frequencies.forEach { frequency ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            workoutFrequency = frequency
+                            viewModel.setWorkoutPreferences(frequency)
                         }
+                    ) {
+                        RadioButton(
+                            selected = frequency == workoutFrequency,
+                            onClick = {
+                                workoutFrequency = frequency
+                                viewModel.setWorkoutPreferences(frequency)
+                            },
+                            colors = RadioButtonDefaults.colors(selectedColor = Color.Red)
+                        )
+                        Text(frequency)
                     }
                 }
             }

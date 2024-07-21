@@ -11,11 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults.buttonColors
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults.buttonColors
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,11 +100,12 @@ class AuthScreen : Screen {
                 ) {
                     // Extracted button colors for reusability
                     val buttonColors = buttonColors(
-                        backgroundColor = colors.primary.copy(alpha = 0.9f),
-                        contentColor = Color.Black
+                        containerColor =Color.Transparent,
+                        contentColor = Color.Red,
+
                     )
 
-                    Button(
+                    OutlinedButton(
                         onClick = { navigator?.push(LoginScreen()) },
                         shape = RoundedCornerShape(10.dp),
                         colors = buttonColors // Using extracted colors
@@ -113,7 +113,7 @@ class AuthScreen : Screen {
                         Text("Login")
                     }
 
-                    Button(
+                    OutlinedButton(
                         onClick = { navigator?.push(SignUpScreen()) },
                         shape = RoundedCornerShape(10.dp),
                         colors = buttonColors // Using extracted colors

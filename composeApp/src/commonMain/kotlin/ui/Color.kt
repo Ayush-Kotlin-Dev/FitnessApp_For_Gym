@@ -1,7 +1,7 @@
 package ui
 
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 
@@ -30,22 +30,20 @@ val White76 = Color(0xFFF5F5F5)
 val ShimmerLightGray = Color(0xFFF1F1F1)
 val ShimmerMediumGray = Color(0xFFE3E3E3)
 val ShimmerDarkGray = Color(0xFF1D1D1D)
-internal val LightColors = lightColors(
-    primary = Red,
-    primaryVariant = Blue,
-    background = Black,
-    onBackground = White87,
-    surface = Black,
-    onSurface = White87
-)
 
-internal val DarkColors = darkColors(
+val lightRedColor = Color(0xFFF57D88)
+
+internal val DarkColors = darkColorScheme(
     primary = Red,
-    primaryVariant = Blue,
     background = Black,
-    onBackground = White87,
     surface = Black,
-    onSurface = White87,
+    error = Red,
+    onPrimary = White,
+    onSecondary = White,
+    onBackground = White,
+    onSurface = White,
+    onError = White
+
 )
 object AppColors {
     val bgLight = Color.White

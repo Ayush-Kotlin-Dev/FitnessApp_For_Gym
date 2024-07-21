@@ -18,19 +18,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import avikfitness.composeapp.generated.resources.Res
 import avikfitness.composeapp.generated.resources.chest_home
-import avikfitness.composeapp.generated.resources.hide_eye_icon_filled
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -54,7 +53,6 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import presentation.screens.profile.ProfileTab
 
 class HomeScreen : Screen {
@@ -69,39 +67,40 @@ class HomeScreen : Screen {
                     CurrentTab()
                 },
                 bottomBar = {
-                    BottomNavigation(
-                        backgroundColor = Color.Black,
-                        elevation = 8.dp
-                    ) {
-                        TabNavigationItem(HomeTab)
-                        TabNavigationItem(SearchTab)
-                        TabNavigationItem(CartTab)
-                        TabNavigationItem(ProfileTab)
-                    }
+                    BottomNavigationBar()
                 }
             )
         }
-
     }
+
     @Composable
     private fun RowScope.TabNavigationItem(tab: Tab) {
         val tabNavigator = LocalTabNavigator.current
 
-        BottomNavigationItem(
+        NavigationBarItem(
             selected = tabNavigator.current == tab,
             onClick = { tabNavigator.current = tab },
             icon = { tab.options.icon?.let { Icon(painter = it, contentDescription = tab.options.title) } },
-            selectedContentColor = Color.Red.copy(alpha = 0.7f),
-            unselectedContentColor = Color.White.copy(alpha = 0.7f),
-            label = { Text(text = tab.options.title) },
-            alwaysShowLabel = false
-
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.Red.copy(alpha = 0.7f),
+                unselectedIconColor = Color.White.copy(alpha = 0.7f)
+            ),
+            label = { Text(text = tab.options.title) }
         )
     }
 
-
-
-
+    @Composable
+    private fun BottomNavigationBar() {
+        NavigationBar(
+            containerColor = Color.Black,
+            tonalElevation = 8.dp
+        ) {
+            TabNavigationItem(HomeTab)
+            TabNavigationItem(SearchTab)
+            TabNavigationItem(CartTab)
+            TabNavigationItem(ProfileTab)
+        }
+    }
 }
 object HomeTab : Tab {
 
@@ -210,7 +209,7 @@ fun HeaderSection() {
     Spacer(modifier = Modifier.height(16.dp))
     Button(
         onClick = { /* TODO */ },
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Yellow),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow),
 //            modifier = Modifier.align(Alignment.CenterHorizontally)
     ) {
         Text(text = "SAT", color = Color.Black)

@@ -1,7 +1,7 @@
 package ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
@@ -13,9 +13,9 @@ fun GymAppTheme(
     content: @Composable () -> Unit
 ) {
 
-    val colors = if (darkTheme) DarkColors else LightColors
+    val colors = if (darkTheme) DarkColors else DarkColors
     MaterialTheme(
-        colors = colors,
+        colorScheme = colors,
         shapes = Shapes,
         content = content
     )

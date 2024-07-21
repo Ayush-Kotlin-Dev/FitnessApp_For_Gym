@@ -1,27 +1,32 @@
 package presentation.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults.textFieldColors
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuDefaults.textFieldColors
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 import avikfitness.composeapp.generated.resources.Res
 import avikfitness.composeapp.generated.resources.hide_eye_icon_filled
 import avikfitness.composeapp.generated.resources.show_eye_icon_filled
 import org.jetbrains.compose.resources.painterResource
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTextField(
     value: String,
@@ -30,7 +35,7 @@ fun CustomTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     isError: Boolean = false,
     errorMessage: String? = null,
-    isPasswordTextField : Boolean = false,
+    isPasswordTextField: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     leadingIcon: ImageVector? = null,
     singleLine: Boolean = true,
@@ -43,10 +48,12 @@ fun CustomTextField(
             onValueChange = onValueChange,
             label = { Text(label) },
             colors = textFieldColors(
-                textColor = Color.White,
-                backgroundColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
                 cursorColor = Color.White,
                 unfocusedIndicatorColor = Color.White,
+                focusedPlaceholderColor = Color.White,
             ),
             trailingIcon = if (isPasswordTextField) {
                 {
@@ -72,8 +79,9 @@ fun CustomTextField(
         if (isError && errorMessage != null) {
             Text(
                 text = errorMessage,
-                style = MaterialTheme.typography.caption,
-                color = MaterialTheme.colors.error
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(start = 16.dp)
             )
         }
     }
