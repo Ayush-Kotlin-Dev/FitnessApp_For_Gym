@@ -15,6 +15,7 @@ val MediumGray = Color(0xFF999A9A)
 val LightGray = Color(0xFF8A8A8D)
 val Black54 = Color(0xFF373B3F)
 val Black24 = Color(0xFF242526)
+val DarkerGray = Color(0xFF131313)
 
 // White & Light Shades
 val White = Color(0xFFFFFFFF)

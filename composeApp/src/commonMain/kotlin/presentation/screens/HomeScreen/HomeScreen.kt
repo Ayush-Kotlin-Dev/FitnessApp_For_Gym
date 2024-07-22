@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -195,9 +196,17 @@ fun HeaderSection() {
 @Composable
 fun WorkoutSection() {
     Column {
-        Text(
-            text = "GUIDED TRAINING", color = Color.Gray, fontSize = 14.sp
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "GUIDED TRAINING ", color = Color.Gray, fontSize = 14.sp
+            )
+            HorizontalDivider(
+                color = Color.Gray.copy(alpha = 0.5f)
+            )
+        }
         Spacer(modifier = Modifier.height(8.dp))
 
         Box(
@@ -281,5 +290,173 @@ fun ExerciseItem(number: Int, title: String, description: String) {
             )
             Text(text = description, color = Color.Gray, fontSize = 14.sp)
         }
+        val chestExercises = listOf(
+            "Barbell Bench Press",
+            "Incline Dumbbell Bench Press",
+            "Decline Dumbbell Bench Press",
+            "Push-Ups",
+            "Diamond Push-Ups",
+            "Dips (Chest Version)",
+            "Cable Flyes",
+            "Dumbbell Flyes",
+            "Pec Deck Machine",
+            "Smith Machine Bench Press",
+            "Single-Arm Dumbbell Bench Press",
+            "Chest Dips",
+            "Hammer Strength Chest Press",
+            "Dumbbell Pullover",
+            "Cable Crossover",
+            "Incline Cable Flyes",
+            "Decline Barbell Bench Press"
+        )
+        val tricepsExercises = listOf(
+            "Close-Grip Bench Press",
+            "Tricep Pushdowns",
+            "Overhead Tricep Extension",
+            "Dips",
+            "Skull Crushers",
+            "Rope Pushdowns",
+            "Bench Dips",
+            "Single-Arm Tricep Extensions",
+            "Tricep Push-Ups",
+            "Reverse Grip Tricep Pushdowns",
+            "Lying Tricep Extensions",
+            "Overhead Cable Tricep Extensions",
+            "Close-Grip Push-Ups",
+            "Tricep Dumbbell Pullover"
+        )
+        val backExercises = listOf(
+            "Deadlifts",
+            "Bent-Over Rows",
+            "Lat Pulldowns",
+            "T-Bar Rows",
+            "Single-Arm Dumbbell Rows",
+            "Seated Cable Rows",
+            "Face Pulls",
+            "Chin-Ups",
+            "Hyperextensions",
+            "Inverted Rows",
+            "Dumbbell Pullovers",
+            "Cable Pullovers",
+            "Low Rows",
+            "Barbell Shrugs",
+            "Dumbbell Shrugs",
+            "Reverse Flyes",
+        )
+        val bicepsExercises = listOf(
+            "Barbell Curls",
+            "Dumbbell Curls",
+            "Hammer Curls",
+            "Preacher Curls",
+            "Incline Dumbbell Curls",
+            "Concentration Curls",
+            "EZ-Bar Curls",
+            "Cable Curls",
+            "Cross-Body Hammer Curls",
+            "Rope Hammer Curls",
+            "Alternating Dumbbell Curls",
+            "Seated Incline Curls",
+            "Standing Cable Curls",
+            "Bicep Curl to Press"
+        )
+        val legExercises = listOf(
+            "Back Squats",
+            "Barbell Squats",
+            "Leg Press",
+            "Lunges",
+            "Walking Lunges",
+            "Step-Ups",
+            "Leg Extensions",
+            "Leg Curls",
+            "Calf Raises",
+            "Seated Calf Raises",
+            "Bulgarian Split Squats",
+            "Goblet Squats",
+            "Hack Squats",
+            "Box Jumps",
+            "Pistol Squats",
+            "Sumo Squats",
+            "Glute Bridges",
+            "Hip Thrusts",
+            "Leg Press Calf Raises",
+            "Wall Sits",
+            "Sled Pushes",
+            "Jump Squats",
+            "Farmer's Walks",
+            "Barbell Hip Thrusts",
+            "Reverse Lunges",
+            "Side Lunges",
+            "Curtsy Lunges",
+            "Smith Machine Squats",
+            "Dumbbell Squats",
+            "Kettlebell Swings"
+        )
+        val shoulderExercises = listOf(
+            "Overhead Press",
+            "Military Press",
+            "Dumbbell Shoulder Press",
+            "Arnold Press",
+            "Lateral Raises",
+            "Front Raises",
+            "Reverse Flyes",
+            "Face Pulls",
+            "Upright Rows",
+            "Shrugs",
+            "Cable Lateral Raises",
+            "Machine Shoulder Press",
+            "Bent-Over Lateral Raises",
+            "Plate Front Raises",
+            "Seated Dumbbell Press",
+            "Behind-the-Neck Press",
+            "Dumbbell Shoulder Circles",
+            "Bradford Press",
+            "Single-Arm Dumbbell Press",
+            "Kettlebell Upright Rows",
+            "Dumbbell Y-Raises",
+            "Battling Ropes",
+            "Cable Face Pulls",
+            "Resistance Band Lateral Raises",
+        )
+        val forearmExercises = listOf(
+            "Wrist Curls",
+            "Reverse Wrist Curls",
+            "Barbell Hold",
+            "Dumbbell Hold",
+            "Grip Strengthener",
+            "Plate Rotations",
+            "Dead Hangs",
+            "Forearm Roller",
+            "Dumbbell Wrist Rotations",
+            "Suitcase Carries",
+            "Bottoms-Up Kettlebell Hold",
+            "Cable Wrist Curls"
+        )
+        val abdominalExercises = listOf(
+            "Crunches",
+            "Sit-Ups",
+            "Planks",
+            "Russian Twists",
+            "Leg Raises",
+            "Dead Bug",
+            "Mountain Climbers",
+            "Hanging Leg Raises",
+            "Ab Wheel Rollouts",
+            "Cable Crunches",
+            "Pallof Press",
+            "Side Planks",
+            "Woodchoppers",
+            "Dragon Flags",
+            "Hollow Body Hold",
+            "Reverse Crunches",
+            "Flutter Kicks",
+            "Plank to Push-Up",
+            "Medicine Ball Slams",
+            "Windshield Wipers",
+            "Toe Touches",
+            "V-Ups",
+            "L-Sit Hold",
+            "Decline Bench Sit-Ups"
+        )
     }
 }
+
