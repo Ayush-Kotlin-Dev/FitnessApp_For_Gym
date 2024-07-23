@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -30,6 +31,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -60,10 +62,11 @@ import presentation.screens.profile.ProfileTab
 import presentation.screens.stats.Stats
 
 class HomeScreen : Screen {
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.current
-        val viewModel = koinScreenModel<HomeScreenViewModel>()
+        val sharedWorkoutViewModel = koinScreenModel<SharedWorkoutViewModel>()
 
         TabNavigator(HomeTab) {
             Scaffold(
@@ -137,7 +140,15 @@ object HomeTab : Tab {
     @Composable
     override fun Content() {
         val sharedViewModel = koinScreenModel<SharedWorkoutViewModel>()
-        val selectedExercises by sharedViewModel.selectedExercises.collectAsState()
+        val allSelectedExercises by sharedViewModel.selectedExercises.collectAsState()
+
+        // For demonstration, let's assume the current day is "Day 1"
+        val currentDay = "Day 1"
+        val currentDayExercises = allSelectedExercises[currentDay] ?: emptyList()
+
+        println("HomeTab - All exercises: $allSelectedExercises")
+        println("HomeTab - Current day exercises: $currentDayExercises")
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -148,7 +159,7 @@ object HomeTab : Tab {
             Spacer(modifier = Modifier.height(16.dp))
             WorkoutSection()
             Spacer(modifier = Modifier.height(16.dp))
-            ExerciseSection(exercises = selectedExercises)
+            ExerciseSection(exercises = currentDayExercises)
         }
     }
 }
@@ -255,15 +266,16 @@ fun ExerciseSection(exercises: List<String>) {
     Column {
         Text(text = "NEXT EXERCISES", color = Color.Gray, fontSize = 14.sp)
         Spacer(modifier = Modifier.height(8.dp))
-        exercises.forEachIndexed { index, exercise ->
-            ExerciseItem(
-                number = index + 1,
-                title = exercise,
-                description = "Custom exercise from your plan"
-            )
-        }
-        if (exercises.isEmpty()) {
-            Text("No exercises selected. Go to Plans to choose your exercises.", color = Color.Gray)
+        if (exercises.isNotEmpty()) {
+            exercises.forEachIndexed { index, exercise ->
+                ExerciseItem(
+                    number = index + 1,
+                    title = exercise,
+                    description = "Custom exercise from your plan"
+                )
+            }
+        } else {
+            Text("No exercises selected for today. Go to Plans to choose your exercises.", color = Color.Gray)
         }
     }
 }

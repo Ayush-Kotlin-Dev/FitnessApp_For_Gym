@@ -154,13 +154,15 @@ object PlansTab : Tab {
                 workoutDay = workoutDays.first { it.day == editingDay },
                 onDismiss = { editingDay = null },
                 onSave = { updatedExercises ->
+                    println("Saving exercises for $editingDay: $updatedExercises")
                     workoutDays.first { it.day == editingDay }.exercises.apply {
                         clear()
                         addAll(updatedExercises)
                     }
-                    sharedViewModel.updateSelectedExercises(updatedExercises)
+                    sharedViewModel.updateSelectedExercises(editingDay!!, updatedExercises.toList())
                     editingDay = null
-                }
+                },
+                sharedViewModel = sharedViewModel
             )
         }
     }
@@ -421,8 +423,10 @@ val abdominalExercises = listOf(
 fun EditExercisesDialog(
     workoutDay: WorkoutDay,
     onDismiss: () -> Unit,
-    onSave: (List<String>) -> Unit
+    onSave: (List<String>) -> Unit,
+    sharedViewModel: SharedWorkoutViewModel
 ) {
+
     val relevantExercises = remember {
         when (workoutDay.focus) {
             "Chest and Triceps" -> chestExercises + tricepsExercises
@@ -471,7 +475,10 @@ fun EditExercisesDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onSave(selectedExercises) },
+                onClick = {
+                    onSave(selectedExercises)
+                    sharedViewModel.updateSelectedExercises(workoutDay.day, selectedExercises)
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {
                 Text("Save", color = Color.White)
