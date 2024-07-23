@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import androidx.compose.foundation.layout.FlowRow
+import cafe.adriel.voyager.koin.koinScreenModel
+import presentation.screens.HomeScreen.HomeScreenViewModel
 
 object PlansTab : Tab {
 
@@ -123,6 +125,7 @@ object PlansTab : Tab {
 
     @Composable
     override fun Content() {
+        val sharedViewModel = koinScreenModel<SharedWorkoutViewModel>()
         var editingDay by remember { mutableStateOf<String?>(null) }
 
         Column(
@@ -155,6 +158,7 @@ object PlansTab : Tab {
                         clear()
                         addAll(updatedExercises)
                     }
+                    sharedViewModel.updateSelectedExercises(updatedExercises)
                     editingDay = null
                 }
             )

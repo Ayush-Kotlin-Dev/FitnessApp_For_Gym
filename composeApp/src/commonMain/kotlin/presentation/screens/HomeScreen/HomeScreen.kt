@@ -31,6 +31,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +55,7 @@ import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import org.jetbrains.compose.resources.painterResource
 import presentation.screens.Plans.PlansTab
+import presentation.screens.Plans.SharedWorkoutViewModel
 import presentation.screens.profile.ProfileTab
 import presentation.screens.stats.Stats
 
@@ -133,6 +136,8 @@ object HomeTab : Tab {
 
     @Composable
     override fun Content() {
+        val sharedViewModel = koinScreenModel<SharedWorkoutViewModel>()
+        val selectedExercises by sharedViewModel.selectedExercises.collectAsState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -143,7 +148,7 @@ object HomeTab : Tab {
             Spacer(modifier = Modifier.height(16.dp))
             WorkoutSection()
             Spacer(modifier = Modifier.height(16.dp))
-            ExerciseSection()
+            ExerciseSection(exercises = selectedExercises)
         }
     }
 }
@@ -246,25 +251,20 @@ fun WorkoutSection() {
 }
 
 @Composable
-fun ExerciseSection() {
+fun ExerciseSection(exercises: List<String>) {
     Column {
-        Text(text = "NEXT EXERCISE", color = Color.Gray, fontSize = 14.sp)
+        Text(text = "NEXT EXERCISES", color = Color.Gray, fontSize = 14.sp)
         Spacer(modifier = Modifier.height(8.dp))
-        ExerciseItem(
-            number = 1,
-            title = "Incline Dumbbell Flyes",
-            description = "It works your upper and outer pecs to build a broader chest."
-        )
-        ExerciseItem(
-            number = 2,
-            title = "Cable Rope Overhead Extensions",
-            description = "This move works your triceps through a full range of motion, and the cable forces your muscles to work harder."
-        )
-        ExerciseItem(
-            number = 3,
-            title = "Barbell Curl",
-            description = "This move works your biceps through a full range of motion, and the cable forces your muscles to work harder."
-        )
+        exercises.forEachIndexed { index, exercise ->
+            ExerciseItem(
+                number = index + 1,
+                title = exercise,
+                description = "Custom exercise from your plan"
+            )
+        }
+        if (exercises.isEmpty()) {
+            Text("No exercises selected. Go to Plans to choose your exercises.", color = Color.Gray)
+        }
     }
 }
 
