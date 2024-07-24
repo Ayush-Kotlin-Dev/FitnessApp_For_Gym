@@ -29,6 +29,7 @@ data class PlanDetailScreen(
 
         // Update the current screen when this screen is displayed
         LaunchedEffect(Unit) {
+            println("PlanDetailScreen: updating current screen")
             updateCurrentScreen(this@PlanDetailScreen)
         }
 
