@@ -1,6 +1,7 @@
-package presentation.screens.Plans
+package presentation.screens.plans
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -12,11 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -26,7 +25,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -46,7 +44,8 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import androidx.compose.foundation.layout.FlowRow
 import cafe.adriel.voyager.koin.koinScreenModel
-import presentation.screens.HomeScreen.HomeScreenViewModel
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.transitions.SlideTransition
 
 object PlansTab : Tab {
 
@@ -65,105 +64,13 @@ object PlansTab : Tab {
             }
         }
 
-    private val workoutDays = mutableStateListOf(
-        WorkoutDay(
-            "Day 1",
-            "Chest and Triceps",
-            mutableStateListOf(
-                "Bench Press",
-                "Incline Dumbbell Press",
-                "Cable Flyes",
-                "Tricep Pushdowns",
-                "Skull Crushers"
-            )
-        ),
-        WorkoutDay(
-            "Day 2",
-            "Back and Biceps",
-            mutableStateListOf(
-                "Deadlifts",
-                "Pull-Ups",
-                "Bent-Over Rows",
-                "Barbell Curls",
-                "Hammer Curls"
-            )
-        ),
-        WorkoutDay(
-            "Day 3",
-            "Legs",
-            mutableStateListOf(
-                "Squats",
-                "Leg Press",
-                "Romanian Deadlifts",
-                "Leg Extensions",
-                "Calf Raises"
-            )
-        ),
-        WorkoutDay(
-            "Day 4",
-            "Shoulders and Forearms",
-            mutableStateListOf(
-                "Overhead Press",
-                "Lateral Raises",
-                "Face Pulls",
-                "Wrist Curls",
-                "Farmer's Walks"
-            )
-        ),
-        WorkoutDay(
-            "Day 5",
-            "Arms (Biceps and Triceps)",
-            mutableStateListOf(
-                "EZ-Bar Curls",
-                "Dips",
-                "Preacher Curls",
-                "Overhead Tricep Extensions",
-                "Concentration Curls"
-            )
-        )
-    )
+
 
     @Composable
     override fun Content() {
         val sharedViewModel = koinScreenModel<SharedWorkoutViewModel>()
-        var editingDay by remember { mutableStateOf<String?>(null) }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Text("5-Day Split Workout Plan", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            workoutDays.forEach { workoutDay ->
-                WorkoutDayCard(
-                    workoutDay = workoutDay,
-                    onEditClick = { editingDay = workoutDay.day },
-                    onExercisesChanged = { newExercises ->
-                        workoutDay.exercises.clear()
-                        workoutDay.exercises.addAll(newExercises)
-                    }
-                )
-            }
-        }
-
-        if (editingDay != null) {
-            EditExercisesDialog(
-                workoutDay = workoutDays.first { it.day == editingDay },
-                onDismiss = { editingDay = null },
-                onSave = { updatedExercises ->
-                    println("Saving exercises for $editingDay: $updatedExercises")
-                    workoutDays.first { it.day == editingDay }.exercises.apply {
-                        clear()
-                        addAll(updatedExercises)
-                    }
-                    sharedViewModel.updateSelectedExercises(editingDay!!, updatedExercises.toList())
-                    editingDay = null
-                },
-                sharedViewModel = sharedViewModel
-            )
+        Navigator(PlanSelectionScreen()){navigator ->
+            SlideTransition( navigator)
         }
     }
 }
@@ -434,6 +341,15 @@ fun EditExercisesDialog(
             "Legs" -> legExercises
             "Shoulders and Forearms" -> shoulderExercises + forearmExercises
             "Arms (Biceps and Triceps)" -> bicepsExercises + tricepsExercises
+            "Abs" -> abdominalExercises
+            "Chest" -> chestExercises
+            "Back" -> backExercises
+            "Shoulders" -> shoulderExercises
+            "Arms" -> bicepsExercises + tricepsExercises
+            "Full Body" -> chestExercises + backExercises + legExercises + shoulderExercises + bicepsExercises + tricepsExercises
+            "Chest, Shoulders, and Triceps" -> chestExercises + shoulderExercises + tricepsExercises
+            "Chest and Back" -> chestExercises + backExercises
+            "Shoulders and Arms" -> shoulderExercises + bicepsExercises + tricepsExercises
             else -> emptyList()
         }
     }
@@ -477,7 +393,6 @@ fun EditExercisesDialog(
             Button(
                 onClick = {
                     onSave(selectedExercises)
-                    sharedViewModel.updateSelectedExercises(workoutDay.day, selectedExercises)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {

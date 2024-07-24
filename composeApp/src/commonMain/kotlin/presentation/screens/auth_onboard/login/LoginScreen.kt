@@ -34,7 +34,7 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import org.jetbrains.compose.resources.painterResource
 import presentation.components.CustomTextField
-import presentation.screens.HomeScreen.HomeScreen
+import presentation.screens.homescreen.HomeScreen
 
 class LoginScreen : Screen {
     @Composable

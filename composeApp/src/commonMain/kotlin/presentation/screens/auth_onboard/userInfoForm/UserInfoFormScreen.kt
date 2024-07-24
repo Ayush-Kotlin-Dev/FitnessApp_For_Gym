@@ -51,7 +51,7 @@ import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import presentation.components.CustomTextField
-import presentation.screens.HomeScreen.HomeScreen
+import presentation.screens.homescreen.HomeScreen
 import presentation.screens.auth_onboard.userInfoForm.UserInfoFormViewModel
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)

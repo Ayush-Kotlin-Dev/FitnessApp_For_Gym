@@ -1,4 +1,4 @@
-package presentation.screens.HomeScreen
+package presentation.screens.homescreen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -56,8 +56,8 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import org.jetbrains.compose.resources.painterResource
-import presentation.screens.Plans.PlansTab
-import presentation.screens.Plans.SharedWorkoutViewModel
+import presentation.screens.plans.PlansTab
+import presentation.screens.plans.SharedWorkoutViewModel
 import presentation.screens.profile.ProfileTab
 import presentation.screens.stats.Stats
 
@@ -67,8 +67,14 @@ class HomeScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.current
         val sharedWorkoutViewModel = koinScreenModel<SharedWorkoutViewModel>()
+        val homeScreenViewModel = koinScreenModel<HomeScreenViewModel>()
 
-        TabNavigator(HomeTab) {
+        val currentScreen by homeScreenViewModel.currentScreen.collectAsState()
+        val showBars = homeScreenViewModel.shouldShowBars(currentScreen)
+
+
+
+        TabNavigator(HomeTab) { tabNavigator ->
             Scaffold(
                 content = { paddingValues ->
                     Box(modifier = Modifier.padding(paddingValues)) {
@@ -76,19 +82,37 @@ class HomeScreen : Screen {
                     }
                 },
                 bottomBar = {
-                    BottomNavigationBar()
+                    if (showBars) {
+                        BottomNavigationBar(
+                            tabNavigator = tabNavigator,
+                            updateCurrentScreen = homeScreenViewModel::updateCurrentScreen
+                        )
+                    }
+                },
+                topBar = {
+                    if (showBars) {
+                        TopAppBar(
+                            title = { Text(currentScreen.toString()) },
+                            // Add other TopAppBar properties as needed
+                        )
+                    }
                 }
             )
         }
     }
 
     @Composable
-    private fun RowScope.TabNavigationItem(tab: Tab) {
-        val tabNavigator = LocalTabNavigator.current
-
+    private fun RowScope.TabNavigationItem(
+        tab: Tab,
+        tabNavigator: TabNavigator,
+        updateCurrentScreen: (Screen) -> Unit
+    ) {
         NavigationBarItem(
             selected = tabNavigator.current == tab,
-            onClick = { tabNavigator.current = tab },
+            onClick = {
+                tabNavigator.current = tab
+                updateCurrentScreen(tab)
+            },
             icon = {
                 tab.options.icon?.let {
                     Icon(
@@ -107,15 +131,18 @@ class HomeScreen : Screen {
     }
 
     @Composable
-    private fun BottomNavigationBar() {
+    private fun BottomNavigationBar(
+        tabNavigator: TabNavigator,
+        updateCurrentScreen: (Screen) -> Unit
+    ) {
         NavigationBar(
             containerColor = Color.Black,
             tonalElevation = 8.dp,
         ) {
-            TabNavigationItem(HomeTab)
-            TabNavigationItem(Stats)
-            TabNavigationItem(PlansTab)
-            TabNavigationItem(ProfileTab)
+            TabNavigationItem(HomeTab, tabNavigator, updateCurrentScreen)
+            TabNavigationItem(Stats, tabNavigator, updateCurrentScreen)
+            TabNavigationItem(PlansTab, tabNavigator, updateCurrentScreen)
+            TabNavigationItem(ProfileTab, tabNavigator, updateCurrentScreen)
         }
     }
 }

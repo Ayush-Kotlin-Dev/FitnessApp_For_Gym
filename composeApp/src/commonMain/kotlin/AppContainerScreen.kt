@@ -4,9 +4,8 @@ import androidx.compose.runtime.LaunchedEffect
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
-import presentation.screens.HomeScreen.HomeScreen
+import presentation.screens.homescreen.HomeScreen
 import presentation.screens.auth_onboard.AuthScreen
-import presentation.screens.auth_onboard.login.LoginScreen
 
 class AppContainerScreen : Screen {
     @Composable
