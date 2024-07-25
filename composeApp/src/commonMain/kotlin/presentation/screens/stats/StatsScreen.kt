@@ -78,7 +78,6 @@ class StatsDetailedScreen: Screen {
         val currentScreen by homeScreenViewModel.currentScreen.collectAsState()
 
         LaunchedEffect(Unit) {
-            homeScreenViewModel.updateCurrentScreen(StatsDetailedScreen())
         }
         Text(currentScreen.toString())
 

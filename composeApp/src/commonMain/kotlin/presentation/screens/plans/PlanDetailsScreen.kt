@@ -27,9 +27,7 @@ data class PlanDetailScreen(
         val currentScreen by homeScreenViewModel.currentScreen.collectAsState()
         // Update the current screen when this screen is displayed
         LaunchedEffect(Unit) {
-            println("PlanDetailScreen: updating current screen to $this")
-            homeScreenViewModel.updateCurrentScreen(this@PlanDetailScreen)
-            println("PlanDetailScreen: updated current screen to $currentScreen")
+            homeScreenViewModel.setCurrentScreen(this@PlanDetailScreen)
         }
 
         Column(

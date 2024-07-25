@@ -50,11 +50,11 @@ import avikfitness.composeapp.generated.resources.chest_home
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import org.jetbrains.compose.resources.painterResource
-import presentation.screens.plans.PlanDetailScreen
 import presentation.screens.plans.PlansTab
 import presentation.screens.plans.SharedWorkoutViewModel
 import presentation.screens.profile.ProfileTab
@@ -67,9 +67,7 @@ class HomeScreen : Screen {
         val navigator = LocalNavigator.current
         val sharedWorkoutViewModel = koinScreenModel<SharedWorkoutViewModel>()
         val homeScreenViewModel = koinScreenModel<HomeScreenViewModel>()
-
         val currentScreen by homeScreenViewModel.currentScreen.collectAsState()
-        val showBars = homeScreenViewModel.shouldShowBars(currentScreen)
 
 
 
@@ -77,28 +75,18 @@ class HomeScreen : Screen {
             Scaffold(
                 content = { paddingValues ->
                     Box(modifier = Modifier.padding(paddingValues)) {
-                        when (val screen = currentScreen) {
-                            is Tab -> tabNavigator.current.Content()
-                            is PlanDetailScreen -> screen.Content()
-                            else -> HomeTab.Content() // Default to HomeTab if unknown screen
-                        }
+                        CurrentTab()
                     }
                 },
                 bottomBar = {
-                    if (showBars) {
-                        BottomNavigationBar(
-                            tabNavigator = tabNavigator,
-                            updateCurrentScreen = homeScreenViewModel::updateCurrentScreen
-                        )
-                    }
+                    BottomNavigationBar(tabNavigator = tabNavigator)
+
                 },
                 topBar = {
-                    if (showBars) {
-                        TopAppBar(
-                            title = { Text(currentScreen.toString()) },
-                            // Add other TopAppBar properties as needed
-                        )
-                    }
+                    TopAppBar(
+                        title = { Text(currentScreen.toString()) },
+                        // Add other TopAppBar properties as needed
+                    )
                 }
             )
         }
@@ -107,17 +95,16 @@ class HomeScreen : Screen {
 
     @Composable
     private fun BottomNavigationBar(
-        tabNavigator: TabNavigator,
-        updateCurrentScreen: (Screen) -> Unit
+        tabNavigator: TabNavigator
     ) {
         NavigationBar(
             containerColor = Color.Black,
             tonalElevation = 8.dp,
         ) {
-            TabNavigationItem(HomeTab, tabNavigator, updateCurrentScreen)
-            TabNavigationItem(StatsTab, tabNavigator, updateCurrentScreen)
-            TabNavigationItem(PlansTab, tabNavigator, updateCurrentScreen)
-            TabNavigationItem(ProfileTab, tabNavigator, updateCurrentScreen)
+            TabNavigationItem(HomeTab, tabNavigator)
+            TabNavigationItem(StatsTab, tabNavigator)
+            TabNavigationItem(PlansTab, tabNavigator)
+            TabNavigationItem(ProfileTab, tabNavigator)
         }
     }
 
@@ -125,13 +112,11 @@ class HomeScreen : Screen {
     private fun RowScope.TabNavigationItem(
         tab: Tab,
         tabNavigator: TabNavigator,
-        updateCurrentScreen: (Screen) -> Unit
     ) {
         NavigationBarItem(
             selected = tabNavigator.current == tab,
             onClick = {
                 tabNavigator.current = tab
-                updateCurrentScreen(tab)
             },
             icon = {
                 tab.options.icon?.let {
@@ -306,7 +291,10 @@ fun ExerciseSection(exercises: List<String>) {
                 )
             }
         } else {
-            Text("No exercises selected for today. Go to Plans to choose your exercises.", color = Color.Gray)
+            Text(
+                "No exercises selected for today. Go to Plans to choose your exercises.",
+                color = Color.Gray
+            )
         }
     }
 }

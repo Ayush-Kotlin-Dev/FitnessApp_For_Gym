@@ -2,7 +2,9 @@ package presentation.screens.homescreen
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.tab.Tab
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import presentation.screens.plans.PlanDetailScreen
 import presentation.screens.plans.PlansTab
@@ -12,20 +14,11 @@ import presentation.screens.stats.StatsTab
 
 class HomeScreenViewModel : ScreenModel {
 
-    private val _currentScreen = MutableStateFlow<Screen>(HomeTab)
-    val currentScreen = _currentScreen.asStateFlow()
+        private val _currentScreen = MutableStateFlow<Screen>(HomeTab)
+        val currentScreen: StateFlow<Screen> = _currentScreen
 
-    fun updateCurrentScreen(screen: Screen) {
-        println("HomeScreenViewModel: updating current screen to $screen")
-        _currentScreen.value = screen
-    }
-
-    fun shouldShowBars(screen: Screen): Boolean {
-        return when (screen) {
-            is HomeTab, is StatsTab, is PlansTab, is ProfileTab -> true
-            is PlanDetailScreen -> false
-            is StatsDetailedScreen -> false
-            else -> false
+        fun setCurrentScreen(screen: Screen) {
+                _currentScreen.value = screen
         }
-    }
+
 }
