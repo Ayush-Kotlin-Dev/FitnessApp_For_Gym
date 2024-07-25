@@ -31,9 +31,8 @@ class PlanSelectionScreen : Screen {
             "4-Day Push/Pull",
             "6-Day Body Part Split"
         )
-        val currentScreen by homeScreenViewModel.currentScreen.collectAsState()
+
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            Text(currentScreen.toString())
             Text("Select Workout Plan", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
             val navigator = LocalNavigator.currentOrThrow

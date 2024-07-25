@@ -11,8 +11,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.koin.koinScreenModel
-import cafe.adriel.voyager.navigator.tab.Tab
 import presentation.screens.homescreen.HomeScreenViewModel
+import presentation.screens.tabs.SharedWorkoutViewModel
 
 
 data class PlanDetailScreen(
@@ -24,19 +24,15 @@ data class PlanDetailScreen(
         val homeScreenViewModel = koinScreenModel<HomeScreenViewModel>()
         val workoutDays by remember { mutableStateOf(viewModel.getWorkoutDaysForPlan(planName)) }
         var editingDay by remember { mutableStateOf<String?>(null) }
-        val currentScreen by homeScreenViewModel.currentScreen.collectAsState()
-        // Update the current screen when this screen is displayed
-        LaunchedEffect(Unit) {
-            homeScreenViewModel.setCurrentScreen(this@PlanDetailScreen)
-        }
 
+        LaunchedEffect(Unit) {
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(currentScreen.toString())
             Text(planName, style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
 

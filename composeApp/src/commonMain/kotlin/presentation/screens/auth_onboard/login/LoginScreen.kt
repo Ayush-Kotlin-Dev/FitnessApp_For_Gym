@@ -35,6 +35,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import org.jetbrains.compose.resources.painterResource
 import presentation.components.CustomTextField
 import presentation.screens.homescreen.HomeScreen
+import presentation.screens.tabs.HomeTab
+import presentation.screens.tabs.TabsScreen
 
 class LoginScreen : Screen {
     @Composable
@@ -55,7 +57,7 @@ class LoginScreen : Screen {
         ) {
             if (uiState.authenticationSucceed) {
                 if (uiState.isFormFilled) {
-                    navigator?.replaceAll(HomeScreen())
+                    navigator?.replaceAll(TabsScreen())
                 } else {
                     navigator?.replaceAll(UserInfoFormScreen())
                 }

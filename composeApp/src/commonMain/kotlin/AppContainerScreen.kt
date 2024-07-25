@@ -6,6 +6,7 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import presentation.screens.homescreen.HomeScreen
 import presentation.screens.auth_onboard.AuthScreen
+import presentation.screens.tabs.TabsScreen
 
 class AppContainerScreen : Screen {
     @Composable
@@ -23,7 +24,7 @@ class AppContainerScreen : Screen {
                     navigator?.replace(AuthScreen())
                 } else {
                     if(userSettings?.isFormFilled == true) {
-                        navigator?.replace(HomeScreen())
+                        navigator?.replace(TabsScreen())
                     } else {
                         navigator?.replace(UserInfoFormScreen())
                     }

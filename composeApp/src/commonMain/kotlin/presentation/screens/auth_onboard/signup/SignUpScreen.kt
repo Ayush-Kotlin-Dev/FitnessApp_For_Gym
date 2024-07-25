@@ -92,9 +92,6 @@ class SignUpScreen : Screen {
                 }
                 viewModel.uiState.value.authenticationSucceed -> {
                     if (viewModel.uiState.value.isFormFilled) {
-//                        navigator?.navigateToHome()
-                        navigator?.replaceAll(UserInfoFormScreen())
-                    } else {
                         navigator?.replaceAll(UserInfoFormScreen())
                     }
                 }

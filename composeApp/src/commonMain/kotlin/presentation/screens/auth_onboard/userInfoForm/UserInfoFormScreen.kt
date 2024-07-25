@@ -51,8 +51,8 @@ import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import presentation.components.CustomTextField
-import presentation.screens.homescreen.HomeScreen
 import presentation.screens.auth_onboard.userInfoForm.UserInfoFormViewModel
+import presentation.screens.tabs.TabsScreen
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 class UserInfoFormScreen : Screen {
@@ -158,7 +158,7 @@ class UserInfoFormScreen : Screen {
 
         LaunchedEffect(viewModel.uiState) {
             if (viewModel.uiState.value.submitSuccess) {
-                navigator?.replace(HomeScreen())
+                navigator?.replace(TabsScreen())
             }
         }
     }

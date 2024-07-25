@@ -1,10 +1,11 @@
-package presentation.screens.plans
+package presentation.screens.tabs
 
 import androidx.compose.runtime.mutableStateListOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import presentation.screens.plans.WorkoutDay
 
 
 class SharedWorkoutViewModel : ScreenModel {

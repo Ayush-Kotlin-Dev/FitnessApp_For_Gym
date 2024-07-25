@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,40 +32,9 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.koin.koinScreenModel
-import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.tab.Tab
-import cafe.adriel.voyager.navigator.tab.TabOptions
-import cafe.adriel.voyager.transitions.SlideTransition
+import presentation.screens.tabs.SharedWorkoutViewModel
 
-object PlansTab : Tab {
-
-    override val options: TabOptions
-        @Composable
-        get() {
-            val title = "Plans"
-            val icon = rememberVectorPainter(Icons.Default.ShoppingCart)
-
-            return remember {
-                TabOptions(
-                    index = 2u,
-                    title = title,
-                    icon = icon
-                )
-            }
-        }
-
-
-    @Composable
-    override fun Content() {
-        val sharedViewModel = koinScreenModel<SharedWorkoutViewModel>()
-        Navigator(PlanSelectionScreen()){navigator ->
-            SlideTransition( navigator)
-        }
-    }
-}
 
 data class WorkoutDay(
     val day: String,
