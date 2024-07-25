@@ -49,10 +49,9 @@ class TabsScreen : Screen {
 
         TabNavigator(HomeTab) {
             Scaffold(
-                content = { paddingValues ->
-                    Box(modifier = Modifier.padding(paddingValues)) {
+                content = {
                         CurrentTab()
-                    }
+
                 },
                 bottomBar = {
                     AnimatedVisibility(visible = isVisible , enter = slideInVertically { height -> height } , exit = slideOutVertically { height -> height }) {
