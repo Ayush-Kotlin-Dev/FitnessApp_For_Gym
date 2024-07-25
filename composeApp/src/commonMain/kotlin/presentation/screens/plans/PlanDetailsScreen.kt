@@ -16,9 +16,7 @@ import presentation.screens.homescreen.HomeScreenViewModel
 
 
 data class PlanDetailScreen(
-    val planName: String,
-    val updateCurrentScreen: (Screen) -> Unit
-) : Screen {
+    val planName: String  ): Screen {
 
     @Composable
     override fun Content() {
@@ -26,11 +24,12 @@ data class PlanDetailScreen(
         val homeScreenViewModel = koinScreenModel<HomeScreenViewModel>()
         val workoutDays by remember { mutableStateOf(viewModel.getWorkoutDaysForPlan(planName)) }
         var editingDay by remember { mutableStateOf<String?>(null) }
-
+        val currentScreen by homeScreenViewModel.currentScreen.collectAsState()
         // Update the current screen when this screen is displayed
         LaunchedEffect(Unit) {
-            println("PlanDetailScreen: updating current screen")
-            updateCurrentScreen(this@PlanDetailScreen)
+            println("PlanDetailScreen: updating current screen to $this")
+            homeScreenViewModel.updateCurrentScreen(this@PlanDetailScreen)
+            println("PlanDetailScreen: updated current screen to $currentScreen")
         }
 
         Column(
@@ -39,7 +38,7 @@ data class PlanDetailScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(homeScreenViewModel.currentScreen.value.toString())
+            Text(currentScreen.toString())
             Text(planName, style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
 

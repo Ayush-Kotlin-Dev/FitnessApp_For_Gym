@@ -7,6 +7,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -29,9 +31,9 @@ class PlanSelectionScreen : Screen {
             "4-Day Push/Pull",
             "6-Day Body Part Split"
         )
-
-
+        val currentScreen by homeScreenViewModel.currentScreen.collectAsState()
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Text(currentScreen.toString())
             Text("Select Workout Plan", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
             val navigator = LocalNavigator.currentOrThrow
@@ -41,7 +43,7 @@ class PlanSelectionScreen : Screen {
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .clickable {
-                            navigator.push(PlanDetailScreen(plan , homeScreenViewModel::updateCurrentScreen))
+                            navigator.push(PlanDetailScreen(plan))
                         }
                 ) {
                     Text(plan, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)

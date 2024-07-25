@@ -50,16 +50,15 @@ import avikfitness.composeapp.generated.resources.chest_home
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.tab.CurrentTab
-import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import org.jetbrains.compose.resources.painterResource
+import presentation.screens.plans.PlanDetailScreen
 import presentation.screens.plans.PlansTab
 import presentation.screens.plans.SharedWorkoutViewModel
 import presentation.screens.profile.ProfileTab
-import presentation.screens.stats.Stats
+import presentation.screens.stats.StatsTab
 
 class HomeScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +77,11 @@ class HomeScreen : Screen {
             Scaffold(
                 content = { paddingValues ->
                     Box(modifier = Modifier.padding(paddingValues)) {
-                        CurrentTab()
+                        when (val screen = currentScreen) {
+                            is Tab -> tabNavigator.current.Content()
+                            is PlanDetailScreen -> screen.Content()
+                            else -> HomeTab.Content() // Default to HomeTab if unknown screen
+                        }
                     }
                 },
                 bottomBar = {
@@ -98,6 +101,23 @@ class HomeScreen : Screen {
                     }
                 }
             )
+        }
+    }
+
+
+    @Composable
+    private fun BottomNavigationBar(
+        tabNavigator: TabNavigator,
+        updateCurrentScreen: (Screen) -> Unit
+    ) {
+        NavigationBar(
+            containerColor = Color.Black,
+            tonalElevation = 8.dp,
+        ) {
+            TabNavigationItem(HomeTab, tabNavigator, updateCurrentScreen)
+            TabNavigationItem(StatsTab, tabNavigator, updateCurrentScreen)
+            TabNavigationItem(PlansTab, tabNavigator, updateCurrentScreen)
+            TabNavigationItem(ProfileTab, tabNavigator, updateCurrentScreen)
         }
     }
 
@@ -128,22 +148,6 @@ class HomeScreen : Screen {
             label = { Text(text = tab.options.title) },
             alwaysShowLabel = false,
         )
-    }
-
-    @Composable
-    private fun BottomNavigationBar(
-        tabNavigator: TabNavigator,
-        updateCurrentScreen: (Screen) -> Unit
-    ) {
-        NavigationBar(
-            containerColor = Color.Black,
-            tonalElevation = 8.dp,
-        ) {
-            TabNavigationItem(HomeTab, tabNavigator, updateCurrentScreen)
-            TabNavigationItem(Stats, tabNavigator, updateCurrentScreen)
-            TabNavigationItem(PlansTab, tabNavigator, updateCurrentScreen)
-            TabNavigationItem(ProfileTab, tabNavigator, updateCurrentScreen)
-        }
     }
 }
 
