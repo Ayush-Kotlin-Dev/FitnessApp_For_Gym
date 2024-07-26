@@ -13,9 +13,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,16 +44,19 @@ class TabsScreen : Screen {
             )
         }
 
-
         TabNavigator(HomeTab) {
             Scaffold(
-                content = {
+                content = { paddingValues ->
+                    Box(modifier = Modifier.padding(paddingValues)) {
                         CurrentTab()
-
+                    }
                 },
                 bottomBar = {
-                    AnimatedVisibility(visible = isVisible , enter = slideInVertically { height -> height } , exit = slideOutVertically { height -> height }) {
-                        BottomNavigationBar( plansTab)
+                    AnimatedVisibility(
+                        visible = isVisible,
+                        enter = slideInVertically { height -> height },
+                        exit = slideOutVertically { height -> height }) {
+                        BottomNavigationBar(plansTab)
                     }
                 }
             )
@@ -65,13 +66,13 @@ class TabsScreen : Screen {
 
     @Composable
     private fun BottomNavigationBar(
-        plansTab : Tab
+        plansTab: Tab
     ) {
         NavigationBar(
             containerColor = Color.Black,
             tonalElevation = 8.dp,
         ) {
-            TabNavigationItem(HomeTab )
+            TabNavigationItem(HomeTab)
             TabNavigationItem(StatsTab)
             TabNavigationItem(plansTab)
             TabNavigationItem(ProfileTab)

@@ -1,6 +1,8 @@
 package presentation.screens.plans
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -32,6 +34,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import presentation.screens.tabs.SharedWorkoutViewModel
 
@@ -286,7 +289,9 @@ val abdominalExercises = listOf(
     "Decline Bench Sit-Ups"
 )
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalLayoutApi::class
+)
 @Composable
 fun EditExercisesDialog(
     workoutDay: WorkoutDay,
@@ -294,28 +299,60 @@ fun EditExercisesDialog(
     onSave: (List<String>) -> Unit,
     sharedViewModel: SharedWorkoutViewModel
 ) {
+    val selectedExercises = remember { workoutDay.exercises.toMutableStateList() }
 
-    val relevantExercises = remember {
+    val groupedExercises = remember {
         when (workoutDay.focus) {
-            "Chest and Triceps" -> chestExercises + tricepsExercises
-            "Back and Biceps" -> backExercises + bicepsExercises
-            "Legs" -> legExercises
-            "Shoulders and Forearms" -> shoulderExercises + forearmExercises
-            "Arms (Biceps and Triceps)" -> bicepsExercises + tricepsExercises
-            "Abs" -> abdominalExercises
-            "Chest" -> chestExercises
-            "Back" -> backExercises
-            "Shoulders" -> shoulderExercises
-            "Arms" -> bicepsExercises + tricepsExercises
-            "Full Body" -> chestExercises + backExercises + legExercises + shoulderExercises + bicepsExercises + tricepsExercises
-            "Chest, Shoulders, and Triceps" -> chestExercises + shoulderExercises + tricepsExercises
-            "Chest and Back" -> chestExercises + backExercises
-            "Shoulders and Arms" -> shoulderExercises + bicepsExercises + tricepsExercises
+            "Chest and Triceps" -> listOf(
+                "Chest" to chestExercises,
+                "Triceps" to tricepsExercises
+            )
+            "Back and Biceps" -> listOf(
+                "Back" to backExercises,
+                "Biceps" to bicepsExercises
+            )
+            "Legs" -> listOf("Legs" to legExercises)
+            "Shoulders and Forearms" -> listOf(
+                "Shoulders" to shoulderExercises,
+                "Forearms" to forearmExercises
+            )
+            "Arms (Biceps and Triceps)" -> listOf(
+                "Biceps" to bicepsExercises,
+                "Triceps" to tricepsExercises
+            )
+            "Abs" -> listOf("Abs" to abdominalExercises)
+            "Chest" -> listOf("Chest" to chestExercises)
+            "Back" -> listOf("Back" to backExercises)
+            "Shoulders" -> listOf("Shoulders" to shoulderExercises)
+            "Arms" -> listOf(
+                "Biceps" to bicepsExercises,
+                "Triceps" to tricepsExercises
+            )
+            "Full Body" -> listOf(
+                "Chest" to chestExercises,
+                "Back" to backExercises,
+                "Legs" to legExercises,
+                "Shoulders" to shoulderExercises,
+                "Biceps" to bicepsExercises,
+                "Triceps" to tricepsExercises
+            )
+            "Chest, Shoulders, and Triceps" -> listOf(
+                "Chest" to chestExercises,
+                "Shoulders" to shoulderExercises,
+                "Triceps" to tricepsExercises
+            )
+            "Chest and Back" -> listOf(
+                "Chest" to chestExercises,
+                "Back" to backExercises
+            )
+            "Shoulders and Arms" -> listOf(
+                "Shoulders" to shoulderExercises,
+                "Biceps" to bicepsExercises,
+                "Triceps" to tricepsExercises
+            )
             else -> emptyList()
         }
     }
-
-    val selectedExercises = remember { workoutDay.exercises.toMutableStateList() }
 
     AlertDialog(
         containerColor = Color.Black.copy(alpha = 0.7f),
@@ -323,28 +360,43 @@ fun EditExercisesDialog(
         title = { Text("Edit Exercises for ${workoutDay.day}", color = Color.White) },
         text = {
             LazyColumn {
-                item {
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        relevantExercises.forEach { exercise ->
-                            FilterChip(
-                                selected = exercise in selectedExercises,
-                                onClick = {
-                                    if (exercise in selectedExercises) {
-                                        selectedExercises.remove(exercise)
-                                    } else {
-                                        selectedExercises.add(exercise)
-                                    }
-                                },
-                                label = { Text(exercise, color = Color.White) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color.Red.copy(alpha = 0.5f),
-                                    selectedLabelColor = Color.White
+                groupedExercises.forEach { (muscleGroup, exercises) ->
+                    stickyHeader {
+                        Text(
+                            text = muscleGroup,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.DarkGray)
+                                .padding(8.dp),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    item {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            exercises.forEach { exercise ->
+                                FilterChip(
+                                    selected = exercise in selectedExercises,
+                                    onClick = {
+                                        if (exercise in selectedExercises) {
+                                            selectedExercises.remove(exercise)
+                                        } else {
+                                            selectedExercises.add(exercise)
+                                        }
+                                    },
+                                    label = { Text(exercise, color = Color.White) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = Color.Red.copy(alpha = 0.5f),
+                                        selectedLabelColor = Color.White
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }

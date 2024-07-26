@@ -5,16 +5,13 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import presentation.screens.plans.WorkoutDay
 
 
 class SharedWorkoutViewModel : ScreenModel {
-    private val _selectedExercises = MutableStateFlow<Map<String, List<String>>>(emptyMap())
-    val selectedExercises: StateFlow<Map<String, List<String>>> = _selectedExercises.asStateFlow()
-
-    fun getWorkoutDaysForPlan(planName: String): MutableList<WorkoutDay> {
-        return workoutPlans[planName] ?: mutableStateListOf()
-    }
+    private val _selectedExercises = MutableStateFlow<Map<String, Map<String, List<String>>>>(emptyMap())
+    val selectedExercises: StateFlow<Map<String, Map<String, List<String>>>> = _selectedExercises.asStateFlow()
     private val workoutPlans = mapOf(
         "5-Day Split" to mutableStateListOf(
             WorkoutDay("Day 1", "Chest and Triceps", mutableListOf("Bench Press", "Incline Dumbbell Press", "Cable Flyes", "Tricep Pushdowns", "Skull Crushers")),
@@ -63,10 +60,23 @@ class SharedWorkoutViewModel : ScreenModel {
 
         )
     )
-    fun updateSelectedExercises(planName: String, day: String, exercises: List<String>) {
-        workoutPlans[planName]?.first { it.day == day }?.exercises?.apply {
-            clear()
-            addAll(exercises)
+    init {
+        // Initialize _selectedExercises with the workout plans
+        _selectedExercises.value = workoutPlans.mapValues { (_, days) ->
+            days.associate { it.day to it.exercises }
         }
     }
+
+    fun updateSelectedExercises(planName: String, day: String, exercises: List<String>) {
+        _selectedExercises.update { currentPlans ->
+            val updatedPlan = currentPlans[planName]?.toMutableMap() ?: mutableMapOf()
+            updatedPlan[day] = exercises
+            currentPlans + (planName to updatedPlan)
+        }
+    }
+
+    fun getWorkoutDaysForPlan(planName: String): List<WorkoutDay> {
+        return workoutPlans[planName] ?: emptyList()
+    }
+
 }

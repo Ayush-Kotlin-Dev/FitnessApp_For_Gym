@@ -27,16 +27,21 @@ import presentation.screens.tabs.SharedWorkoutViewModel
 
 
 data class PlanDetailScreen(
-    val planName: String  ): Screen {
+    val planName: String
+) : Screen {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         val viewModel = koinScreenModel<SharedWorkoutViewModel>()
         val homeScreenViewModel = koinScreenModel<HomeScreenViewModel>()
-        val workoutDays by remember { mutableStateOf(viewModel.getWorkoutDaysForPlan(planName)) }
+        val allSelectedExercises by viewModel.selectedExercises.collectAsState()
+        val currentPlanExercises = allSelectedExercises[planName] ?: emptyMap()
         var editingDay by remember { mutableStateOf<String?>(null) }
         val navigator: Navigator = LocalNavigator.currentOrThrow
+
+        // Get the original workout plan to access the correct body parts
+        val originalPlan = viewModel.getWorkoutDaysForPlan(planName)
 
         Scaffold(
             topBar = {
@@ -54,7 +59,7 @@ data class PlanDetailScreen(
                     }
                 )
             }
-        ){innerPadding: PaddingValues ->
+        ) { innerPadding: PaddingValues ->
             Box(
                 modifier = Modifier.padding(innerPadding),
                 contentAlignment = Alignment.Center,
@@ -65,32 +70,33 @@ data class PlanDetailScreen(
                         .padding(16.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    workoutDays.forEach { workoutDay ->
+                    originalPlan.forEach { originalWorkoutDay ->
+                        val day = originalWorkoutDay.day
+                        val exercises = currentPlanExercises[day] ?: originalWorkoutDay.exercises
                         WorkoutDayCard(
-                            workoutDay = workoutDay,
-                            onEditClick = { editingDay = workoutDay.day },
+                            workoutDay = WorkoutDay(day, originalWorkoutDay.focus, exercises.toMutableList()),
+                            onEditClick = { editingDay = day },
                             onExercisesChanged = { newExercises ->
-                                workoutDay.exercises.clear()
-                                workoutDay.exercises.addAll(newExercises)
+                                viewModel.updateSelectedExercises(planName, day, newExercises)
                             }
                         )
                     }
                 }
 
                 if (editingDay != null) {
-                    EditExercisesDialog(
-                        workoutDay = workoutDays.first { it.day == editingDay },
-                        onDismiss = { editingDay = null },
-                        onSave = { updatedExercises ->
-                            workoutDays.first { it.day == editingDay }.exercises.apply {
-                                clear()
-                                addAll(updatedExercises)
-                            }
-                            viewModel.updateSelectedExercises(planName, editingDay!!, updatedExercises.toList())
-                            editingDay = null
-                        },
-                        sharedViewModel = viewModel
-                    )
+                    val originalWorkoutDay = originalPlan.find { it.day == editingDay }
+                    if (originalWorkoutDay != null) {
+                        val currentExercises = currentPlanExercises[editingDay] ?: originalWorkoutDay.exercises
+                        EditExercisesDialog(
+                            workoutDay = WorkoutDay(editingDay!!, originalWorkoutDay.focus, currentExercises.toMutableList()),
+                            onDismiss = { editingDay = null },
+                            onSave = { updatedExercises ->
+                                viewModel.updateSelectedExercises(planName, editingDay!!, updatedExercises)
+                                editingDay = null
+                            },
+                            sharedViewModel = viewModel
+                        )
+                    }
                 }
             }
         }

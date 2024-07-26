@@ -47,9 +47,13 @@ class HomeScreen : Screen {
         val sharedViewModel = koinScreenModel<SharedWorkoutViewModel>()
         val allSelectedExercises by sharedViewModel.selectedExercises.collectAsState()
 
+        // Assuming you know which plan is currently active
+        val currentPlanName = "5-Day Split" // This should be dynamically determined
+        val currentPlan = allSelectedExercises[currentPlanName] ?: emptyMap()
+
         // For demonstration, let's assume the current day is "Day 1"
         val currentDay = "Day 1"
-        val currentDayExercises = allSelectedExercises[currentDay] ?: emptyList()
+        val currentDayExercises = currentPlan[currentDay] ?: emptyList()
 
         println("HomeTab - All exercises: $allSelectedExercises")
         println("HomeTab - Current day exercises: $currentDayExercises")
