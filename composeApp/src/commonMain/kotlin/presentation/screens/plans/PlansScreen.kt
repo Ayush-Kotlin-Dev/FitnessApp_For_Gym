@@ -14,17 +14,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuDefaults.textFieldColors
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -289,9 +297,7 @@ val abdominalExercises = listOf(
     "Decline Bench Sit-Ups"
 )
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalLayoutApi::class
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun EditExercisesDialog(
     workoutDay: WorkoutDay,
@@ -300,6 +306,8 @@ fun EditExercisesDialog(
     sharedViewModel: SharedWorkoutViewModel
 ) {
     val selectedExercises = remember { workoutDay.exercises.toMutableStateList() }
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearching by remember { mutableStateOf(false) }
 
     val groupedExercises = remember {
         when (workoutDay.focus) {
@@ -354,48 +362,86 @@ fun EditExercisesDialog(
         }
     }
 
+    val filteredExercises = remember(searchQuery, groupedExercises) {
+        if (searchQuery.isEmpty()) {
+            groupedExercises
+        } else {
+            groupedExercises.map { (muscleGroup, exercises) ->
+                muscleGroup to exercises.filter { it.contains(searchQuery, ignoreCase = true) }
+            }.filter { (_, exercises) -> exercises.isNotEmpty() }
+        }
+    }
+
     AlertDialog(
         containerColor = Color.Black.copy(alpha = 0.7f),
         onDismissRequest = onDismiss,
         title = { Text("Edit Exercises for ${workoutDay.day}", color = Color.White) },
         text = {
-            LazyColumn {
-                groupedExercises.forEach { (muscleGroup, exercises) ->
-                    stickyHeader {
-                        Text(
-                            text = muscleGroup,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.DarkGray)
-                                .padding(8.dp),
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    item {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            exercises.forEach { exercise ->
-                                FilterChip(
-                                    selected = exercise in selectedExercises,
-                                    onClick = {
-                                        if (exercise in selectedExercises) {
-                                            selectedExercises.remove(exercise)
-                                        } else {
-                                            selectedExercises.add(exercise)
-                                        }
-                                    },
-                                    label = { Text(exercise, color = Color.White) },
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = Color.Red.copy(alpha = 0.5f),
-                                        selectedLabelColor = Color.White
-                                    )
+            Column {
+                if (isSearching) {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        label = { Text("Search exercises", color = Color.White) },
+                        colors = textFieldColors(
+                            focusedTextColor = Color.White,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedContainerColor = Color.Transparent,
+                            cursorColor = Color.White,
+                            unfocusedIndicatorColor = Color.White,
+                        ),
+                    )
+                }
+                LazyColumn {
+                    filteredExercises.forEach { (muscleGroup, exercises) ->
+                        stickyHeader {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color.DarkGray)
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = muscleGroup,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
                                 )
+                                IconButton(onClick = { isSearching = !isSearching }) {
+                                    Icon(
+                                        imageVector = if (isSearching) Icons.Default.Close else Icons.Default.Search,
+                                        contentDescription = if (isSearching) "Close search" else "Search exercises",
+                                        tint = Color.White
+                                    )
+                                }
+                            }
+                        }
+                        item {
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                exercises.forEach { exercise ->
+                                    FilterChip(
+                                        selected = exercise in selectedExercises,
+                                        onClick = {
+                                            if (exercise in selectedExercises) {
+                                                selectedExercises.remove(exercise)
+                                            } else {
+                                                selectedExercises.add(exercise)
+                                            }
+                                        },
+                                        label = { Text(exercise, color = Color.White) },
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = Color.Red.copy(alpha = 0.5f),
+                                            selectedLabelColor = Color.White
+                                        )
+                                    )
+                                }
                             }
                         }
                     }

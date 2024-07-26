@@ -1,6 +1,7 @@
 package presentation.screens.tabs
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
@@ -54,8 +55,15 @@ class TabsScreen : Screen {
                 bottomBar = {
                     AnimatedVisibility(
                         visible = isVisible,
-                        enter = slideInVertically { height -> height },
-                        exit = slideOutVertically { height -> height }) {
+                        enter = slideInVertically(
+                            initialOffsetY = { height -> height },
+                            animationSpec = tween(durationMillis = 800)  // Adjust the duration as needed
+                        ),
+                        exit = slideOutVertically(
+                            targetOffsetY = { height -> height },
+                            animationSpec = tween(durationMillis = 100)  // Shorter duration for smoother hiding
+                        )
+                    ) {
                         BottomNavigationBar(plansTab)
                     }
                 }
