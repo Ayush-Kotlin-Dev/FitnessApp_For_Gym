@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
+    alias(libs.plugins.realm.plugin)
+
 
 }
 
@@ -50,6 +52,9 @@ kotlin {
             implementation(compose.components.resources)
             implementation(libs.compottie.vversion)
             implementation(libs.kotlinx.serialization.json.v151)
+            implementation(libs.mongodb.realm)
+            implementation(libs.kotlin.coroutines)
+            implementation(libs.stately.common)
 
             //dependencies versions
             val coroutinesVersion = "1.6.4"
@@ -61,8 +66,7 @@ kotlin {
             api(libs.datastore.preferences)
             api(libs.datastore)
             implementation("com.stevdza-san:messagebarkmp:1.0.5")
-            implementation("io.coil-kt:coil-compose:2.7.0")
-
+            implementation("com.soywiz.korlibs.klock:klock:2.0.7")
         }
 //        iosMain.dependencies {
 //            implementation(compose.runtime)
@@ -113,5 +117,6 @@ android {
 }
 dependencies {
     implementation(libs.androidx.ui.android)
+    implementation(libs.places)
 }
 

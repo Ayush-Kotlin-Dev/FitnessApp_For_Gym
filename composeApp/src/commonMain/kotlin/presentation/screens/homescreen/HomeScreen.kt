@@ -24,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -38,25 +39,33 @@ import avikfitness.composeapp.generated.resources.Res
 import avikfitness.composeapp.generated.resources.chest_home
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
+import com.soywiz.klock.DateTime
+import com.soywiz.klock.DayOfWeek
+import kotlinx.coroutines.flow.first
 import org.jetbrains.compose.resources.painterResource
 import presentation.screens.tabs.SharedWorkoutViewModel
+import util.getCurrentDay
+
 
 class HomeScreen : Screen {
+
     @Composable
     override fun Content() {
         val sharedViewModel = koinScreenModel<SharedWorkoutViewModel>()
         val allSelectedExercises by sharedViewModel.selectedExercises.collectAsState()
 
         // Assuming you know which plan is currently active
-        val currentPlanName = "5-Day Split" // This should be dynamically determined
+        val currentPlanName = "4-Day Upper/Lower" // This should be dynamically determined
         val currentPlan = allSelectedExercises[currentPlanName] ?: emptyMap()
 
-        // For demonstration, let's assume the current day is "Day 1"
-        val currentDay = "Day 1"
+        // Get the current day dynamically
+        val currentDay = getCurrentDay()
         val currentDayExercises = currentPlan[currentDay] ?: emptyList()
 
-        println("HomeTab - All exercises: $allSelectedExercises")
-        println("HomeTab - Current day exercises: $currentDayExercises")
+        LaunchedEffect(Unit) {
+            sharedViewModel.loadWorkoutPlan(currentPlanName)
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()

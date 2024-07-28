@@ -2,16 +2,24 @@ package presentation.screens.tabs
 
 import androidx.compose.runtime.mutableStateListOf
 import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
+import data.models.WorkoutDayDb
+import data.models.WorkoutPlanDb
+import domain.RealmManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import presentation.screens.plans.WorkoutDay
 
-
-class SharedWorkoutViewModel : ScreenModel {
-    private val _selectedExercises = MutableStateFlow<Map<String, Map<String, List<String>>>>(emptyMap())
-    val selectedExercises: StateFlow<Map<String, Map<String, List<String>>>> = _selectedExercises.asStateFlow()
+class SharedWorkoutViewModel(
+    private val realmManager: RealmManager
+) : ScreenModel {
+    private val _selectedExercises =
+        MutableStateFlow<Map<String, Map<String, List<String>>>>(emptyMap())
+    val selectedExercises: StateFlow<Map<String, Map<String, List<String>>>> =
+        _selectedExercises.asStateFlow()
     private val workoutPlans = mapOf(
         "5-Day Split" to mutableStateListOf(
             WorkoutDay("Day 1", "Chest and Triceps", mutableListOf("Bench Press", "Incline Dumbbell Press", "Cable Flyes", "Tricep Pushdowns", "Skull Crushers")),
@@ -60,6 +68,7 @@ class SharedWorkoutViewModel : ScreenModel {
 
         )
     )
+
     init {
         // Initialize _selectedExercises with the workout plans
         _selectedExercises.value = workoutPlans.mapValues { (_, days) ->
@@ -77,6 +86,34 @@ class SharedWorkoutViewModel : ScreenModel {
 
     fun getWorkoutDaysForPlan(planName: String): List<WorkoutDay> {
         return workoutPlans[planName] ?: emptyList()
+    }
+
+    fun saveWorkoutPlan(planName: String) {
+        screenModelScope.launch {
+            val plan = WorkoutPlanDb().apply {
+                name = planName
+                days.addAll(workoutPlans[planName]?.map { day ->
+                    WorkoutDayDb().apply {
+                        this.day = day.day
+                        this.focus = day.focus
+                        this.exercises.addAll(day.exercises)
+                    }
+                } ?: emptyList())
+            }
+            realmManager.saveWorkoutPlan(plan)
+        }
+    }
+
+    fun loadWorkoutPlan(planName: String) {
+        screenModelScope.launch {
+            realmManager.getWorkoutPlan(planName).collect { plan ->
+                if (plan != null) {
+                    _selectedExercises.update { currentPlans ->
+                        currentPlans + (planName to plan.days.associate { it.day to it.exercises })
+                    }
+                }
+            }
+        }
     }
 
 }

@@ -15,5 +15,5 @@ val viewModelModule = module {
     factory { SignupViewModel(get()) }
     factory { UserInfoFormViewModel(get()) }
     factory { HomeScreenViewModel() }
-    single { SharedWorkoutViewModel() }
+    factory { SharedWorkoutViewModel(get()) }
 }
