@@ -22,8 +22,8 @@ class SharedWorkoutViewModel(
         _selectedExercises.asStateFlow()
     private val workoutPlans = mapOf(
         "5-Day Split" to mutableStateListOf(
-            WorkoutDay("Day 1", "Chest and Triceps", mutableListOf("Bench Press", "Incline Dumbbell Press", "Cable Flyes", "Tricep Pushdowns", "Skull Crushers")),
-            WorkoutDay("Day 2", "Back and Biceps", mutableListOf("Deadlifts", "Pull-Ups", "Bent-Over Rows", "Barbell Curls", "Hammer Curls")),
+            WorkoutDay("Day 1", "Chest and Triceps", mutableListOf("Bench Press", "Incline Dumbbell Press", "Cable Flyes", "Tricep Pushdowns", "Skull Crushers", "Dips")),
+            WorkoutDay("Day 2", "Back and Biceps", mutableListOf("Deadlifts", "Pull-Ups", "Lat-PullDown " , "Bent-Over Rows", "Barbell Curls", "Hammer Curls")),
             WorkoutDay("Day 3", "Legs", mutableListOf("Squats", "Leg Press", "Romanian Deadlifts", "Leg Extensions", "Calf Raises")),
             WorkoutDay("Day 4", "Shoulders and Forearms", mutableListOf("Overhead Press", "Lateral Raises", "Face Pulls", "Wrist Curls", "Farmer's Walks")),
             WorkoutDay("Day 5", "Arms (Biceps and Triceps)", mutableListOf("EZ-Bar Curls", "Dips", "Preacher Curls", "Overhead Tricep Extensions", "Concentration Curls"))
@@ -110,6 +110,19 @@ class SharedWorkoutViewModel(
                 if (plan != null) {
                     _selectedExercises.update { currentPlans ->
                         currentPlans + (planName to plan.days.associate { it.day to it.exercises })
+                    }
+                }
+            }
+        }
+    }
+    fun getWorkoutDayForDate(planName: String, dayName: String) {
+        screenModelScope.launch {
+            realmManager.getWorkoutDayForDate(planName, dayName).collect { day ->
+                if (day != null) {
+                    _selectedExercises.update { currentPlans ->
+                        val updatedPlan = currentPlans[planName]?.toMutableMap() ?: mutableMapOf()
+                        updatedPlan[dayName] = day.exercises
+                        currentPlans + (planName to updatedPlan)
                     }
                 }
             }

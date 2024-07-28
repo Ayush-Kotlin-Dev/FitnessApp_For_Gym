@@ -47,7 +47,6 @@ object HomeTab : Tab {
     override fun Content() {
         Navigator(HomeScreen()){navigator ->
             SlideTransition(navigator)
-
         }
     }
 }

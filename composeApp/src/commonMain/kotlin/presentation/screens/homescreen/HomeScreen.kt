@@ -55,11 +55,12 @@ class HomeScreen : Screen {
         val allSelectedExercises by sharedViewModel.selectedExercises.collectAsState()
 
         // Assuming you know which plan is currently active
-        val currentPlanName = "4-Day Upper/Lower" // This should be dynamically determined
+        val currentPlanName = "4-Day Upper/Lower" // TODO This should be dynamically determined
         val currentPlan = allSelectedExercises[currentPlanName] ?: emptyMap()
 
         // Get the current day dynamically
         val currentDay = getCurrentDay()
+
         val currentDayExercises = currentPlan[currentDay] ?: emptyList()
 
         LaunchedEffect(Unit) {

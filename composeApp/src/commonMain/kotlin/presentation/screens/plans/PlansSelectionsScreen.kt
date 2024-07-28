@@ -44,7 +44,7 @@ class PlanSelectionScreen : Screen {
 
         Column(modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(8.dp)
             .verticalScroll(rememberScrollState())
         ) {
             Text("Select Workout Plan", style = MaterialTheme.typography.headlineMedium)

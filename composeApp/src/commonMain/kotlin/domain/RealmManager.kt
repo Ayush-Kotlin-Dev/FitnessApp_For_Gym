@@ -14,9 +14,10 @@ class  RealmManager {
     init {
         initialize()
     }
-    fun initialize() {
+    private fun initialize() {
         val config = RealmConfiguration.Builder(schema = setOf(WorkoutPlanDb::class, WorkoutDayDb::class))
             .name("workout_database")
+            .compactOnLaunch()
             .build()
         realm = Realm.open(config)
     }
