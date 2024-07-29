@@ -37,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import presentation.components.CustomTextField
+import presentation.screens.tabs.TabsScreen
 
 class SignUpScreen : Screen {
     // Login screen implementation
@@ -45,6 +46,7 @@ class SignUpScreen : Screen {
         val navigator = LocalNavigator.current
         val viewModel = koinScreenModel<SignupViewModel>()
         val isPasswordVisible = remember { mutableStateOf(false) }
+        val uiState = viewModel.uiState.value
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -61,13 +63,13 @@ class SignUpScreen : Screen {
 
             //full name
             CustomTextField(
-                value = viewModel.uiState.value.fullName,
+                value = uiState.fullName,
                 onValueChange = { viewModel.onFullNameChange(it) },
                 label = "Username",
                 keyboardType = KeyboardType.Text,
                 )
             CustomTextField(
-                value = viewModel.uiState.value.emailOrUsername,
+                value = uiState.emailOrUsername,
                 onValueChange = { viewModel.onEmailOrUsernameChange(it) },
                 label = "Email",
                 keyboardType = KeyboardType.Email,
@@ -87,17 +89,19 @@ class SignUpScreen : Screen {
             Spacer(modifier = Modifier.height(24.dp))
 
             when {
-                viewModel.uiState.value.isAuthenticating -> {
+                uiState.isAuthenticating -> {
                     CircularProgressIndicator()
                 }
-                viewModel.uiState.value.authenticationSucceed -> {
-                    if (viewModel.uiState.value.isFormFilled) {
-                        navigator?.replaceAll(UserInfoFormScreen())
+                uiState.authenticationSucceed -> {
+                    if (uiState.isFormFilled) {
+                        navigator?.replaceAll(TabsScreen())
+                    }else {
+                        navigator?.push(UserInfoFormScreen())
                     }
                 }
             }
             OutlinedButton(
-                enabled = !viewModel.uiState.value.isAuthenticating,
+                enabled = !uiState.isAuthenticating,
                 onClick = {
                     CoroutineScope(Dispatchers.Main).launch {
                         viewModel.signUp()
@@ -113,11 +117,11 @@ class SignUpScreen : Screen {
 
             ) {
                 Text(
-                    text = if(viewModel.uiState.value.isAuthenticating) "Signing up..." else if (viewModel.uiState.value.authErrorMessage!=null) "Retry" else "Sign up",
+                    text = if(uiState.isAuthenticating) "Signing up..." else if (viewModel.uiState.value.authErrorMessage!=null) "Retry" else "Sign up",
                     color = Color.Red.copy(0.9f)
                 )
             }
-            viewModel.uiState.value.authErrorMessage?.let {
+            uiState.authErrorMessage?.let {
                 Text(
                     text = it,
                     color = Color.Red,

@@ -2,15 +2,20 @@ package presentation.screens.auth_onboard.userInfoForm
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import data.local.getUserSettingsFlow
 import data.models.UserInfoData
 import domain.usecases.userinfo.SubmitUserInfoUseCase
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import util.Result
 
 class UserInfoFormViewModel(
-    private val userInfoUseCase: SubmitUserInfoUseCase
+    private val userInfoUseCase: SubmitUserInfoUseCase,
+    private val dataStore: DataStore<Preferences>
 ) : ScreenModel {
 
     private val _uiState = mutableStateOf(UserInfoDataUiState())
@@ -66,6 +71,7 @@ class UserInfoFormViewModel(
     fun clearUserData() {
         _uiState.value = UserInfoDataUiState()
     }
+    private var userId: Long = -1
 
     private fun isDataValid(): Boolean {
         return _uiState.value.run {
@@ -92,8 +98,11 @@ class UserInfoFormViewModel(
 
         screenModelScope.launch {
             updateUiState { it.copy(isLoading = true) }
+            getUserSettingsFlow(dataStore).collectLatest { settings ->
+                userId = settings.userId
+            }
             val userInfoData = UserInfoData(
-                userId = 600758732791762944,
+                userId =  userId,
                 fullName = _uiState.value.fullName,
                 age = _uiState.value.age ?: 0,
                 gender = _uiState.value.gender,

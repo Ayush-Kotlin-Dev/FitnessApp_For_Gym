@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import avikfitness.composeapp.generated.resources.Res
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
@@ -82,7 +83,9 @@ class UserInfoFormScreen : Screen {
                     navigationIcon = {
                         if (pagerState.currentPage > 0) {
                             IconButton(onClick = {
-                                navigator?.pop()
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                }
                             }) {
                                 Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                             }
@@ -140,7 +143,7 @@ class UserInfoFormScreen : Screen {
                     } else {
                         Button(onClick = {
                             viewModel.submitUserData()
-                        }) {
+                        }, enabled = !viewModel.uiState.value.isLoading) {
                             Text(if (viewModel.uiState.value.isLoading) "Submitting..." else "Submit")
                         }
                     }
@@ -290,75 +293,42 @@ class UserInfoFormScreen : Screen {
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun FitnessGoalsActivityLevelStep(viewModel: UserInfoFormViewModel) {
         var selectedGoal by remember { mutableStateOf(viewModel.uiState.value.fitnessGoals) }
         var selectedActivityLevel by remember { mutableStateOf(viewModel.uiState.value.activityLevel) }
 
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.Start
         ) {
-            Text("Fitness Goal")
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val goals = listOf("Lose Weight", "Gain Muscle", "Maintain Weight")
-                goals.forEach { goal ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable {
-                            selectedGoal = goal
-                            viewModel.setFitnessGoals(goal)
-                        }
-                    ) {
-                        RadioButton(
-                            selected = goal == selectedGoal,
-                            onClick = {
-                                selectedGoal = goal
-                                viewModel.setFitnessGoals(goal)
-                            },
-                            colors = RadioButtonDefaults.colors(selectedColor = Color.Red)
-                        )
-                        Text(goal)
-                    }
+            PreferenceSection(
+                title = "Fitness Goal",
+                options = listOf("Lose Weight", "Gain Muscle", "Maintain Weight"),
+                selectedOption = selectedGoal,
+                onOptionSelected = { goal ->
+                    selectedGoal = goal
+                    viewModel.setFitnessGoals(goal)
                 }
-            }
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text("Activity Level")
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val activityLevels = listOf("Sedentary", "Lightly Active", "Active", "Very Active")
-                activityLevels.forEach { activityLevel ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable {
-                            selectedActivityLevel = activityLevel
-                            viewModel.setActivityLevel(activityLevel)
-                        }
-                    ) {
-                        RadioButton(
-                            selected = activityLevel == selectedActivityLevel,
-                            onClick = {
-                                selectedActivityLevel = activityLevel
-                                viewModel.setActivityLevel(activityLevel)
-                            },
-                            colors = RadioButtonDefaults.colors(selectedColor = Color.Red)
-                        )
-                        Text(activityLevel)
-                    }
+            PreferenceSection(
+                title = "Activity Level",
+                options = listOf("Sedentary", "Lightly Active", "Active", "Very Active"),
+                selectedOption = selectedActivityLevel,
+                onOptionSelected = { activityLevel ->
+                    selectedActivityLevel = activityLevel
+                    viewModel.setActivityLevel(activityLevel)
                 }
-            }
+            )
         }
     }
+
 
     @Composable
     fun DietaryWorkoutPreferencesStep(viewModel: UserInfoFormViewModel) {
@@ -366,66 +336,74 @@ class UserInfoFormScreen : Screen {
         var workoutFrequency by remember { mutableStateOf(viewModel.uiState.value.workoutPreferences) }
 
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalAlignment = Alignment.Start
         ) {
-            Text("Dietary Preferences")
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val preferences = listOf("Vegetarian", "Non-Vegetarian", "Vegan", "Keto")
-                preferences.forEach { preference ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable {
-                            dietaryPreferences = preference
-                            viewModel.setDietaryPreferences(preference)
-                        }
-                    ) {
-                        RadioButton(
-                            selected = preference == dietaryPreferences,
-                            onClick = {
-                                dietaryPreferences = preference
-                                viewModel.setDietaryPreferences(preference)
-                            },
-                            colors = RadioButtonDefaults.colors(selectedColor = Color.Red)
-                        )
-                        Text(preference)
-                    }
+            PreferenceSection(
+                title = "Dietary Preferences",
+                options = listOf("Vegetarian", "Non-Vegetarian", "Vegan", "Keto"),
+                selectedOption = dietaryPreferences,
+                onOptionSelected = { preference ->
+                    dietaryPreferences = preference
+                    viewModel.setDietaryPreferences(preference)
                 }
-            }
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            PreferenceSection(
+                title = "Workout Frequency",
+                options = listOf(
+                    "1-2 times a week",
+                    "3-4 times a week",
+                    "5-6 times a week",
+                    "Every day"
+                ),
+                selectedOption = workoutFrequency,
+                onOptionSelected = { frequency ->
+                    workoutFrequency = frequency
+                    viewModel.setWorkoutPreferences(frequency)
+                }
+            )
+        }
+    }
 
-            Text("Workout Frequency")
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val frequencies =
-                    listOf("1-2 times a week", "3-4 times a week", "5-6 times a week", "Every day")
-                frequencies.forEach { frequency ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable {
-                            workoutFrequency = frequency
-                            viewModel.setWorkoutPreferences(frequency)
-                        }
-                    ) {
-                        RadioButton(
-                            selected = frequency == workoutFrequency,
-                            onClick = {
-                                workoutFrequency = frequency
-                                viewModel.setWorkoutPreferences(frequency)
-                            },
-                            colors = RadioButtonDefaults.colors(selectedColor = Color.Red)
-                        )
-                        Text(frequency)
-                    }
+    @Composable
+    fun PreferenceSection(
+        title: String,
+        options: List<String>,
+        selectedOption: String,
+        onOptionSelected: (String) -> Unit
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            options.forEach { option ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onOptionSelected(option) }
+                        .padding(vertical = 8.dp)
+                ) {
+                    RadioButton(
+                        selected = option == selectedOption,
+                        onClick = { onOptionSelected(option) },
+                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
+                    )
+                    Text(
+                        text = option,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
                 }
             }
         }
