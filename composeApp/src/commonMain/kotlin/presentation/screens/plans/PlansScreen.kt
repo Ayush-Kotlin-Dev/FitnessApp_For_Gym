@@ -1,483 +1,154 @@
 package presentation.screens.plans
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuDefaults.textFieldColors
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import presentation.screens.tabs.SharedWorkoutViewModel
 
-
-data class WorkoutDay(
-    val day: String,
-    val focus: String,
-    val exercises: MutableList<String>
-)
-
-@Composable
-fun WorkoutDayCard(
-    workoutDay: WorkoutDay,
-    onEditClick: () -> Unit,
-    onExercisesChanged: (List<String>) -> Unit,
-    onSaveClick: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Black.copy(alpha = 0.7f),
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
+class WorkoutPlanScreen : Screen {
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    override fun Content() {
+        val viewModel = koinScreenModel<SharedWorkoutViewModel>()
+        val plans = listOf(
+            "5-Day Split",
+            "6-Day Push/Pull/Legs",
+            "4-Day Upper/Lower",
+            "5-Day Upper/Lower/Full",
+            "4-Day Push/Pull",
+            "6-Day Body Part Split"
         )
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = workoutDay.day,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.fillMaxWidth(),
-                color = Color.White
-            )
-            Text(
-                text = workoutDay.focus,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.fillMaxWidth(),
-                color = Color.White.copy(alpha = 0.7f)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                OutlinedButton(
-                    onClick = { expanded = !expanded },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.Red.copy(alpha = 0.9f)
-                    ),
-                    border = BorderStroke(1.dp, Color.Red.copy(alpha = 0.5f))
-                ) {
-                    Text(if (expanded) "Hide" else "View")
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                OutlinedButton(
-                    onClick = onEditClick,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.Red.copy(alpha = 0.9f)
-                    ),
-                    border = BorderStroke(1.dp, Color.Red.copy(alpha = 0.5f))
-                ) {
-                    Text("Edit")
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                OutlinedButton(
-                    onClick = onSaveClick,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.Green.copy(alpha = 0.9f)
-                    ),
-                    border = BorderStroke(1.dp, Color.Green.copy(alpha = 0.5f))
-                ) {
-                    Text("Save")
-                }
-            }
-            if (expanded) {
-                Spacer(modifier = Modifier.height(12.dp))
-                workoutDay.exercises.forEach { exercise ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    ) {
-                        Text("•", color = Color.Red, style = MaterialTheme.typography.titleMedium)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(exercise, color = Color.White.copy(alpha = 0.9f))
-                    }
-                }
-            }
+        var selectedPlan by remember { mutableStateOf(plans.first()) }
+        var expanded by remember { mutableStateOf(false) }
+        val workoutDays by remember(selectedPlan) {
+            mutableStateOf(viewModel.getWorkoutDaysForPlan(selectedPlan))
         }
-    }
-}
+        val allSelectedExercises by viewModel.selectedExercises.collectAsState()
+        val currentPlanExercises = allSelectedExercises[selectedPlan] ?: emptyMap()
+        var editingDay by remember { mutableStateOf<String?>(null) }
+        val navigator: Navigator = LocalNavigator.currentOrThrow
 
-
-val chestExercises = listOf(
-    "Barbell Bench Press",
-    "Incline Dumbbell Bench Press",
-    "Decline Dumbbell Bench Press",
-    "Push-Ups",
-    "Diamond Push-Ups",
-    "Dips (Chest Version)",
-    "Cable Flyes",
-    "Dumbbell Flyes",
-    "Pec Deck Machine",
-    "Smith Machine Bench Press",
-    "Single-Arm Dumbbell Bench Press",
-    "Chest Dips",
-    "Hammer Strength Chest Press",
-    "Dumbbell Pullover",
-    "Cable Crossover",
-    "Incline Cable Flyes",
-    "Decline Barbell Bench Press"
-)
-val tricepsExercises = listOf(
-    "Close-Grip Bench Press",
-    "Tricep Pushdowns",
-    "Overhead Tricep Extension",
-    "Dips",
-    "Skull Crushers",
-    "Rope Pushdowns",
-    "Bench Dips",
-    "Single-Arm Tricep Extensions",
-    "Tricep Push-Ups",
-    "Reverse Grip Tricep Pushdowns",
-    "Lying Tricep Extensions",
-    "Overhead Cable Tricep Extensions",
-    "Close-Grip Push-Ups",
-    "Tricep Dumbbell Pullover"
-)
-val backExercises = listOf(
-    "Deadlifts",
-    "Bent-Over Rows",
-    "Lat Pulldowns",
-    "T-Bar Rows",
-    "Single-Arm Dumbbell Rows",
-    "Seated Cable Rows",
-    "Face Pulls",
-    "Chin-Ups",
-    "Hyperextensions",
-    "Inverted Rows",
-    "Dumbbell Pullovers",
-    "Cable Pullovers",
-    "Low Rows",
-    "Barbell Shrugs",
-    "Dumbbell Shrugs",
-    "Reverse Flyes",
-)
-val bicepsExercises = listOf(
-    "Barbell Curls",
-    "Dumbbell Curls",
-    "Hammer Curls",
-    "Preacher Curls",
-    "Incline Dumbbell Curls",
-    "Concentration Curls",
-    "EZ-Bar Curls",
-    "Cable Curls",
-    "Cross-Body Hammer Curls",
-    "Rope Hammer Curls",
-    "Alternating Dumbbell Curls",
-    "Seated Incline Curls",
-    "Standing Cable Curls",
-    "Bicep Curl to Press"
-)
-val legExercises = listOf(
-    "Back Squats",
-    "Barbell Squats",
-    "Leg Press",
-    "Lunges",
-    "Walking Lunges",
-    "Step-Ups",
-    "Leg Extensions",
-    "Leg Curls",
-    "Calf Raises",
-    "Seated Calf Raises",
-    "Bulgarian Split Squats",
-    "Goblet Squats",
-    "Hack Squats",
-    "Box Jumps",
-    "Pistol Squats",
-    "Sumo Squats",
-    "Glute Bridges",
-    "Hip Thrusts",
-    "Leg Press Calf Raises",
-    "Wall Sits",
-    "Sled Pushes",
-    "Jump Squats",
-    "Farmer's Walks",
-    "Barbell Hip Thrusts",
-    "Reverse Lunges",
-    "Side Lunges",
-    "Curtsy Lunges",
-    "Smith Machine Squats",
-    "Dumbbell Squats",
-    "Kettlebell Swings"
-)
-val shoulderExercises = listOf(
-    "Overhead Press",
-    "Military Press",
-    "Dumbbell Shoulder Press",
-    "Arnold Press",
-    "Lateral Raises",
-    "Front Raises",
-    "Reverse Flyes",
-    "Face Pulls",
-    "Upright Rows",
-    "Shrugs",
-    "Cable Lateral Raises",
-    "Machine Shoulder Press",
-    "Bent-Over Lateral Raises",
-    "Plate Front Raises",
-    "Seated Dumbbell Press",
-    "Behind-the-Neck Press",
-    "Dumbbell Shoulder Circles",
-    "Bradford Press",
-    "Single-Arm Dumbbell Press",
-    "Kettlebell Upright Rows",
-    "Dumbbell Y-Raises",
-    "Battling Ropes",
-    "Cable Face Pulls",
-    "Resistance Band Lateral Raises",
-)
-val forearmExercises = listOf(
-    "Wrist Curls",
-    "Reverse Wrist Curls",
-    "Barbell Hold",
-    "Dumbbell Hold",
-    "Grip Strengthener",
-    "Plate Rotations",
-    "Dead Hangs",
-    "Forearm Roller",
-    "Dumbbell Wrist Rotations",
-    "Suitcase Carries",
-    "Bottoms-Up Kettlebell Hold",
-    "Cable Wrist Curls"
-)
-val abdominalExercises = listOf(
-    "Crunches",
-    "Sit-Ups",
-    "Planks",
-    "Russian Twists",
-    "Leg Raises",
-    "Dead Bug",
-    "Mountain Climbers",
-    "Hanging Leg Raises",
-    "Ab Wheel Rollouts",
-    "Cable Crunches",
-    "Pallof Press",
-    "Side Planks",
-    "Woodchoppers",
-    "Dragon Flags",
-    "Hollow Body Hold",
-    "Reverse Crunches",
-    "Flutter Kicks",
-    "Plank to Push-Up",
-    "Medicine Ball Slams",
-    "Windshield Wipers",
-    "Toe Touches",
-    "V-Ups",
-    "L-Sit Hold",
-    "Decline Bench Sit-Ups"
-)
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
-@Composable
-fun EditExercisesDialog(
-    workoutDay: WorkoutDay,
-    onDismiss: () -> Unit,
-    onSave: (List<String>) -> Unit,
-    sharedViewModel: SharedWorkoutViewModel
-) {
-    val selectedExercises = remember { workoutDay.exercises.toMutableStateList() }
-    var searchQuery by remember { mutableStateOf("") }
-    var isSearching by remember { mutableStateOf(false) }
-
-    val groupedExercises = remember {
-        when (workoutDay.focus) {
-            "Chest and Triceps" -> listOf(
-                "Chest" to chestExercises,
-                "Triceps" to tricepsExercises
-            )
-            "Back and Biceps" -> listOf(
-                "Back" to backExercises,
-                "Biceps" to bicepsExercises
-            )
-            "Legs" -> listOf("Legs" to legExercises)
-            "Shoulders and Forearms" -> listOf(
-                "Shoulders" to shoulderExercises,
-                "Forearms" to forearmExercises
-            )
-            "Arms (Biceps and Triceps)" -> listOf(
-                "Biceps" to bicepsExercises,
-                "Triceps" to tricepsExercises
-            )
-            "Abs" -> listOf("Abs" to abdominalExercises)
-            "Chest" -> listOf("Chest" to chestExercises)
-            "Back" -> listOf("Back" to backExercises)
-            "Shoulders" -> listOf("Shoulders" to shoulderExercises)
-            "Arms" -> listOf(
-                "Biceps" to bicepsExercises,
-                "Triceps" to tricepsExercises
-            )
-            "Full Body" -> listOf(
-                "Chest" to chestExercises,
-                "Back" to backExercises,
-                "Legs" to legExercises,
-                "Shoulders" to shoulderExercises,
-                "Biceps" to bicepsExercises,
-                "Triceps" to tricepsExercises
-            )
-            "Chest, Shoulders, and Triceps" -> listOf(
-                "Chest" to chestExercises,
-                "Shoulders" to shoulderExercises,
-                "Triceps" to tricepsExercises
-            )
-            "Chest and Back" -> listOf(
-                "Chest" to chestExercises,
-                "Back" to backExercises
-            )
-            "Shoulders and Arms" -> listOf(
-                "Shoulders" to shoulderExercises,
-                "Biceps" to bicepsExercises,
-                "Triceps" to tricepsExercises
-            )
-            else -> emptyList()
-        }
-    }
-
-    val filteredExercises = remember(searchQuery, groupedExercises) {
-        if (searchQuery.isEmpty()) {
-            groupedExercises
-        } else {
-            groupedExercises.map { (muscleGroup, exercises) ->
-                muscleGroup to exercises.filter { it.contains(searchQuery, ignoreCase = true) }
-            }.filter { (_, exercises) -> exercises.isNotEmpty() }
-        }
-    }
-
-    AlertDialog(
-        containerColor = Color.Black.copy(alpha = 0.7f),
-        onDismissRequest = onDismiss,
-        title = { Text("Edit Exercises for ${workoutDay.day}", color = Color.White) },
-        text = {
-            Column {
-                if (isSearching) {
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        label = { Text("Search exercises", color = Color.White) },
-                        colors = textFieldColors(
-                            focusedTextColor = Color.White,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent,
-                            cursorColor = Color.White,
-                            unfocusedIndicatorColor = Color.White,
-                        ),
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Workout Plan") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Black.copy(alpha = 0.7f),
+                        titleContentColor = Color.White
                     )
-                }
-                LazyColumn {
-                    filteredExercises.forEach { (muscleGroup, exercises) ->
-                        stickyHeader {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(Color.DarkGray)
-                                    .padding(8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = muscleGroup,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                IconButton(onClick = { isSearching = !isSearching }) {
-                                    Icon(
-                                        imageVector = if (isSearching) Icons.Default.Close else Icons.Default.Search,
-                                        contentDescription = if (isSearching) "Close search" else "Search exercises",
-                                        tint = Color.White
-                                    )
+                )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp)
+            ) {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded },
+                ) {
+                    OutlinedTextField(
+                        value = selectedPlan,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth(),
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Red,
+                            unfocusedIndicatorColor = Color.Gray
+                        )
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                    ) {
+                        plans.forEach { plan ->
+                            DropdownMenuItem(
+                                text = { Text(plan) },
+                                onClick = {
+                                    selectedPlan = plan
+                                    expanded = false
                                 }
-                            }
+                            )
                         }
-                        item {
-                            FlowRow(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            ) {
-                                exercises.forEach { exercise ->
-                                    FilterChip(
-                                        selected = exercise in selectedExercises,
-                                        onClick = {
-                                            if (exercise in selectedExercises) {
-                                                selectedExercises.remove(exercise)
-                                            } else {
-                                                selectedExercises.add(exercise)
-                                            }
-                                        },
-                                        label = { Text(exercise, color = Color.White) },
-                                        colors = FilterChipDefaults.filterChipColors(
-                                            selectedContainerColor = Color.Red.copy(alpha = 0.5f),
-                                            selectedLabelColor = Color.White
-                                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(workoutDays) { originalWorkoutDay ->
+                        val day = originalWorkoutDay.day
+                        val exercises = currentPlanExercises[day] ?: originalWorkoutDay.exercises
+
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn() + expandVertically(),
+                            exit = fadeOut() + shrinkVertically()
+                        ) {
+                            WorkoutDayCard(
+                                workoutDay = WorkoutDay(
+                                    day,
+                                    originalWorkoutDay.focus,
+                                    exercises.toMutableList()
+                                ),
+                                onEditClick = { editingDay = day },
+                                onExercisesChanged = { newExercises ->
+                                    viewModel.updateSelectedExercises(
+                                        selectedPlan,
+                                        day,
+                                        newExercises
                                     )
+                                },
+                                onSaveClick = {
+                                    viewModel.saveWorkoutPlan(selectedPlan)
                                 }
-                            }
+                            )
                         }
                     }
                 }
             }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    onSave(selectedExercises)
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-            ) {
-                Text("Save", color = Color.White)
-            }
-        },
-        dismissButton = {
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-            ) {
-                Text("Cancel", color = Color.White)
+        }
+
+        if (editingDay != null) {
+            val originalWorkoutDay = workoutDays.find { it.day == editingDay }
+            if (originalWorkoutDay != null) {
+                val currentExercises = currentPlanExercises[editingDay] ?: originalWorkoutDay.exercises
+                EditExercisesDialog(
+                    workoutDay = WorkoutDay(editingDay!!, originalWorkoutDay.focus, currentExercises.toMutableList()),
+                    onDismiss = { editingDay = null },
+                    onSave = { updatedExercises ->
+                        viewModel.updateSelectedExercises(selectedPlan, editingDay!!, updatedExercises)
+                        editingDay = null
+                    },
+                    sharedViewModel = viewModel
+                )
             }
         }
-    )
+    }
 }

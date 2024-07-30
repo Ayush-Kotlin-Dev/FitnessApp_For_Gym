@@ -11,8 +11,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
-import presentation.screens.plans.PlanSelectionScreen
-import presentation.screens.profile.ProfileScreen
+import presentation.screens.plans.WorkoutPlanScreen
 
 class PlansTab(
     private val onNavigator: (Boolean) -> Unit
@@ -37,10 +36,10 @@ class PlansTab(
     @Composable
     override fun Content() {
         val sharedViewModel = koinScreenModel<SharedWorkoutViewModel>()
-        Navigator(PlanSelectionScreen()){ navigator ->
+        Navigator(WorkoutPlanScreen()){ navigator ->
             LaunchedEffect(navigator.lastItem){
                 println("qsddqsdsqdsqdsqdsq"+navigator.lastItem)
-                onNavigator(navigator.lastItem is PlanSelectionScreen)
+                onNavigator(navigator.lastItem is WorkoutPlanScreen)
             }
             SlideTransition( navigator)
         }
