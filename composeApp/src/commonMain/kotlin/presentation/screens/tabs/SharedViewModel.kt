@@ -74,6 +74,7 @@ class SharedWorkoutViewModel(
         _selectedExercises.value = workoutPlans.mapValues { (_, days) ->
             days.associate { it.day to it.exercises }
         }
+        println("SharedWorkoutViewModel init")
     }
 
     fun updateSelectedExercises(planName: String, day: String, exercises: List<String>) {
@@ -127,5 +128,8 @@ class SharedWorkoutViewModel(
                 }
             }
         }
+    }
+    override fun onDispose() {
+        println("SharedWorkoutViewModel disposed")
     }
 }

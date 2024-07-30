@@ -32,9 +32,6 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeChild
-import presentation.screens.homescreen.HomeScreenViewModel
 
 class TabsScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -42,7 +39,6 @@ class TabsScreen : Screen {
     override fun Content() {
         val navigator = LocalNavigator.current
         val sharedWorkoutViewModel = koinScreenModel<SharedWorkoutViewModel>()
-        val homeScreenViewModel = koinScreenModel<HomeScreenViewModel>()
         var isVisible by remember { mutableStateOf(true) }
         val plansTab = remember {
             PlansTab(

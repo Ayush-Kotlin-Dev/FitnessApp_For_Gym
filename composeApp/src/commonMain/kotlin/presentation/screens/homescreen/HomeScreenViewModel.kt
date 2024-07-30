@@ -7,5 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import presentation.screens.tabs.HomeTab
 
 class HomeScreenViewModel : ScreenModel {
+    init {
+        println("HomeScreenViewModel init")
+    }
+    val  testMessage = MutableStateFlow("Hello from HomeScreenViewModel")
 
+    override fun onDispose() {
+        println("HomeScreenViewModel disposed")
+    }
 }

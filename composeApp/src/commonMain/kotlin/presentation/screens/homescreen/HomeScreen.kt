@@ -58,6 +58,7 @@ class HomeScreen : Screen {
         val currentPlanName = "4-Day Upper/Lower" // TODO This should be dynamically determined
         val currentPlan = allSelectedExercises[currentPlanName] ?: emptyMap()
 
+        val homeScreenViewModel = koinScreenModel<HomeScreenViewModel>()
         // Get the current day dynamically
         val currentDay = getCurrentDay()
 
@@ -73,6 +74,12 @@ class HomeScreen : Screen {
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
+            Text(
+                text = homeScreenViewModel.testMessage.toString(),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
             HeaderSection()
             Spacer(modifier = Modifier.height(16.dp))
             WorkoutSection()

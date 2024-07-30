@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,13 +18,12 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import presentation.screens.homescreen.HomeScreenViewModel
 
 class ProfileScreen : Screen {
 
     @Composable
     override fun Content() {
-        val viewModel = koinScreenModel<HomeScreenViewModel>()
+        val viewModel = koinScreenModel<ProfileScreenViewModel>()
         val navigator: Navigator = LocalNavigator.currentOrThrow
 
         Column(
@@ -45,6 +42,25 @@ class ProfileScreen : Screen {
                 Text(text = "Go to example details")
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            AnimatedVisibility(visible = viewModel.userSettingsState.isLoading) {
+                Text("Loading...")
+            }
+
+            AnimatedVisibility(visible = !viewModel.userSettingsState.isLoading) {
+                Column {
+                    Text("Full Name: ${viewModel.userSettingsState.fullName}")
+                    Text("Age: ${viewModel.userSettingsState.age}")
+                    Text("Gender: ${viewModel.userSettingsState.gender}")
+                    Text("Height: ${viewModel.userSettingsState.height}")
+                    Text("Weight: ${viewModel.userSettingsState.weight}")
+                    Text("Fitness Goals: ${viewModel.userSettingsState.fitnessGoals}")
+                    Text("Activity Level: ${viewModel.userSettingsState.activityLevel}")
+                    Text("Dietary Preferences: ${viewModel.userSettingsState.dietaryPreferences}")
+                    Text("Workout Preferences: ${viewModel.userSettingsState.workoutPreferences}")
+                }
+            }
         }
     }
 }
