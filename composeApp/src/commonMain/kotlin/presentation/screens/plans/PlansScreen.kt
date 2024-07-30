@@ -1,10 +1,6 @@
 package presentation.screens.plans
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,7 +17,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import presentation.screens.tabs.SharedWorkoutViewModel
 
 class WorkoutPlanScreen : Screen {
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     @Composable
     override fun Content() {
         val viewModel = koinScreenModel<SharedWorkoutViewModel>()
@@ -102,35 +98,30 @@ class WorkoutPlanScreen : Screen {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(workoutDays) { originalWorkoutDay ->
+                    items(workoutDays, key = { it.day }) { originalWorkoutDay ->
                         val day = originalWorkoutDay.day
                         val exercises = currentPlanExercises[day] ?: originalWorkoutDay.exercises
 
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + expandVertically(),
-                            exit = fadeOut() + shrinkVertically()
-                        ) {
-                            WorkoutDayCard(
-                                workoutDay = WorkoutDay(
+                        WorkoutDayCard(
+                            workoutDay = WorkoutDay(
+                                day,
+                                originalWorkoutDay.focus,
+                                exercises.toMutableList()
+                            ),
+                            onEditClick = { editingDay = day },
+                            onExercisesChanged = { newExercises ->
+                                viewModel.updateSelectedExercises(
+                                    selectedPlan,
                                     day,
-                                    originalWorkoutDay.focus,
-                                    exercises.toMutableList()
-                                ),
-                                onEditClick = { editingDay = day },
-                                onExercisesChanged = { newExercises ->
-                                    viewModel.updateSelectedExercises(
-                                        selectedPlan,
-                                        day,
-                                        newExercises
-                                    )
-                                },
-                                onSaveClick = {
-                                    viewModel.saveWorkoutPlan(selectedPlan)
-                                }
-                            )
-                        }
+                                    newExercises
+                                )
+                            },
+                            onSaveClick = {
+                                viewModel.saveWorkoutPlanToDb(selectedPlan)
+                            }
+                        )
                     }
+
                 }
             }
         }
@@ -138,12 +129,21 @@ class WorkoutPlanScreen : Screen {
         if (editingDay != null) {
             val originalWorkoutDay = workoutDays.find { it.day == editingDay }
             if (originalWorkoutDay != null) {
-                val currentExercises = currentPlanExercises[editingDay] ?: originalWorkoutDay.exercises
+                val currentExercises =
+                    currentPlanExercises[editingDay] ?: originalWorkoutDay.exercises
                 EditExercisesDialog(
-                    workoutDay = WorkoutDay(editingDay!!, originalWorkoutDay.focus, currentExercises.toMutableList()),
+                    workoutDay = WorkoutDay(
+                        editingDay!!,
+                        originalWorkoutDay.focus,
+                        currentExercises.toMutableList()
+                    ),
                     onDismiss = { editingDay = null },
                     onSave = { updatedExercises ->
-                        viewModel.updateSelectedExercises(selectedPlan, editingDay!!, updatedExercises)
+                        viewModel.updateSelectedExercises(
+                            selectedPlan,
+                            editingDay!!,
+                            updatedExercises
+                        )
                         editingDay = null
                     },
                     sharedViewModel = viewModel

@@ -1,18 +1,29 @@
 package presentation.screens.homescreen
 
 import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.model.screenModelScope
+import data.models.WorkoutDayDb
+import domain.RealmManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import presentation.screens.tabs.HomeTab
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class HomeScreenViewModel : ScreenModel {
+class HomeScreenViewModel(
+    private val realmManager: RealmManager
+) : ScreenModel {
+    private val _currentWorkoutDay = MutableStateFlow<WorkoutDayDb?>(null)
+    val currentWorkoutDay: StateFlow<WorkoutDayDb?> = _currentWorkoutDay
+
     init {
         println("HomeScreenViewModel init")
     }
-    val  testMessage = MutableStateFlow("Hello from HomeScreenViewModel")
 
-    override fun onDispose() {
-        println("HomeScreenViewModel disposed")
+    fun getWorkoutDayForDate(planName: String, dayName: String) {
+        screenModelScope.launch {
+            realmManager.getWorkoutDayForDate(planName, dayName).collect { day ->
+                _currentWorkoutDay.value = day
+            }
+        }
     }
 }

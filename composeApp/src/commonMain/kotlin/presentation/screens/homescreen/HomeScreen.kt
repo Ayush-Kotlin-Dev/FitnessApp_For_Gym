@@ -22,7 +22,9 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,6 +43,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.DayOfWeek
+import di.viewModelModule
 import kotlinx.coroutines.flow.first
 import org.jetbrains.compose.resources.painterResource
 import presentation.screens.tabs.SharedWorkoutViewModel
@@ -52,20 +55,18 @@ class HomeScreen : Screen {
     @Composable
     override fun Content() {
         val sharedViewModel = koinScreenModel<SharedWorkoutViewModel>()
-        val allSelectedExercises by sharedViewModel.selectedExercises.collectAsState()
+        val homeScreenViewModel = koinScreenModel<HomeScreenViewModel>()
+
+        val currentWorkoutDay by homeScreenViewModel.currentWorkoutDay.collectAsState()
 
         // Assuming you know which plan is currently active
-        val currentPlanName = "5-Day Split" // TODO This should be dynamically determined
-        val currentPlan = allSelectedExercises[currentPlanName] ?: emptyMap()
+        val currentPlanName = "6-Day Body Part Split" // TODO This should be dynamically determined
 
-        val homeScreenViewModel = koinScreenModel<HomeScreenViewModel>()
-        // Get the current day dynamically
+
         val currentDay = getCurrentDay()
 
-        val currentDayExercises = currentPlan[currentDay] ?: emptyList()
-
         LaunchedEffect(Unit) {
-            sharedViewModel.loadWorkoutPlan(currentPlanName)
+            homeScreenViewModel.getWorkoutDayForDate(currentPlanName, currentDay)
         }
 
         Column(
@@ -74,23 +75,24 @@ class HomeScreen : Screen {
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
-            Text(
-                text = homeScreenViewModel.testMessage.toString(),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
             HeaderSection()
             Spacer(modifier = Modifier.height(16.dp))
-            WorkoutSection()
-            Spacer(modifier = Modifier.height(16.dp))
-            ExerciseSection(exercises = currentDayExercises)
+            currentWorkoutDay?.let { workoutDay ->
+                WorkoutSection(focus = workoutDay.focus)
+                Spacer(modifier = Modifier.height(16.dp))
+                ExerciseSection(exercises = workoutDay.exercises)
+            } ?: run {
+                Text(text = "Loading...", color = Color.White, fontSize = 16.sp)
+            }
         }
     }
 }
 
+
 @Composable
-fun HeaderSection() {
+fun HeaderSection(
+    currentDay: String = getCurrentDay()
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -120,22 +122,24 @@ fun HeaderSection() {
             ),
         border = BorderStroke(2.dp, Color.Gray)
     ) {
-        Text(
-            text = " SAT ",
-            color = Color.Black,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .background(Color.Yellow)
-        )
-
+        OutlinedCard{
+            Text(
+                text = " $currentDay ",
+                color = Color.Black,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .background(Color.Yellow)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            )
+        }
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = "Time to workout", color = Color.White)
     }
 }
 
 @Composable
-fun WorkoutSection() {
+fun WorkoutSection(focus: String) {
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -164,7 +168,7 @@ fun WorkoutSection() {
             Column {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "CHEST & ARMS",
+                    text = focus,
                     color = Color.White,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold

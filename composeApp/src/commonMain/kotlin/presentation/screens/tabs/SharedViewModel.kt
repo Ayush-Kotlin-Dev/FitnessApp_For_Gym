@@ -58,8 +58,8 @@ class SharedWorkoutViewModel(
             WorkoutDay("Day 4", "Chest, Shoulders, and Triceps", mutableListOf("Incline Bench Press", "Face Pulls", "Tricep Dips", "Lateral Raises"))
         ),
         "6-Day Body Part Split" to mutableStateListOf(
-            WorkoutDay("Day 1", "Chest", mutableListOf("Bench Press", "Incline Dumbbell Press", "Cable Flyes")),
-            WorkoutDay("Day 2", "Back", mutableListOf("Deadlifts", "Pull-Ups", "Bent-Over Rows")),
+            WorkoutDay("Day 1", "Chest", mutableListOf("Push-Ups" , "Bench Press", "Incline Dumbbell Press", "Cable Flyes" , "Pec fly" ,"Dips")),
+            WorkoutDay("Day 2", "Back", mutableListOf("Deadlifts", "Pull-Ups", "Bent-Over Rows , " , "Lat-PullDown" , "Face Pulls")),
             WorkoutDay("Day 3", "Legs", mutableListOf("Squats", "Leg Press", "Romanian Deadlifts")),
             WorkoutDay("Day 4", "Shoulders", mutableListOf("Overhead Press", "Lateral Raises", "Face Pulls")),
             WorkoutDay("Day 5", "Arms", mutableListOf("Barbell Curls", "Tricep Pushdowns", "Hammer Curls")),
@@ -89,17 +89,17 @@ class SharedWorkoutViewModel(
         return workoutPlans[planName] ?: emptyList()
     }
 
-    fun saveWorkoutPlan(planName: String) {
+    fun saveWorkoutPlanToDb(planName: String) {
         screenModelScope.launch {
             val plan = WorkoutPlanDb().apply {
                 name = planName
-                days.addAll(workoutPlans[planName]?.map { day ->
+                days.addAll((_selectedExercises.value[planName]?.map { (day, exercises) ->
                     WorkoutDayDb().apply {
-                        this.day = day.day
-                        this.focus = day.focus
-                        this.exercises.addAll(day.exercises)
+                        this.day = day
+                        this.focus = workoutPlans[planName]?.find { it.day == day }?.focus ?: ""
+                        this.exercises.addAll(exercises)
                     }
-                } ?: emptyList())
+                } ?: emptyList()))
             }
             realmManager.saveWorkoutPlan(plan)
         }
@@ -116,19 +116,7 @@ class SharedWorkoutViewModel(
             }
         }
     }
-    fun getWorkoutDayForDate(planName: String, dayName: String) {
-        screenModelScope.launch {
-            realmManager.getWorkoutDayForDate(planName, dayName).collect { day ->
-                if (day != null) {
-                    _selectedExercises.update { currentPlans ->
-                        val updatedPlan = currentPlans[planName]?.toMutableMap() ?: mutableMapOf()
-                        updatedPlan[dayName] = day.exercises
-                        currentPlans + (planName to updatedPlan)
-                    }
-                }
-            }
-        }
-    }
+
     override fun onDispose() {
         println("SharedWorkoutViewModel disposed")
     }
