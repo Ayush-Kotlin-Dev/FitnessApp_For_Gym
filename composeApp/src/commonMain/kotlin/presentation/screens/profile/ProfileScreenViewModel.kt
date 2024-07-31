@@ -7,11 +7,13 @@ import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import data.local.getUserInfoFlow
+import domain.RealmManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ProfileScreenViewModel(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val realmManager: RealmManager
 ) : ScreenModel {
 
     //get user settings
@@ -40,6 +42,12 @@ class ProfileScreenViewModel(
                 )
                 _userSettingsState.value = _userSettingsState.value.copy(isLoading = false)
             }
+        }
+    }
+
+    fun clearRealmDb() {
+        screenModelScope.launch {
+            realmManager.clear()
         }
     }
 

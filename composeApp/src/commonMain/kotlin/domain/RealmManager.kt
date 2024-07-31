@@ -5,18 +5,26 @@ import data.models.WorkoutPlanDb
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.query.RealmResults
+import io.realm.kotlin.types.RealmObject
 import kotlinx.coroutines.flow.Flow
+import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.coroutines.flow.map
 
-class  RealmManager {
+class Config : RealmObject {
+    @PrimaryKey
+    var key: String = ""
+    var value: String = ""
+}
+
+class RealmManager {
     private lateinit var realm: Realm
 
     init {
         initialize()
     }
+
     private fun initialize() {
-        val config = RealmConfiguration.Builder(schema = setOf(WorkoutPlanDb::class, WorkoutDayDb::class))
+        val config = RealmConfiguration.Builder(schema = setOf(WorkoutPlanDb::class, WorkoutDayDb::class, Config::class))
             .name("workout_database")
             .compactOnLaunch()
             .build()
@@ -43,5 +51,27 @@ class  RealmManager {
             .map { plan ->
                 plan.obj?.days?.find { it.day == dayName }
             }
+    }
+
+    suspend fun clear() {
+        realm.write {
+            deleteAll()
+        }
+    }
+
+    suspend fun saveLastSelectedPlan(planName: String) {
+        realm.write {
+            val config = query<Config>("key == $0", "lastSelectedPlan").first().find()
+                ?: Config().apply { key = "lastSelectedPlan" }
+            config.value = planName
+            copyToRealm(config)
+        }
+    }
+
+    fun getLastSelectedPlan(): Flow<String?> {
+        return realm.query<Config>("key == $0", "lastSelectedPlan")
+            .first()
+            .asFlow()
+            .map { it.obj?.value }
     }
 }

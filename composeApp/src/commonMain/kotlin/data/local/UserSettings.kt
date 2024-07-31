@@ -85,5 +85,9 @@ object PreferencesKeys {
     val ACTIVITY_LEVEL = stringPreferencesKey("activity_level")
     val DIETARY_PREFERENCES = stringPreferencesKey("dietary_preferences")
     val WORKOUT_PREFERENCES = stringPreferencesKey("workout_preferences")
+    val SELECTED_ROUTINE = stringPreferencesKey("selected_routine")
+
 }
+
+
 

@@ -36,6 +36,13 @@ class ProfileScreen : Screen {
             Text("Profile Screen")
 
             Button(onClick = {
+                viewModel.clearRealmDb()
+                //to change the visibility of the tab navigation
+            }) {
+                Text(text = "Clear the Db")
+            }
+
+            Button(onClick = {
                 navigator.push(DetailsScreen(id = 1))
                 //to change the visibility of the tab navigation
             }) {

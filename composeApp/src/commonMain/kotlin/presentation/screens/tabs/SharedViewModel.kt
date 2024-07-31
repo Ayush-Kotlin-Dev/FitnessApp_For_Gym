@@ -1,11 +1,16 @@
 package presentation.screens.tabs
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import data.local.getSelectedRoutineFlowFromPreferences
+import data.local.saveSelectedRoutineToPreferences
 import data.models.WorkoutDayDb
 import data.models.WorkoutPlanDb
 import domain.RealmManager
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,12 +19,18 @@ import kotlinx.coroutines.launch
 import presentation.screens.plans.WorkoutDay
 
 class SharedWorkoutViewModel(
-    private val realmManager: RealmManager
+    private val realmManager: RealmManager,
+    private val dataStore: DataStore<Preferences>
+
 ) : ScreenModel {
     private val _selectedExercises =
         MutableStateFlow<Map<String, Map<String, List<String>>>>(emptyMap())
     val selectedExercises: StateFlow<Map<String, Map<String, List<String>>>> =
         _selectedExercises.asStateFlow()
+
+    private val _lastSelectedPlan = MutableStateFlow<String?>(null)
+    val lastSelectedPlan: StateFlow<String?> = _lastSelectedPlan.asStateFlow()
+
     private val workoutPlans = mapOf(
         "5-Day Split" to mutableStateListOf(
             WorkoutDay("Day 1", "Chest and Triceps", mutableListOf("Bench Press", "Incline Dumbbell Press", "Cable Flyes", "Tricep Pushdowns", "Skull Crushers", "Dips")),
@@ -115,6 +126,32 @@ class SharedWorkoutViewModel(
                 }
             }
         }
+    }
+
+
+
+    fun saveLastSelectedPlan(planName: String) {
+        screenModelScope.launch {
+            realmManager.saveLastSelectedPlan(planName)
+        }
+    }
+
+    fun loadLastSelectedPlan() {
+        screenModelScope.launch {
+            realmManager.getLastSelectedPlan().collect { plan ->
+                _lastSelectedPlan.value = plan
+            }
+        }
+    }
+
+    fun saveSelectedRoutine(routineName: String) {
+        screenModelScope.launch {
+            saveSelectedRoutineToPreferences(dataStore, routineName)
+        }
+    }
+
+    fun getSelectedRoutineFlow(): Flow<String?> {
+        return getSelectedRoutineFlowFromPreferences(dataStore)
     }
 
     override fun onDispose() {

@@ -59,14 +59,16 @@ class HomeScreen : Screen {
 
         val currentWorkoutDay by homeScreenViewModel.currentWorkoutDay.collectAsState()
 
-        // Assuming you know which plan is currently active
-        val currentPlanName = "6-Day Body Part Split" // TODO This should be dynamically determined
-
+        // Collect the selected routine flow
+        val currentPlanName by sharedViewModel.getSelectedRoutineFlow()
+            .collectAsState(initial = null)
 
         val currentDay = getCurrentDay()
 
-        LaunchedEffect(Unit) {
-            homeScreenViewModel.getWorkoutDayForDate(currentPlanName, currentDay)
+        LaunchedEffect(currentPlanName) {
+            currentPlanName?.let {
+                homeScreenViewModel.getWorkoutDayForDate(it, currentDay)
+            }
         }
 
         Column(
@@ -75,6 +77,11 @@ class HomeScreen : Screen {
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
+            Text(
+                text = currentPlanName ?: "No Plan Selected",
+                color = Color.White,
+                fontSize = 24.sp
+            )
             HeaderSection()
             Spacer(modifier = Modifier.height(16.dp))
             currentWorkoutDay?.let { workoutDay ->

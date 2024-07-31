@@ -29,7 +29,7 @@ class WorkoutPlanScreen : Screen {
             "4-Day Push/Pull",
             "6-Day Body Part Split"
         )
-        var selectedPlan by remember { mutableStateOf(plans.first()) }
+        var selectedPlan by remember { mutableStateOf("") }
         var expanded by remember { mutableStateOf(false) }
         val workoutDays by remember(selectedPlan) {
             mutableStateOf(viewModel.getWorkoutDaysForPlan(selectedPlan))
@@ -39,6 +39,12 @@ class WorkoutPlanScreen : Screen {
         var editingDay by remember { mutableStateOf<String?>(null) }
         val navigator: Navigator = LocalNavigator.currentOrThrow
 
+        LaunchedEffect(Unit) {
+            viewModel.loadLastSelectedPlan()
+            viewModel.lastSelectedPlan.collect { plan ->
+                selectedPlan = plan ?: plans.first()
+            }
+        }
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -87,6 +93,7 @@ class WorkoutPlanScreen : Screen {
                                 onClick = {
                                     selectedPlan = plan
                                     expanded = false
+                                    viewModel.saveSelectedRoutine(plan) //TODO rename
                                 }
                             )
                         }
@@ -122,6 +129,15 @@ class WorkoutPlanScreen : Screen {
                         )
                     }
 
+                }
+                Button(
+                    onClick = {
+                        viewModel.saveWorkoutPlanToDb(selectedPlan)
+                        viewModel.saveLastSelectedPlan(selectedPlan)
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                ) {
+                    Text("Save Routine")
                 }
             }
         }
