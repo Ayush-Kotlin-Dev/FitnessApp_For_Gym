@@ -156,7 +156,8 @@ fun EditExercisesDialog(
     workoutDay: WorkoutDay,
     onDismiss: () -> Unit,
     onSave: (List<String>) -> Unit,
-    sharedViewModel: SharedWorkoutViewModel
+    sharedViewModel: SharedWorkoutViewModel,
+    planName: String
 ) {
     val selectedExercises = remember { workoutDay.exercises.toMutableStateList() }
     var searchQuery by remember { mutableStateOf("") }
@@ -313,6 +314,7 @@ fun EditExercisesDialog(
         confirmButton = {
             Button(
                 onClick = {
+                    sharedViewModel.saveExercisesToDb(planName, workoutDay.day, selectedExercises)
                     onSave(selectedExercises)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)

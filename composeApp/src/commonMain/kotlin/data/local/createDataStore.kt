@@ -75,6 +75,8 @@ fun getUserInfoFlow(dataStore: DataStore<Preferences>): Flow<UserInfoData> {
 }
 
 
+// Preferences DataStore to get and save the selected routine name
+
 suspend fun saveSelectedRoutineToPreferences(dataStore: DataStore<Preferences>, routineName: String) {
     dataStore.edit { preferences ->
         preferences[PreferencesKeys.SELECTED_ROUTINE] = routineName

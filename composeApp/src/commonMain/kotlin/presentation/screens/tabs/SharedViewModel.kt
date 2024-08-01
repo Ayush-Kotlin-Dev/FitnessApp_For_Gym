@@ -31,6 +31,9 @@ class SharedWorkoutViewModel(
     private val _lastSelectedPlan = MutableStateFlow<String?>(null)
     val lastSelectedPlan: StateFlow<String?> = _lastSelectedPlan.asStateFlow()
 
+    private val _currentWorkoutPlan = MutableStateFlow<WorkoutPlanDb?>(null)
+    val currentWorkoutPlan: StateFlow<WorkoutPlanDb?> = _currentWorkoutPlan.asStateFlow()
+
     private val workoutPlans = mapOf(
         "5-Day Split" to mutableStateListOf(
             WorkoutDay("Day 1", "Chest and Triceps", mutableListOf("Bench Press", "Incline Dumbbell Press", "Cable Flyes", "Tricep Pushdowns", "Skull Crushers", "Dips")),
@@ -116,14 +119,12 @@ class SharedWorkoutViewModel(
         }
     }
 
-    fun loadWorkoutPlan(planName: String) {
+
+
+    fun loadWorkoutPlanFromDb(planName: String) {
         screenModelScope.launch {
             realmManager.getWorkoutPlan(planName).collect { plan ->
-                if (plan != null) {
-                    _selectedExercises.update { currentPlans ->
-                        currentPlans + (planName to plan.days.associate { it.day to it.exercises })
-                    }
-                }
+                _currentWorkoutPlan.value = plan
             }
         }
     }
@@ -144,14 +145,24 @@ class SharedWorkoutViewModel(
         }
     }
 
+
+    // Preferences DataStore to get and save the selected routine name
     fun saveSelectedRoutine(routineName: String) {
         screenModelScope.launch {
             saveSelectedRoutineToPreferences(dataStore, routineName)
         }
     }
-
     fun getSelectedRoutineFlow(): Flow<String?> {
         return getSelectedRoutineFlowFromPreferences(dataStore)
+    }
+
+    //method to update the exercises for a specific day in a workout plan
+    fun saveExercisesToDb(planName: String, day: String, exercises: List<String>) {
+        screenModelScope.launch {
+            realmManager.updateWorkoutDayExercises(planName, day, exercises)
+            // Update the local state as well
+            updateSelectedExercises(planName, day, exercises)
+        }
     }
 
     override fun onDispose() {

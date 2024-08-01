@@ -74,4 +74,16 @@ class RealmManager {
             .asFlow()
             .map { it.obj?.value }
     }
+    //method to update the exercises for a specific day in a workout plan
+    //TODO: Add a method to update the exercises for a specific day in a workout plan
+    suspend fun updateWorkoutDayExercises(planName: String, dayName: String, exercises: List<String>) {
+        realm.write {
+            val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
+            plan?.days?.find { it.day == dayName }?.let { day ->
+                day.exercises.clear()
+                day.exercises.addAll(exercises)
+            }
+        }
+    }
+
 }

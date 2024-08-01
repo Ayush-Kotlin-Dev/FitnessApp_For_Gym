@@ -14,6 +14,7 @@ import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import data.models.WorkoutDayDb
 import presentation.screens.tabs.SharedWorkoutViewModel
 
 class SelectedRoutineScreen : Screen {
@@ -23,13 +24,13 @@ class SelectedRoutineScreen : Screen {
         val viewModel = koinScreenModel<SharedWorkoutViewModel>()
         val navigator = LocalNavigator.currentOrThrow
         var selectedRoutine by remember { mutableStateOf<String?>(null) }
-        var workoutDays by remember { mutableStateOf<List<WorkoutDay>>(emptyList()) }
+        val currentWorkoutPlan by viewModel.currentWorkoutPlan.collectAsState()
 
         LaunchedEffect(Unit) {
             viewModel.getSelectedRoutineFlow().collect { routineName ->
                 selectedRoutine = routineName
                 if (routineName != null) {
-                    workoutDays = viewModel.getWorkoutDaysForPlan(routineName)
+                    viewModel.loadWorkoutPlanFromDb(routineName)
                 }
             }
         }
@@ -61,8 +62,10 @@ class SelectedRoutineScreen : Screen {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(workoutDays) { workoutDay ->
-                            ExercisesCard(workoutDay = workoutDay)
+                        currentWorkoutPlan?.days?.let { days ->
+                            items(days) { workoutDay ->
+                                ExercisesCard(workoutDay = workoutDay)
+                            }
                         }
                     }
                 } else {
@@ -74,7 +77,7 @@ class SelectedRoutineScreen : Screen {
 }
 
 @Composable
-fun ExercisesCard(workoutDay: WorkoutDay) {
+fun ExercisesCard(workoutDay: WorkoutDayDb) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)

@@ -101,6 +101,15 @@ class WorkoutPlanScreen : Screen {
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        viewModel.saveWorkoutPlanToDb(selectedPlan)
+                        viewModel.saveLastSelectedPlan(selectedPlan)
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                ) {
+                    Text("Save Routine")
+                }
 
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -128,17 +137,8 @@ class WorkoutPlanScreen : Screen {
                             }
                         )
                     }
+                }
 
-                }
-                Button(
-                    onClick = {
-                        viewModel.saveWorkoutPlanToDb(selectedPlan)
-                        viewModel.saveLastSelectedPlan(selectedPlan)
-                    },
-                    modifier = Modifier.fillMaxWidth().padding(16.dp)
-                ) {
-                    Text("Save Routine")
-                }
             }
         }
 
@@ -162,7 +162,8 @@ class WorkoutPlanScreen : Screen {
                         )
                         editingDay = null
                     },
-                    sharedViewModel = viewModel
+                    sharedViewModel = viewModel,
+                    planName = selectedPlan
                 )
             }
         }
