@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import data.models.WorkoutDayDb
 import presentation.screens.tabs.SharedWorkoutViewModel
 
 
@@ -58,7 +59,7 @@ data class WorkoutDay(
 
 @Composable
 fun WorkoutDayCard(
-    workoutDay: WorkoutDay,
+    workoutDay: WorkoutDayDb,
     onEditClick: () -> Unit,
     onExercisesChanged: (List<String>) -> Unit,
     onSaveClick: () -> Unit

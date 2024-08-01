@@ -31,20 +31,19 @@ class WorkoutPlanScreen : Screen {
         )
         var selectedPlan by remember { mutableStateOf("") }
         var expanded by remember { mutableStateOf(false) }
-        val workoutDays by remember(selectedPlan) {
-            mutableStateOf(viewModel.getWorkoutDaysForPlan(selectedPlan))
-        }
-        val allSelectedExercises by viewModel.selectedExercises.collectAsState()
-        val currentPlanExercises = allSelectedExercises[selectedPlan] ?: emptyMap()
         var editingDay by remember { mutableStateOf<String?>(null) }
         val navigator: Navigator = LocalNavigator.currentOrThrow
+        val currentWorkoutPlan by viewModel.currentWorkoutPlan.collectAsState()
 
         LaunchedEffect(Unit) {
-            viewModel.loadLastSelectedPlan()
-            viewModel.lastSelectedPlan.collect { plan ->
-                selectedPlan = plan ?: plans.first()
+            viewModel.getSelectedRoutineFlow().collect { routineName ->
+                selectedPlan = routineName ?: ""
+                if (routineName != null) {
+                    viewModel.loadWorkoutPlanFromDb(routineName)
+                }
             }
         }
+
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -93,7 +92,8 @@ class WorkoutPlanScreen : Screen {
                                 onClick = {
                                     selectedPlan = plan
                                     expanded = false
-                                    viewModel.saveSelectedRoutine(plan) //TODO rename
+                                    viewModel.saveSelectedRoutine(plan)
+                                    viewModel.loadWorkoutPlanFromDb(plan)
                                 }
                             )
                         }
@@ -114,44 +114,36 @@ class WorkoutPlanScreen : Screen {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(workoutDays, key = { it.day }) { originalWorkoutDay ->
-                        val day = originalWorkoutDay.day
-                        val exercises = currentPlanExercises[day] ?: originalWorkoutDay.exercises
-
-                        WorkoutDayCard(
-                            workoutDay = WorkoutDay(
-                                day,
-                                originalWorkoutDay.focus,
-                                exercises.toMutableList()
-                            ),
-                            onEditClick = { editingDay = day },
-                            onExercisesChanged = { newExercises ->
-                                viewModel.updateSelectedExercises(
-                                    selectedPlan,
-                                    day,
-                                    newExercises
-                                )
-                            },
-                            onSaveClick = {
-                                viewModel.saveWorkoutPlanToDb(selectedPlan)
-                            }
-                        )
+                    currentWorkoutPlan?.days?.forEach { workoutDay ->
+                        item(key = workoutDay.day) {
+                            WorkoutDayCard(
+                                workoutDay = workoutDay,
+                                onEditClick = { editingDay = workoutDay.day },
+                                onExercisesChanged = { newExercises ->
+                                    viewModel.updateSelectedExercises(
+                                        selectedPlan,
+                                        workoutDay.day,
+                                        newExercises
+                                    )
+                                },
+                                onSaveClick = {
+                                    viewModel.saveWorkoutPlanToDb(selectedPlan)
+                                }
+                            )
+                        }
                     }
                 }
-
             }
         }
 
         if (editingDay != null) {
-            val originalWorkoutDay = workoutDays.find { it.day == editingDay }
-            if (originalWorkoutDay != null) {
-                val currentExercises =
-                    currentPlanExercises[editingDay] ?: originalWorkoutDay.exercises
+            val workoutDay = currentWorkoutPlan?.days?.find { it.day == editingDay }
+            if (workoutDay != null) {
                 EditExercisesDialog(
                     workoutDay = WorkoutDay(
                         editingDay!!,
-                        originalWorkoutDay.focus,
-                        currentExercises.toMutableList()
+                        workoutDay.focus,
+                        workoutDay.exercises.toMutableList()
                     ),
                     onDismiss = { editingDay = null },
                     onSave = { updatedExercises ->
@@ -160,6 +152,7 @@ class WorkoutPlanScreen : Screen {
                             editingDay!!,
                             updatedExercises
                         )
+                        viewModel.reloadCurrentWorkoutPlan()
                         editingDay = null
                     },
                     sharedViewModel = viewModel,

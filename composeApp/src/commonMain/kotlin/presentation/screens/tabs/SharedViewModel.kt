@@ -82,7 +82,6 @@ class SharedWorkoutViewModel(
 
         )
     )
-
     init {
         // Initialize _selectedExercises with the workout plans
         _selectedExercises.value = workoutPlans.mapValues { (_, days) ->
@@ -120,17 +119,6 @@ class SharedWorkoutViewModel(
     }
 
 
-
-    fun loadWorkoutPlanFromDb(planName: String) {
-        screenModelScope.launch {
-            realmManager.getWorkoutPlan(planName).collect { plan ->
-                _currentWorkoutPlan.value = plan
-            }
-        }
-    }
-
-
-
     fun saveLastSelectedPlan(planName: String) {
         screenModelScope.launch {
             realmManager.saveLastSelectedPlan(planName)
@@ -144,7 +132,21 @@ class SharedWorkoutViewModel(
             }
         }
     }
-
+    fun reloadCurrentWorkoutPlan() {
+        screenModelScope.launch {
+            currentWorkoutPlan.value?.let { plan ->
+                loadWorkoutPlanFromDb(plan.name)
+            }
+        }
+    }
+    //method to update the exercises for a specific day in a workout plan
+    fun loadWorkoutPlanFromDb(planName: String) {
+        screenModelScope.launch {
+            realmManager.getWorkoutPlan(planName).collect { plan ->
+                _currentWorkoutPlan.value = plan
+            }
+        }
+    }
 
     // Preferences DataStore to get and save the selected routine name
     fun saveSelectedRoutine(routineName: String) {
