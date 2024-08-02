@@ -12,7 +12,6 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
 import presentation.screens.plans.SelectedRoutineScreen
-import presentation.screens.plans.WorkoutPlanScreen
 
 class PlansTab(
     private val onNavigator: (Boolean) -> Unit
