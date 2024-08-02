@@ -25,11 +25,6 @@ class SharedWorkoutViewModel(
 ) : ScreenModel {
     private val _selectedExercises =
         MutableStateFlow<Map<String, Map<String, List<String>>>>(emptyMap())
-    val selectedExercises: StateFlow<Map<String, Map<String, List<String>>>> =
-        _selectedExercises.asStateFlow()
-
-    private val _lastSelectedPlan = MutableStateFlow<String?>(null)
-    val lastSelectedPlan: StateFlow<String?> = _lastSelectedPlan.asStateFlow()
 
     private val _currentWorkoutPlan = MutableStateFlow<WorkoutPlanDb?>(null)
     val currentWorkoutPlan: StateFlow<WorkoutPlanDb?> = _currentWorkoutPlan.asStateFlow()
@@ -78,8 +73,6 @@ class SharedWorkoutViewModel(
             WorkoutDay("Day 4", "Shoulders", mutableListOf("Overhead Press", "Lateral Raises", "Face Pulls")),
             WorkoutDay("Day 5", "Arms", mutableListOf("Barbell Curls", "Tricep Pushdowns", "Hammer Curls")),
             WorkoutDay("Day 6", "Abs", mutableListOf("Planks", "Russian Twists", "Leg Raises"))
-
-
         )
     )
     init {
@@ -96,10 +89,6 @@ class SharedWorkoutViewModel(
             updatedPlan[day] = exercises
             currentPlans + (planName to updatedPlan)
         }
-    }
-
-    fun getWorkoutDaysForPlan(planName: String): List<WorkoutDay> {
-        return workoutPlans[planName] ?: emptyList()
     }
 
     fun saveWorkoutPlanToDb(planName: String) {
@@ -125,13 +114,7 @@ class SharedWorkoutViewModel(
         }
     }
 
-    fun loadLastSelectedPlan() {
-        screenModelScope.launch {
-            realmManager.getLastSelectedPlan().collect { plan ->
-                _lastSelectedPlan.value = plan
-            }
-        }
-    }
+    // reload the exercises lst on the card after clicking the save button on edit dialog
     fun reloadCurrentWorkoutPlan() {
         screenModelScope.launch {
             currentWorkoutPlan.value?.let { plan ->

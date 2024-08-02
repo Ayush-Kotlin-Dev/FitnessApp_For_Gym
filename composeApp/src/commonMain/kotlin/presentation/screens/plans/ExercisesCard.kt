@@ -1,7 +1,6 @@
 package presentation.screens.plans
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -156,7 +155,7 @@ fun WorkoutDayCard(
 fun EditExercisesDialog(
     workoutDay: WorkoutDay,
     onDismiss: () -> Unit,
-    onSave: (List<String>) -> Unit,
+    onSave: () -> Unit,
     sharedViewModel: SharedWorkoutViewModel,
     planName: String
 ) {
@@ -316,7 +315,7 @@ fun EditExercisesDialog(
             Button(
                 onClick = {
                     sharedViewModel.saveExercisesToDb(planName, workoutDay.day, selectedExercises)
-                    onSave(selectedExercises)
+                    onSave()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {

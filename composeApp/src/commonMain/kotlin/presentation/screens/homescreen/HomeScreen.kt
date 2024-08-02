@@ -1,5 +1,10 @@
 package presentation.screens.homescreen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,11 +25,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,10 +46,6 @@ import avikfitness.composeapp.generated.resources.Res
 import avikfitness.composeapp.generated.resources.chest_home
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.DayOfWeek
-import di.viewModelModule
-import kotlinx.coroutines.flow.first
 import org.jetbrains.compose.resources.painterResource
 import presentation.screens.tabs.SharedWorkoutViewModel
 import util.getCurrentDay
@@ -57,9 +58,7 @@ class HomeScreen : Screen {
         val sharedViewModel = koinScreenModel<SharedWorkoutViewModel>()
         val homeScreenViewModel = koinScreenModel<HomeScreenViewModel>()
 
-        val currentWorkoutDay by homeScreenViewModel.currentWorkoutDay.collectAsState()
-
-        // Collect the selected routine flow
+        val homeScreenUiState by homeScreenViewModel.homeScreenUiStateFlow.collectAsState()
         val currentPlanName by sharedViewModel.getSelectedRoutineFlow()
             .collectAsState(initial = null)
 
@@ -71,25 +70,44 @@ class HomeScreen : Screen {
             }
         }
 
+        LaunchedEffect(Unit) {
+            homeScreenViewModel.getFullName()
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
-            Text(
-                text = currentPlanName ?: "No Plan Selected",
-                color = Color.White,
-                fontSize = 24.sp
-            )
-            HeaderSection()
+            HeaderSection(fullName = homeScreenUiState.fullName)
             Spacer(modifier = Modifier.height(16.dp))
-            currentWorkoutDay?.let { workoutDay ->
-                WorkoutSection(focus = workoutDay.focus)
-                Spacer(modifier = Modifier.height(16.dp))
-                ExerciseSection(exercises = workoutDay.exercises)
-            } ?: run {
-                Text(text = "Loading...", color = Color.White, fontSize = 16.sp)
+
+            AnimatedVisibility(
+                visible = !homeScreenUiState.isLoading,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                when {
+                    homeScreenUiState.currentWorkoutDay != null -> {
+                        Column {
+                            WorkoutSection(focus = homeScreenUiState.currentWorkoutDay!!.focus)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            ExerciseSection(exercises = homeScreenUiState.currentWorkoutDay!!.exercises)
+                        }
+                    }
+                    !homeScreenUiState.isLoading -> {
+                        Text(
+                            text = "No workout planned for today. Go to Plans to choose your exercises.",
+                            color = Color.Gray,
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+            }
+
+            if (homeScreenUiState.isLoading) {
+                CircularProgressIndicator(color = Color.White)
             }
         }
     }
@@ -98,7 +116,8 @@ class HomeScreen : Screen {
 
 @Composable
 fun HeaderSection(
-    currentDay: String = getCurrentDay()
+    currentDay: String = getCurrentDay(),
+    fullName : String = ""
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -112,7 +131,7 @@ fun HeaderSection(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Text(text = "Welcome Ayush", color = Color.White, fontSize = 18.sp)
+            Text(text = "Welcome ${fullName.substringBefore(" ")}", color = Color.White, fontSize = 18.sp)
             Text(
                 text = "Way to go! You're on a hot 3-week workout streak",
                 color = Color.Gray,

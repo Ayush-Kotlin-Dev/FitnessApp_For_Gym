@@ -59,6 +59,7 @@ class RealmManager {
         }
     }
 
+    //method to get the last selected plan
     suspend fun saveLastSelectedPlan(planName: String) {
         realm.write {
             val config = query<Config>("key == $0", "lastSelectedPlan").first().find()
@@ -68,12 +69,6 @@ class RealmManager {
         }
     }
 
-    fun getLastSelectedPlan(): Flow<String?> {
-        return realm.query<Config>("key == $0", "lastSelectedPlan")
-            .first()
-            .asFlow()
-            .map { it.obj?.value }
-    }
     //method to update the exercises for a specific day in a workout plan
     //TODO: Add a method to update the exercises for a specific day in a workout plan
     suspend fun updateWorkoutDayExercises(planName: String, dayName: String, exercises: List<String>) {

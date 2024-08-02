@@ -4,6 +4,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -51,7 +54,13 @@ class WorkoutPlanScreen : Screen {
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Black.copy(alpha = 0.7f),
                         titleContentColor = Color.White
-                    )
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = { navigator.pop() }) {
+                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+
                 )
             }
         ) { innerPadding ->
@@ -127,7 +136,11 @@ class WorkoutPlanScreen : Screen {
                                     )
                                 },
                                 onSaveClick = {
-                                    viewModel.saveWorkoutPlanToDb(selectedPlan)
+                                    viewModel.saveExercisesToDb(
+                                        selectedPlan,
+                                        workoutDay.day,
+                                        workoutDay.exercises
+                                    )
                                 }
                             )
                         }
@@ -146,12 +159,7 @@ class WorkoutPlanScreen : Screen {
                         workoutDay.exercises.toMutableList()
                     ),
                     onDismiss = { editingDay = null },
-                    onSave = { updatedExercises ->
-                        viewModel.updateSelectedExercises(
-                            selectedPlan,
-                            editingDay!!,
-                            updatedExercises
-                        )
+                    onSave = {
                         viewModel.reloadCurrentWorkoutPlan()
                         editingDay = null
                     },
