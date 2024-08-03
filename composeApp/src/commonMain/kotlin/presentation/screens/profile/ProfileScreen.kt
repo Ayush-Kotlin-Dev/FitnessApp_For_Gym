@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
@@ -124,30 +125,82 @@ fun StatsSection(viewModel: ProfileScreenViewModel) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 StatItem(
                     title = "Height",
-                    value = viewModel.userSettingsState.height.toString(),
+                    value = "${viewModel.userSettingsState.height} cm",
                     modifier = Modifier.weight(1f)
                 )
                 StatItem(
                     title = "Weight",
-                    value = viewModel.userSettingsState.weight.toString(),
+                    value = "${viewModel.userSettingsState.weight} kg",
                     modifier = Modifier.weight(1f)
                 )
-                StatItem(
-                    //calculate BMI
-                    title = "BMI",
-                    value =  calculateBMI(viewModel.userSettingsState.height, viewModel.userSettingsState.weight) ,
-                    modifier = Modifier.weight(1f)
-                )
-
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            BMIStatItem(viewModel.userSettingsState.height, viewModel.userSettingsState.weight)
         }
     }
 }
 
-private fun calculateBMI(height: Float, weight: Float): String {
+@Composable
+fun BMIStatItem(height: Float, weight: Float) {
+    val bmi = calculateBMI(height, weight)
+    val bmiValue = formatBmi(bmi)
+    val bmiCategory = getBMICategory(bmi)
+    val bmiColor = getBMIColor(bmiCategory)
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(
+                text = "BMI",
+                style = MaterialTheme.typography.bodyMedium,
+                color = SecondaryTextColor
+            )
+            Text(
+                text = bmiValue,
+                style = MaterialTheme.typography.titleLarge,
+                color = PrimaryTextColor,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Box(
+            modifier = Modifier
+                .background(bmiColor, shape = RoundedCornerShape(4.dp))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Text(
+                text = bmiCategory,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+private fun calculateBMI(height: Float, weight: Float): Float {
     val heightInMeters = height / 100 // Assuming height is in centimeters
-    val bmi = weight / (heightInMeters * heightInMeters)
-    return formatBmi(bmi)
+    return weight / (heightInMeters * heightInMeters)
+}
+
+private fun getBMICategory(bmi: Float): String {
+    return when {
+        bmi < 18.5 -> "Underweight"
+        bmi < 24.9 -> "Normal"
+        bmi < 29.9 -> "Overweight"
+        else -> "Obese"
+    }
+}
+
+private fun getBMIColor(category: String): Color {
+    return when (category) {
+        "Underweight" -> Color(0xFFFFA500) // Orange
+        "Normal" -> Color(0xFF4CAF50) // Green
+        "Overweight" -> Color(0xFFFFA500) // Orange
+        else -> Color(0xFFFF0000) // Red
+    }
 }
 
 expect fun formatBmi(bmi: Float): String
@@ -159,7 +212,6 @@ fun StatItem(title: String, value: String, modifier: Modifier = Modifier) {
         Text(text = value, style = MaterialTheme.typography.titleLarge, color = PrimaryTextColor, fontWeight = FontWeight.Bold)
     }
 }
-
 @Composable
 fun PreferencesSection(viewModel: ProfileScreenViewModel) {
     Card(
