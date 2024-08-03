@@ -199,10 +199,9 @@ fun WorkoutSection(focus: String) {
             Image(
                 painter = painterResource(Res.drawable.chest_home),
                 contentDescription = "Workout Image",
-                modifier = Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(8.dp))
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
             )
             Column {
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = focus,
                     color = Color.White,
@@ -211,16 +210,18 @@ fun WorkoutSection(focus: String) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Recommended",
-                    color = Color.Yellow,
+                    text = " Recommended ",
+                    color = Color.Black,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.background(Color.Yellow, RoundedCornerShape(4.dp))
                 )
                 Text(
                     text = "Dynamic Warmup | 22 Minutes",
                     color = Color.White,
                     fontSize = 14.sp
                 )
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
@@ -243,9 +244,8 @@ fun ExerciseSection(exercises: List<String>) {
             ExerciseItem(
                 number = index + 1,
                 title = exercise,
-                description = "Custom exercise from your plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan plan",
-                isLast = index == exercises.size - 1,
-
+                description = "3 sets, 10 reps each set | 30 sec rest between sets | 1 min rest between exercises ",
+                isLast = index == exercises.size - 1
             )
         }
     }
@@ -256,7 +256,7 @@ fun ExerciseItem(number: Int, title: String, description: String, isLast: Boolea
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {  }
+            .clickable { }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -289,12 +289,14 @@ fun ExerciseItem(number: Int, title: String, description: String, isLast: Boolea
             modifier = Modifier
                 .background(Color(0xFF1E1E1E), shape = RoundedCornerShape(8.dp))
                 .padding(16.dp)
+                .weight(1f) // Allow Column to take available space
         ) {
             Text(
                 text = title,
                 color = Color.White,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 4.dp)
             )
             Text(
                 text = description,

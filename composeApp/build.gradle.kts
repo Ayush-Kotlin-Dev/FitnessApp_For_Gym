@@ -68,6 +68,9 @@ kotlin {
             implementation("com.stevdza-san:messagebarkmp:1.0.5")
             implementation("com.soywiz.korlibs.klock:klock:2.0.7")
             implementation(libs.haze)
+            implementation(libs.kotlinx.datetime)
+
+
         }
 //        iosMain.dependencies {
 //            implementation(compose.runtime)
