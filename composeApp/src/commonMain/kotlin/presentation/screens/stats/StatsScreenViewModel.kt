@@ -41,9 +41,9 @@ class StatsScreenViewModel : ScreenModel {
     }
     fun getAttendanceStreak(): List<AttendanceDay> {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        return (0 until 28).map { daysAgo ->
+        return (0 until 84).map { daysAgo ->
             val date = today.minus(DatePeriod(days = daysAgo))
-            AttendanceDay(date, attended = daysAgo % 3 != 0)
+            AttendanceDay(date, attended = daysAgo % 2 != 0)
         }.reversed()
     }
 }

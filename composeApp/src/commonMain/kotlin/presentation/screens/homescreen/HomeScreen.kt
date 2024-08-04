@@ -256,7 +256,7 @@ fun ExerciseItem(number: Int, title: String, description: String, isLast: Boolea
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
+            .clickable {  } //TODO navigate to detailed screen of that exercise (having stats of that exercise (last week weight reps ))
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

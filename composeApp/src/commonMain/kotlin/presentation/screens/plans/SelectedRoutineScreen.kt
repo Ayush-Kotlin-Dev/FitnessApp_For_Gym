@@ -2,11 +2,15 @@ package presentation.screens.plans
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -27,6 +31,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -51,6 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -157,13 +164,14 @@ class SelectedRoutineScreen : Screen {
                                     },
                                     onDragEnd = {
                                     }
-                                ) { workoutDay ->
-                                    ExercisesCard(workoutDay = workoutDay)
+                                ) { workoutDay, isDragging ->
+                                    ExercisesCard(workoutDay = workoutDay, isDragging = isDragging)
                                 }
                             } ?: Text(
                                 "No workout plan found for the selected routine.",
                                 color = SecondaryTextColor
                             )
+
                         } ?: Text(
                             "No routine selected. Tap the edit button to choose a routine.",
                             color = SecondaryTextColor
@@ -183,7 +191,7 @@ fun <T> DraggableLazyColumn(
     onMove: (Int, Int) -> Unit,
     onDragEnd: () -> Unit,
     key: ((item: T) -> Any)? = null,
-    itemContent: @Composable (T) -> Unit
+    itemContent: @Composable (T, Boolean) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     var draggedDistance by remember { mutableStateOf(0f) }
@@ -255,15 +263,24 @@ fun <T> DraggableLazyColumn(
                     .fillMaxWidth()
                     .zIndex(zIndex)
             ) {
-                itemContent(item)
+                itemContent(item, isDragging)
             }
         }
     }
 }
 
+
 @Composable
-fun ExercisesCard(workoutDay: WorkoutDayDb) {
+fun ExercisesCard(workoutDay: WorkoutDayDb, isDragging: Boolean = false) {
     var isPressed by remember { mutableStateOf(false) }
+
+    val elevation by animateDpAsState(
+        targetValue = if (isDragging) 16.dp else 4.dp
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed || isDragging) 0.95f else 1f
+    )
+    val shadowColor = if (isDragging) Color.Gray else Color.Transparent
 
     Card(
         modifier = Modifier
@@ -279,21 +296,34 @@ fun ExercisesCard(workoutDay: WorkoutDayDb) {
                 )
             }
             .graphicsLayer {
-                scaleX = if (isPressed) 0.95f else 1f
-                scaleY = if (isPressed) 0.95f else 1f
+                scaleX = scale
+                scaleY = scale
+                shadowElevation = if (isDragging) 8.dp.toPx() else 0f
+                shape = RoundedCornerShape(12.dp)
+                clip = true
             }
+            .shadow(elevation, shape = RoundedCornerShape(12.dp), isPressed, shadowColor)
             .animateContentSize(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation),
         colors = CardDefaults.cardColors(containerColor = CardBackgroundColor)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .background(
+                    color = if (isDragging) CardBackgroundColor.copy(alpha = 0.7f) else CardBackgroundColor,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .border(
+                    BorderStroke(1.dp, if (isDragging) AccentColor else Color.Transparent),
+                    shape = RoundedCornerShape(12.dp)
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Default.Edit,
                 contentDescription = "Drag to reorder",
-                tint = SecondaryTextColor,
+                tint = if (isDragging) AccentColor else SecondaryTextColor,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
