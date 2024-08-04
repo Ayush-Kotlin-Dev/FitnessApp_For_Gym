@@ -1,6 +1,7 @@
 package presentation.screens.plans
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -8,6 +9,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -138,7 +141,13 @@ class SelectedRoutineScreen : Screen {
                                 fontWeight = FontWeight.Bold,
                                 color = PrimaryTextColor
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Tip: Press and hold to reorder workout days",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = SecondaryTextColor,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
                             currentWorkoutPlan?.days?.let { days ->
                                 DraggableLazyColumn(
                                     items = days,
@@ -147,7 +156,6 @@ class SelectedRoutineScreen : Screen {
                                         viewModel.reorderWorkoutDays(from, to)
                                     },
                                     onDragEnd = {
-                                        viewModel.saveReorderedWorkoutDays()
                                     }
                                 ) { workoutDay ->
                                     ExercisesCard(workoutDay = workoutDay)
@@ -255,50 +263,78 @@ fun <T> DraggableLazyColumn(
 
 @Composable
 fun ExercisesCard(workoutDay: WorkoutDayDb) {
+    var isPressed by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp)),
+            .clip(RoundedCornerShape(12.dp))
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        isPressed = true
+                        tryAwaitRelease()
+                        isPressed = false
+                    }
+                )
+            }
+            .graphicsLayer {
+                scaleX = if (isPressed) 0.95f else 1f
+                scaleY = if (isPressed) 0.95f else 1f
+            }
+            .animateContentSize(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = CardBackgroundColor)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = workoutDay.day,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = AccentColor
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Drag to reorder",
+                tint = SecondaryTextColor,
+                modifier = Modifier.size(24.dp)
             )
-            Text(
-                text = workoutDay.focus,
-                style = MaterialTheme.typography.titleMedium,
-                color = SecondaryTextColor
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            workoutDay.exercises.forEachIndexed { index, exercise ->
-                if (index > 0) {
-                    Divider(
-                        color = DividerColor,
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                }
-                Row(
-                    modifier = Modifier.padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(AccentColor)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = exercise,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = PrimaryTextColor
-                    )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = workoutDay.day,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = AccentColor
+                )
+                Text(
+                    text = workoutDay.focus,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = SecondaryTextColor
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                workoutDay.exercises.forEachIndexed { index, exercise ->
+                    if (index > 0) {
+                        Divider(
+                            color = DividerColor,
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(AccentColor)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = exercise,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = PrimaryTextColor
+                        )
+                    }
                 }
             }
         }

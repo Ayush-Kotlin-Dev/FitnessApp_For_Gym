@@ -12,6 +12,6 @@ fun getCurrentDay(): String {
         DayOfWeek.Thursday -> "Day 4"
         DayOfWeek.Friday -> "Day 5"
         DayOfWeek.Saturday -> "Day 6"
-        DayOfWeek.Sunday -> "Day 7"
+        DayOfWeek.Sunday -> "Day 1"
     }
 }

@@ -154,23 +154,14 @@ class SharedWorkoutViewModel(
 
     fun reorderWorkoutDays(fromIndex: Int, toIndex: Int) {
         screenModelScope.launch {
-            realmManager.reorderWorkoutDays(
-                currentWorkoutPlan.value?.name ?: return@launch,
-                fromIndex,
-                toIndex
-            )
-            // Reload the workout plan to reflect changes
-            currentWorkoutPlan.value?.name?.let { loadWorkoutPlanFromDb(it) }
+            currentWorkoutPlan.value?.let { plan ->
+                realmManager.reorderWorkoutDays(plan.name, fromIndex, toIndex)
+                // Reload the workout plan to reflect changes
+                loadWorkoutPlanFromDb(plan.name)
+            }
         }
     }
 
-    fun saveReorderedWorkoutDays() {
-        screenModelScope.launch {
-            currentWorkoutPlan.value?.let { plan ->
-                realmManager.updateWorkoutDayOrder(plan.name, plan.days)
-            } ?: println("No current workout plan to save reordered days")
-        }
-    }
 
 
     override fun onDispose() {

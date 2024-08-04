@@ -96,8 +96,14 @@ class RealmManager {
             plan?.let { foundPlan ->
                 val mutableDays = foundPlan.days.toMutableList()
                 if (fromIndex in mutableDays.indices && toIndex in mutableDays.indices) {
-                    val day = mutableDays.removeAt(fromIndex)
-                    mutableDays.add(toIndex, day)
+                    val movedDay = mutableDays.removeAt(fromIndex)
+                    mutableDays.add(toIndex, movedDay)
+
+                    // Update the day numbers
+                    mutableDays.forEachIndexed { index, day ->
+                        day.day = "Day ${index + 1}"
+                    }
+
                     foundPlan.days.clear()
                     foundPlan.days.addAll(mutableDays)
                 } else {
@@ -106,5 +112,4 @@ class RealmManager {
             }
         }
     }
-
 }
