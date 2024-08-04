@@ -81,4 +81,30 @@ class RealmManager {
         }
     }
 
+    suspend fun updateWorkoutDayOrder(planName: String, reorderedDays: List<WorkoutDayDb>) {
+        realm.write {
+            val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
+            plan?.let { foundPlan ->
+                foundPlan.days.clear()
+                foundPlan.days.addAll(reorderedDays)
+            }
+        }
+    }
+    suspend fun reorderWorkoutDays(planName: String, fromIndex: Int, toIndex: Int) {
+        realm.write {
+            val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
+            plan?.let { foundPlan ->
+                val mutableDays = foundPlan.days.toMutableList()
+                if (fromIndex in mutableDays.indices && toIndex in mutableDays.indices) {
+                    val day = mutableDays.removeAt(fromIndex)
+                    mutableDays.add(toIndex, day)
+                    foundPlan.days.clear()
+                    foundPlan.days.addAll(mutableDays)
+                } else {
+                    println("Invalid reorder indexes")
+                }
+            }
+        }
+    }
+
 }
