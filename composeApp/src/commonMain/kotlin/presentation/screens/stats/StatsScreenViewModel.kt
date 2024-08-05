@@ -2,20 +2,25 @@ package presentation.screens.stats
 
 import androidx.compose.runtime.mutableStateListOf
 import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
+import domain.RealmManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.*
 import kotlin.random.Random
 
-class StatsScreenViewModel : ScreenModel {
+class StatsScreenViewModel(
+    private val realmManager: RealmManager
+) : ScreenModel {
     private val _personalRecords = mutableStateListOf<PersonalRecord>()
     val personalRecords: List<PersonalRecord> = _personalRecords
 
     init {
         // Initialize with some example data
-        _personalRecords.addAll(listOf(
-            PersonalRecord("Bench Press", 100f, 5),
-            PersonalRecord("Squat", 150f, 3),
-            PersonalRecord("Deadlift", 180f, 1)
-        ))
+        getPersonalRecords()
+
     }
 
     fun getOverallStats(): List<Pair<String, String>> {
@@ -77,14 +82,19 @@ class StatsScreenViewModel : ScreenModel {
 
     data class ProgressDataPoint(val label: String, val value: Float)
 
-    fun fetchPersonalRecords(): List<PersonalRecord> = personalRecords
+    fun fetchPersonalRecords(): List<PersonalRecord> = _personalRecords
 
-    fun savePersonalRecord(record: PersonalRecord) {
-        val index = _personalRecords.indexOfFirst { it.exercise == record.exercise }
-        if (index != -1) {
-            _personalRecords[index] = record
-        } else {
-            _personalRecords.add(record)
+    suspend fun savePersonalRecord(record: PersonalRecord) {
+        realmManager.savePersonalRecord(record)
+    }
+    private fun getPersonalRecords() {
+        screenModelScope.launch {
+            realmManager.getPersonalRecords().collect { records ->
+                withContext(Dispatchers.Main) {
+                    _personalRecords.clear()
+                    _personalRecords.addAll(records)
+                }
+            }
         }
     }
 
@@ -106,6 +116,9 @@ class StatsScreenViewModel : ScreenModel {
         // Implement logic to calculate average nutrition data
         return NutritionData(2000, 100, 200, 50)
     }
+
+
+
 }
 
 data class ConsistencyData(

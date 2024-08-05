@@ -18,3 +18,11 @@ class WorkoutDayDb : RealmObject {
     var focus: String = ""
     var exercises: RealmList<String> = realmListOf()
 }
+
+class PersonalRecordDb :RealmObject {
+    @PrimaryKey
+    var id: ObjectId = ObjectId()
+    var exercise: String= ""
+    var weight: Float = 0f
+    var reps: Int = 0
+}

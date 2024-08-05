@@ -1,5 +1,6 @@
 package domain
 
+import data.models.PersonalRecordDb
 import data.models.WorkoutDayDb
 import data.models.WorkoutPlanDb
 import io.realm.kotlin.Realm
@@ -9,6 +10,7 @@ import io.realm.kotlin.types.RealmObject
 import kotlinx.coroutines.flow.Flow
 import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.coroutines.flow.map
+import presentation.screens.stats.PersonalRecord
 
 class Config : RealmObject {
     @PrimaryKey
@@ -24,7 +26,7 @@ class RealmManager {
     }
 
     private fun initialize() {
-        val config = RealmConfiguration.Builder(schema = setOf(WorkoutPlanDb::class, WorkoutDayDb::class, Config::class))
+        val config = RealmConfiguration.Builder(schema = setOf(WorkoutPlanDb::class, WorkoutDayDb::class, PersonalRecordDb::class, Config::class))
             .name("workout_database")
             .compactOnLaunch()
             .build()
@@ -80,16 +82,7 @@ class RealmManager {
             }
         }
     }
-
-    suspend fun updateWorkoutDayOrder(planName: String, reorderedDays: List<WorkoutDayDb>) {
-        realm.write {
-            val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
-            plan?.let { foundPlan ->
-                foundPlan.days.clear()
-                foundPlan.days.addAll(reorderedDays)
-            }
-        }
-    }
+    //method to reorder the workout days in a workout plan
     suspend fun reorderWorkoutDays(planName: String, fromIndex: Int, toIndex: Int) {
         realm.write {
             val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
@@ -109,6 +102,35 @@ class RealmManager {
                 } else {
                     println("Invalid reorder indexes")
                 }
+            }
+        }
+    }
+    suspend fun savePersonalRecord(record: PersonalRecord) {
+        val normalizedExercise = record.exercise.trim().lowercase()
+        realm.write {
+            val existingRecord = query<PersonalRecordDb>("exercise == $0", normalizedExercise).first().find()
+            if (existingRecord != null) {
+                existingRecord.weight = record.weight
+                existingRecord.reps = record.reps
+            } else {
+                val recordDb = PersonalRecordDb().apply {
+                    exercise = normalizedExercise
+                    weight = record.weight
+                    reps = record.reps
+                }
+                copyToRealm(recordDb)
+            }
+        }
+    }
+
+    fun getPersonalRecords(): Flow<List<PersonalRecord>> {
+        return realm.query<PersonalRecordDb>().asFlow().map { results ->
+            results.list.map { recordDb ->
+                PersonalRecord(
+                    exercise = recordDb.exercise,
+                    weight = recordDb.weight,
+                    reps = recordDb.reps
+                )
             }
         }
     }
