@@ -1,9 +1,22 @@
 package presentation.screens.stats
 
+import androidx.compose.runtime.mutableStateListOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.datetime.*
+import kotlin.random.Random
 
 class StatsScreenViewModel : ScreenModel {
+    private val _personalRecords = mutableStateListOf<PersonalRecord>()
+    val personalRecords: List<PersonalRecord> = _personalRecords
+
+    init {
+        // Initialize with some example data
+        _personalRecords.addAll(listOf(
+            PersonalRecord("Bench Press", 100f, 5),
+            PersonalRecord("Squat", 150f, 3),
+            PersonalRecord("Deadlift", 180f, 1)
+        ))
+    }
 
     fun getOverallStats(): List<Pair<String, String>> {
         return listOf(
@@ -39,14 +52,77 @@ class StatsScreenViewModel : ScreenModel {
             )
         )
     }
+
     fun getAttendanceStreak(): List<AttendanceDay> {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-        return (0 until 84).map { daysAgo ->
-            val date = today.minus(DatePeriod(days = daysAgo))
-            AttendanceDay(date, attended = daysAgo % 2 != 0)
-        }.reversed()
+        val daysInMonth = daysInMonth(today.month, today.year)
+        return (0 until daysInMonth).map { day ->
+            val date = LocalDate(today.year, today.month, day + 1)
+            AttendanceDay(date, attended = Random.nextBoolean())
+        }
+    }
+
+    fun getProgressData(): List<ProgressDataPoint> {
+        // This should fetch real data from your database or API
+        // For now, let's use some example data
+        return listOf(
+            ProgressDataPoint("Chest", 20f),
+            ProgressDataPoint("Back", 25f),
+            ProgressDataPoint("Legs", 30f),
+            ProgressDataPoint("Arms", 15f),
+            ProgressDataPoint("Shoulders", 10f)
+        )
+    }
+
+
+    data class ProgressDataPoint(val label: String, val value: Float)
+
+    fun fetchPersonalRecords(): List<PersonalRecord> = personalRecords
+
+    fun savePersonalRecord(record: PersonalRecord) {
+        val index = _personalRecords.indexOfFirst { it.exercise == record.exercise }
+        if (index != -1) {
+            _personalRecords[index] = record
+        } else {
+            _personalRecords.add(record)
+        }
+    }
+
+    fun getWorkoutConsistency(): ConsistencyData {
+        // Implement logic to calculate workout consistency
+        return ConsistencyData(80, 20, 25)
+    }
+
+    fun getLatestBodyMeasurements(): Map<String, String> {
+        // Implement logic to fetch latest body measurements
+        return mapOf(
+            "Weight" to "70kg",
+            "Height" to "180cm",
+            "Body Fat" to "15%"
+        )
+    }
+
+    fun getNutritionSummary(): NutritionData {
+        // Implement logic to calculate average nutrition data
+        return NutritionData(2000, 100, 200, 50)
     }
 }
+
+data class ConsistencyData(
+    val percentage: Int,
+    val daysWorkedOut: Int,
+    val totalDays: Int
+)
+
+data class NutritionData(
+    val calories: Int,
+    val protein: Int,
+    val carbs: Int,
+    val fat: Int
+)
+
+data class PersonalRecord(val exercise: String, val weight: Float, val reps: Int)
+
 
 data class ExerciseStats(
     val name: String,
@@ -54,7 +130,17 @@ data class ExerciseStats(
     val sets: Int,
     val reps: Int
 )
+
 data class AttendanceDay(
     val date: LocalDate,
     val attended: Boolean
 )
+
+fun daysInMonth(month: Month, year: Int): Int {
+    return when (month) {
+        Month.JANUARY, Month.MARCH, Month.MAY, Month.JULY, Month.AUGUST, Month.OCTOBER, Month.DECEMBER -> 31
+        Month.APRIL, Month.JUNE, Month.SEPTEMBER, Month.NOVEMBER -> 30
+        Month.FEBRUARY -> if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) 29 else 28
+        else -> TODO()
+    }
+}

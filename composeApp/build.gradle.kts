@@ -69,6 +69,7 @@ kotlin {
             implementation("com.soywiz.korlibs.klock:klock:2.0.7")
             implementation(libs.haze)
             implementation(libs.kotlinx.datetime)
+            implementation("io.github.koalaplot:koalaplot-core:0.6.3")
 
         }
 //        iosMain.dependencies {
