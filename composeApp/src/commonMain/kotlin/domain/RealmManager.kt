@@ -134,4 +134,22 @@ class RealmManager {
             }
         }
     }
+
+    suspend fun reorderExercises(planName: String, dayName: String, fromIndex: Int, toIndex: Int) {
+        realm.write {
+            val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
+            plan?.days?.find { it.day == dayName }?.let { day ->
+                val mutableExercises = day.exercises.toMutableList()
+                if (fromIndex in mutableExercises.indices && toIndex in mutableExercises.indices) {
+                    val movedExercise = mutableExercises.removeAt(fromIndex)
+                    mutableExercises.add(toIndex, movedExercise)
+
+                    day.exercises.clear()
+                    day.exercises.addAll(mutableExercises)
+                } else {
+                    println("Invalid reorder indexes for exercises")
+                }
+            }
+        }
+    }
 }

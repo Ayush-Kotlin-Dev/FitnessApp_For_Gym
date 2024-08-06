@@ -1,6 +1,8 @@
 package presentation.screens.homescreen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,7 +11,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,11 +29,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -43,16 +45,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import avikfitness.composeapp.generated.resources.Res
 import avikfitness.composeapp.generated.resources.chest_home
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
-import com.soywiz.klock.hr.max
 import org.jetbrains.compose.resources.painterResource
+import presentation.components.DraggableLazyColumn
 import presentation.screens.tabs.SharedWorkoutViewModel
 import util.getCurrentDay
 
@@ -99,7 +103,12 @@ class HomeScreen : Screen {
                         Column {
                             WorkoutSection(focus = homeScreenUiState.currentWorkoutDay!!.focus)
                             Spacer(modifier = Modifier.height(16.dp))
-                            ExerciseSection(exercises = homeScreenUiState.currentWorkoutDay!!.exercises)
+                            ExerciseSection(
+                                exercises = homeScreenUiState.currentWorkoutDay!!.exercises,
+                                onReorder = { from, to ->
+                                    homeScreenViewModel.reorderExercises(from, to)
+                                }
+                            )
                         }
                     }
 
@@ -228,7 +237,12 @@ fun WorkoutSection(focus: String) {
 }
 
 @Composable
-fun ExerciseSection(exercises: List<String>) {
+fun ExerciseSection(
+    exercises: List<String>,
+    onReorder: (Int, Int) -> Unit
+) {
+    val lazyListState = rememberLazyListState()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -240,23 +254,66 @@ fun ExerciseSection(exercises: List<String>) {
             fontSize = 14.sp,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        exercises.forEachIndexed { index, exercise ->
-            ExerciseItem(
-                number = index + 1,
-                title = exercise,
-                description = "3 sets, 10 reps each set | 30 sec rest between sets | 1 min rest between exercises ",
-                isLast = index == exercises.size - 1
-            )
+
+        Box(modifier = Modifier.height(500.dp)) { //TODO: Fix height
+            DraggableLazyColumn(
+                items = exercises,
+                lazyListState = lazyListState,
+                onMove = onReorder,
+                onDragEnd = { }
+            ) { exercise, isDragging ->
+                DraggableExerciseItem(
+                    number = exercises.indexOf(exercise) + 1,
+                    title = exercise,
+                    description = "3 sets, 10 reps each set | 30 sec rest between sets | 1 min rest between exercises",
+                    isLast = exercise == exercises.last(),
+                    isDragging = isDragging
+                )
+            }
         }
     }
 }
 
 @Composable
-fun ExerciseItem(number: Int, title: String, description: String, isLast: Boolean) { //TODO navigates to detailed screen of that exercise (having stats of that exercise (last week weight reps ))
+fun DraggableExerciseItem(
+    number: Int,
+    title: String,
+    description: String,
+    isLast: Boolean,
+    isDragging: Boolean
+) {
+    val elevation by animateDpAsState(if (isDragging) 8.dp else 2.dp)
+    val scale by animateFloatAsState(if (isDragging) 1.05f else 1f)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .graphicsLayer(scaleX = scale, scaleY = scale)
+            .zIndex(if (isDragging) 1f else 0f),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation),
+        colors = CardDefaults.cardColors(containerColor = if (isDragging) Color(0xFF2A2A2A) else Color.Transparent)
+    ) {
+        ExerciseItem(
+            number = number,
+            title = title,
+            description = description,
+            isLast = isLast
+        )
+    }
+}
+
+@Composable
+fun ExerciseItem(
+    number: Int,
+    title: String,
+    description: String,
+    isLast: Boolean
+) { //TODO navigates to detailed screen of that exercise (having stats of that exercise (last week weight reps ))
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {  } //TODO navigate to detailed screen of that exercise (having stats of that exercise (last week weight reps ))
+            .clickable { } //TODO navigate to detailed screen of that exercise (having stats of that exercise (last week weight reps ))
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

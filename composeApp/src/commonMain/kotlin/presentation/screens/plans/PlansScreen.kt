@@ -134,13 +134,6 @@ class WorkoutPlanScreen : Screen {
                                         workoutDay.day,
                                         newExercises
                                     )
-                                },
-                                onSaveClick = {
-                                    viewModel.saveExercisesToDb(
-                                        selectedPlan,
-                                        workoutDay.day,
-                                        workoutDay.exercises
-                                    )
                                 }
                             )
                         }

@@ -11,10 +11,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,14 +22,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -52,7 +44,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,16 +54,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import data.models.WorkoutDayDb
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import presentation.components.DraggableLazyColumn
 import presentation.screens.tabs.SharedWorkoutViewModel
 
 val BackgroundColor = Color(0xFF121212)
@@ -184,90 +171,6 @@ class SelectedRoutineScreen : Screen {
     }
 }
 
-@Composable
-fun <T> DraggableLazyColumn(
-    items: List<T>,
-    lazyListState: LazyListState,
-    onMove: (Int, Int) -> Unit,
-    onDragEnd: () -> Unit,
-    key: ((item: T) -> Any)? = null,
-    itemContent: @Composable (T, Boolean) -> Unit
-) {
-    val coroutineScope = rememberCoroutineScope()
-    var draggedDistance by remember { mutableStateOf(0f) }
-    var draggingItemIndex by remember { mutableStateOf<Int?>(null) }
-    var overscrollJob by remember { mutableStateOf<Job?>(null) }
-
-    LazyColumn(
-        state = lazyListState,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.pointerInput(Unit) {
-            detectDragGesturesAfterLongPress(
-                onDrag = { change, offset ->
-                    change.consume()
-                    draggedDistance += offset.y
-
-                    draggingItemIndex?.let { index ->
-                        val itemSize = size.height / items.size
-                        val newPosition = index + (draggedDistance / itemSize).toInt()
-
-                        if (newPosition in items.indices && newPosition != index) {
-                            onMove(index, newPosition)
-                            draggingItemIndex = newPosition
-                            draggedDistance = 0f
-                        }
-
-                        coroutineScope.launch {
-                            val overscrollY = when {
-                                draggedDistance > 0 -> draggedDistance.coerceAtMost(size.height.toFloat())
-                                draggedDistance < 0 -> draggedDistance.coerceAtLeast(-size.height.toFloat())
-                                else -> 0f
-                            }
-                            if (overscrollY != 0f) {
-                                overscrollJob?.cancel()
-                                overscrollJob = coroutineScope.launch {
-                                    withContext(Dispatchers.Main) {
-                                        lazyListState.animateScrollBy(overscrollY)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                onDragStart = { offset ->
-                    lazyListState.layoutInfo.visibleItemsInfo
-                        .firstOrNull { item -> offset.y.toInt() in item.offset..item.offset + item.size }
-                        ?.let { item ->
-                            draggingItemIndex = item.index
-                        }
-                },
-                onDragEnd = {
-                    onDragEnd()
-                    draggingItemIndex = null
-                    draggedDistance = 0f
-                },
-                onDragCancel = {
-                    draggingItemIndex = null
-                    draggedDistance = 0f
-                }
-            )
-        }
-    ) {
-        items(items, key = key) { item ->
-            val isDragging = items.indexOf(item) == draggingItemIndex
-            val zIndex = if (isDragging) 1f else 0f
-            val elevation = if (isDragging) 8.dp else 0.dp
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .zIndex(zIndex)
-            ) {
-                itemContent(item, isDragging)
-            }
-        }
-    }
-}
 
 
 @Composable
@@ -301,70 +204,60 @@ fun ExercisesCard(workoutDay: WorkoutDayDb, isDragging: Boolean = false) {
                 shadowElevation = if (isDragging) 8.dp.toPx() else 0f
                 shape = RoundedCornerShape(12.dp)
                 clip = true
-            }
+            }.border(
+                BorderStroke(1.dp, if (isDragging) AccentColor else Color.Transparent),
+                shape = RoundedCornerShape(12.dp)
+            )
             .shadow(elevation, shape = RoundedCornerShape(12.dp), isPressed, shadowColor)
             .animateContentSize(),
         elevation = CardDefaults.cardElevation(defaultElevation = elevation),
         colors = CardDefaults.cardColors(containerColor = CardBackgroundColor)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .padding(16.dp)
                 .background(
                     color = if (isDragging) CardBackgroundColor.copy(alpha = 0.7f) else CardBackgroundColor,
                     shape = RoundedCornerShape(12.dp)
                 )
-                .border(
-                    BorderStroke(1.dp, if (isDragging) AccentColor else Color.Transparent),
-                    shape = RoundedCornerShape(12.dp)
-                ),
-            verticalAlignment = Alignment.CenterVertically
+
         ) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Drag to reorder",
-                tint = if (isDragging) AccentColor else SecondaryTextColor,
-                modifier = Modifier.size(24.dp)
+            Text(
+                text = workoutDay.day,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = AccentColor
             )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    text = workoutDay.day,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = AccentColor
-                )
-                Text(
-                    text = workoutDay.focus,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = SecondaryTextColor
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                workoutDay.exercises.forEachIndexed { index, exercise ->
-                    if (index > 0) {
-                        Divider(
-                            color = DividerColor,
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-                    Row(
-                        modifier = Modifier.padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .clip(RoundedCornerShape(50))
-                                .background(AccentColor)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = exercise,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = PrimaryTextColor
-                        )
-                    }
+            Text(
+                text = workoutDay.focus,
+                style = MaterialTheme.typography.titleMedium,
+                color = SecondaryTextColor
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            workoutDay.exercises.forEachIndexed { index, exercise ->
+                if (index > 0) {
+                    Divider(
+                        color = DividerColor,
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+                Row(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(AccentColor)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = exercise,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = PrimaryTextColor
+                    )
                 }
             }
         }

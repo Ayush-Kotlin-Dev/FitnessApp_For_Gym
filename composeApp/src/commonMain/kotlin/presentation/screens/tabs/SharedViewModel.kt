@@ -149,8 +149,6 @@ class SharedWorkoutViewModel(
             updateSelectedExercises(planName, day, exercises)
         }
     }
-    private val _workoutDays = MutableStateFlow<List<WorkoutDayDb>>(emptyList())
-    val workoutDays: StateFlow<List<WorkoutDayDb>> = _workoutDays.asStateFlow()
 
     fun reorderWorkoutDays(fromIndex: Int, toIndex: Int) {
         screenModelScope.launch {

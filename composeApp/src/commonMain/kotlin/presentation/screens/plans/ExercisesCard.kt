@@ -61,7 +61,6 @@ fun WorkoutDayCard(
     workoutDay: WorkoutDayDb,
     onEditClick: () -> Unit,
     onExercisesChanged: (List<String>) -> Unit,
-    onSaveClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -114,17 +113,6 @@ fun WorkoutDayCard(
                     border = BorderStroke(1.dp, Color.Red.copy(alpha = 0.5f))
                 ) {
                     Text("Edit")
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                OutlinedButton(
-                    onClick = onSaveClick,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.Green.copy(alpha = 0.9f)
-                    ),
-                    border = BorderStroke(1.dp, Color.Green.copy(alpha = 0.5f))
-                ) {
-                    Text("Save")
                 }
             }
             AnimatedVisibility(

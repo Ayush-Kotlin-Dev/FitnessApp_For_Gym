@@ -44,6 +44,21 @@ class HomeScreenViewModel(
             }
         }
     }
+    fun reorderExercises(fromIndex: Int, toIndex: Int) {
+        val currentState = _homeScreenUiState.value
+        val planName = currentState.currentPlanName
+        val dayName = currentState.currentWorkoutDay?.day
+
+        if (planName != null && dayName != null) {
+            screenModelScope.launch {
+                realmManager.reorderExercises(planName, dayName, fromIndex, toIndex)
+                // Refresh the workout day data after reordering
+                getWorkoutDayForDate(planName, dayName)
+            }
+        } else {
+            println("Cannot reorder exercises: plan name or day name is null")
+        }
+    }
 }
 
 data class HomeScreenUiState(
