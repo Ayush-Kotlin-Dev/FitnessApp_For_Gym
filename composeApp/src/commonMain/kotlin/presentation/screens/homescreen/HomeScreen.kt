@@ -55,6 +55,8 @@ import avikfitness.composeapp.generated.resources.Res
 import avikfitness.composeapp.generated.resources.chest_home
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
 import org.jetbrains.compose.resources.painterResource
 import presentation.components.DraggableLazyColumn
 import presentation.screens.tabs.SharedWorkoutViewModel
@@ -73,6 +75,7 @@ class HomeScreen : Screen {
             .collectAsState(initial = null)
 
         val currentDay = getCurrentDay()
+        val Navigator = LocalNavigator.current
 
         LaunchedEffect(currentPlanName) {
             currentPlanName?.let {
@@ -284,7 +287,7 @@ fun DraggableExerciseItem(
 ) {
     val elevation by animateDpAsState(if (isDragging) 8.dp else 2.dp)
     val scale by animateFloatAsState(if (isDragging) 1.05f else 1f)
-
+    val Navigator = LocalNavigator.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -298,7 +301,10 @@ fun DraggableExerciseItem(
             number = number,
             title = title,
             description = description,
-            isLast = isLast
+            isLast = isLast,
+            onItemClick = { exerciseName ->
+                Navigator?.push(ExerciseDetailScreen(exerciseName, onBackClick = { Navigator.pop() }))
+            }
         )
     }
 }
@@ -308,12 +314,13 @@ fun ExerciseItem(
     number: Int,
     title: String,
     description: String,
-    isLast: Boolean
+    isLast: Boolean,
+    onItemClick: (String) -> Unit
 ) { //TODO navigates to detailed screen of that exercise (having stats of that exercise (last week weight reps ))
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { } //TODO navigate to detailed screen of that exercise (having stats of that exercise (last week weight reps ))
+            .clickable { onItemClick(title)} //TODO navigate to detailed screen of that exercise (having stats of that exercise (last week weight reps ))
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -366,5 +373,3 @@ fun ExerciseItem(
         }
     }
 }
-
-

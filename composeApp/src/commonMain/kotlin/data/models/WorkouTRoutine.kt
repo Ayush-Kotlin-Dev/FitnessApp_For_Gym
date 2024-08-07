@@ -26,3 +26,16 @@ class PersonalRecordDb :RealmObject {
     var weight: Float = 0f
     var reps: Int = 0
 }
+
+
+class Exercise : RealmObject {
+    @PrimaryKey
+    var _id: ObjectId = ObjectId()
+    var name: String = ""
+    var description: String = ""
+    var muscleGroup: String = ""
+    var equipment: String = ""
+    var lastWeekWeight: Double? = null
+    var lastWeekReps: Int? = null
+    var lastWeekSets: Int? = null
+}

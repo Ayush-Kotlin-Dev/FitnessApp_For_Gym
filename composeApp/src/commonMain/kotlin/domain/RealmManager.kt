@@ -1,5 +1,6 @@
 package domain
 
+import data.models.Exercise
 import data.models.PersonalRecordDb
 import data.models.WorkoutDayDb
 import data.models.WorkoutPlanDb
@@ -10,6 +11,7 @@ import io.realm.kotlin.types.RealmObject
 import kotlinx.coroutines.flow.Flow
 import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.coroutines.flow.map
+import presentation.screens.homescreen.ExerciseDetails
 import presentation.screens.stats.PersonalRecord
 
 class Config : RealmObject {
@@ -26,7 +28,7 @@ class RealmManager {
     }
 
     private fun initialize() {
-        val config = RealmConfiguration.Builder(schema = setOf(WorkoutPlanDb::class, WorkoutDayDb::class, PersonalRecordDb::class, Config::class))
+        val config = RealmConfiguration.Builder(schema = setOf(WorkoutPlanDb::class, WorkoutDayDb::class, PersonalRecordDb::class, Exercise::class , Config::class))
             .name("workout_database")
             .compactOnLaunch()
             .build()
@@ -149,6 +151,63 @@ class RealmManager {
                 } else {
                     println("Invalid reorder indexes for exercises")
                 }
+            }
+        }
+    }
+    fun getExerciseDetails(exerciseName: String): Flow<Exercise?> {
+        return realm.query<Exercise>("name == $0", exerciseName)
+            .first()
+            .asFlow()
+            .map { it.obj }
+    }
+
+    suspend fun updateExerciseWeight(exerciseName: String, newWeight: Double) {
+        realm.write {
+            val exercise = query<Exercise>("name == $0", exerciseName).first().find()
+            exercise?.lastWeekWeight = newWeight
+        }
+    }
+
+    suspend fun updateExerciseReps(exerciseName: String, newReps: Int) {
+        realm.write {
+            val exercise = query<Exercise>("name == $0", exerciseName).first().find()
+            exercise?.lastWeekReps = newReps
+        }
+    }
+
+    suspend fun createOrUpdateExercise(exerciseDetails: ExerciseDetails) {
+        realm.write {
+            val existingExercise = query<Exercise>("name == $0", exerciseDetails.name).first().find()
+            if (existingExercise != null) {
+                existingExercise.apply {
+                    description = exerciseDetails.description
+                    muscleGroup = exerciseDetails.muscleGroup
+                    equipment = exerciseDetails.equipment
+                    lastWeekWeight = exerciseDetails.lastWeekWeight
+                    lastWeekReps = exerciseDetails.lastWeekReps
+                    lastWeekSets = exerciseDetails.lastWeekSets
+                }
+            } else {
+                copyToRealm(Exercise().apply {
+                    name = exerciseDetails.name
+                    description = exerciseDetails.description
+                    muscleGroup = exerciseDetails.muscleGroup
+                    equipment = exerciseDetails.equipment
+                    lastWeekWeight = exerciseDetails.lastWeekWeight
+                    lastWeekReps = exerciseDetails.lastWeekReps
+                    lastWeekSets = exerciseDetails.lastWeekSets
+                })
+            }
+        }
+    }
+
+    suspend fun resetExerciseStats(exerciseName: String) {
+        realm.write {
+            val exercise = query<Exercise>("name == $0", exerciseName).first().find()
+            exercise?.apply {
+                lastWeekWeight = 0.0
+                lastWeekReps = 0
+                lastWeekSets = 0
             }
         }
     }

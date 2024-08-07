@@ -32,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -149,7 +150,7 @@ fun EditExercisesDialog(
 ) {
     val selectedExercises = remember { workoutDay.exercises.toMutableStateList() }
     var searchQuery by remember { mutableStateOf("") }
-    var isSearching by remember { mutableStateOf(false) }
+    var isSearching by remember { mutableStateOf(false) } //TODO implement search from Server
 
     val groupedExercises = remember {
         when (workoutDay.focus) {
@@ -224,7 +225,7 @@ fun EditExercisesDialog(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
                         label = { Text("Search exercises", color = Color.White) },
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                        colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
                             cursorColor = Color.White,
@@ -307,7 +308,7 @@ fun EditExercisesDialog(
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {
-                Text("Save", color = Color.White)
+                Text("Save", color = AccentColor)
             }
         },
         dismissButton = {

@@ -7,6 +7,7 @@ import presentation.screens.tabs.SharedWorkoutViewModel
 import presentation.screens.auth_onboard.login.LoginScreenViewModel
 import presentation.screens.auth_onboard.signup.SignupViewModel
 import presentation.screens.auth_onboard.userInfoForm.UserInfoFormViewModel
+import presentation.screens.homescreen.ExerciseViewModel
 import presentation.screens.profile.ProfileScreenViewModel
 import presentation.screens.stats.StatsScreenViewModel
 
@@ -20,4 +21,5 @@ val viewModelModule = module {
     factory { SharedWorkoutViewModel(get(),get()) }
     factory { ProfileScreenViewModel(get() , get()) }
     factory { StatsScreenViewModel(get()) }
+    factory { ExerciseViewModel(get()) }
 }
