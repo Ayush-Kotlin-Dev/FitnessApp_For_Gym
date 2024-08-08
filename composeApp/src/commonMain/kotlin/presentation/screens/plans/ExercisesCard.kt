@@ -35,7 +35,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -128,7 +127,7 @@ fun WorkoutDayCard(
                 )
             ){
                 Column {
-                    workoutDay.exercises.forEach { exercise ->
+                    workoutDay.exerciseDbs.forEach { exercise ->
                         Text("• $exercise", color = Color.White.copy(alpha = 0.9f))
                     }
                 }

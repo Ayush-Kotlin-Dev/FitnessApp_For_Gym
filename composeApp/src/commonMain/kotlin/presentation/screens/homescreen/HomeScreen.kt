@@ -56,7 +56,6 @@ import avikfitness.composeapp.generated.resources.chest_home
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.Navigator
 import org.jetbrains.compose.resources.painterResource
 import presentation.components.DraggableLazyColumn
 import presentation.screens.tabs.SharedWorkoutViewModel
@@ -107,7 +106,7 @@ class HomeScreen : Screen {
                             WorkoutSection(focus = homeScreenUiState.currentWorkoutDay!!.focus)
                             Spacer(modifier = Modifier.height(16.dp))
                             ExerciseSection(
-                                exercises = homeScreenUiState.currentWorkoutDay!!.exercises,
+                                exercises = homeScreenUiState.currentWorkoutDay!!.exerciseDbs,
                                 onReorder = { from, to ->
                                     homeScreenViewModel.reorderExercises(from, to)
                                 }

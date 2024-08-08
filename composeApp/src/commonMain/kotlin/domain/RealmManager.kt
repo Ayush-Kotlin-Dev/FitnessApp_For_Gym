@@ -1,6 +1,7 @@
 package domain
 
 import data.models.Exercise
+import data.models.ExerciseDb
 import data.models.PersonalRecordDb
 import data.models.WorkoutDayDb
 import data.models.WorkoutPlanDb
@@ -28,7 +29,7 @@ class RealmManager {
     }
 
     private fun initialize() {
-        val config = RealmConfiguration.Builder(schema = setOf(WorkoutPlanDb::class, WorkoutDayDb::class, PersonalRecordDb::class, Exercise::class , Config::class))
+        val config = RealmConfiguration.Builder(schema = setOf(WorkoutPlanDb::class, WorkoutDayDb::class, PersonalRecordDb::class, ExerciseDb::class , Config::class))
             .name("workout_database")
             .compactOnLaunch()
             .build()
@@ -75,12 +76,12 @@ class RealmManager {
 
     //method to update the exercises for a specific day in a workout plan
     //TODO: Add a method to update the exercises for a specific day in a workout plan
-    suspend fun updateWorkoutDayExercises(planName: String, dayName: String, exercises: List<String>) {
+    suspend fun updateWorkoutDayExercises(planName: String, dayName: String, exerciseDbs: List<Exercise>) {
         realm.write {
             val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
             plan?.days?.find { it.day == dayName }?.let { day ->
-                day.exercises.clear()
-                day.exercises.addAll(exercises)
+                day.exerciseDbs.clear()
+                day.exerciseDbs.addAll(exerciseDbs)
             }
         }
     }
@@ -141,21 +142,21 @@ class RealmManager {
         realm.write {
             val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
             plan?.days?.find { it.day == dayName }?.let { day ->
-                val mutableExercises = day.exercises.toMutableList()
+                val mutableExercises = day.exerciseDbs.toMutableList()
                 if (fromIndex in mutableExercises.indices && toIndex in mutableExercises.indices) {
                     val movedExercise = mutableExercises.removeAt(fromIndex)
                     mutableExercises.add(toIndex, movedExercise)
 
-                    day.exercises.clear()
-                    day.exercises.addAll(mutableExercises)
+                    day.exerciseDbs.clear()
+                    day.exerciseDbs.addAll(mutableExercises)
                 } else {
                     println("Invalid reorder indexes for exercises")
                 }
             }
         }
     }
-    fun getExerciseDetails(exerciseName: String): Flow<Exercise?> {
-        return realm.query<Exercise>("name == $0", exerciseName)
+    fun getExerciseDetails(exerciseName: String): Flow<ExerciseDb?> {
+        return realm.query<ExerciseDb>("name == $0", exerciseName)
             .first()
             .asFlow()
             .map { it.obj }
@@ -163,32 +164,30 @@ class RealmManager {
 
     suspend fun updateExerciseWeight(exerciseName: String, newWeight: Double) {
         realm.write {
-            val exercise = query<Exercise>("name == $0", exerciseName).first().find()
-            exercise?.lastWeekWeight = newWeight
+            val exerciseDb = query<ExerciseDb>("name == $0", exerciseName).first().find()
+            exerciseDb?.lastWeekWeight = newWeight
         }
     }
 
     suspend fun updateExerciseReps(exerciseName: String, newReps: Int) {
         realm.write {
-            val exercise = query<Exercise>("name == $0", exerciseName).first().find()
-            exercise?.lastWeekReps = newReps
+            val exerciseDb = query<ExerciseDb>("name == $0", exerciseName).first().find()
+            exerciseDb?.lastWeekReps = newReps
         }
     }
 
     suspend fun createOrUpdateExercise(exerciseDetails: ExerciseDetails) {
         realm.write {
-            val existingExercise = query<Exercise>("name == $0", exerciseDetails.name).first().find()
-            if (existingExercise != null) {
-                existingExercise.apply {
-                    description = exerciseDetails.description
-                    muscleGroup = exerciseDetails.muscleGroup
-                    equipment = exerciseDetails.equipment
-                    lastWeekWeight = exerciseDetails.lastWeekWeight
-                    lastWeekReps = exerciseDetails.lastWeekReps
-                    lastWeekSets = exerciseDetails.lastWeekSets
-                }
-            } else {
-                copyToRealm(Exercise().apply {
+            val existingExerciseDb = query<ExerciseDb>("name == $0", exerciseDetails.name).first().find()
+            existingExerciseDb?.apply {
+                description = exerciseDetails.description
+                muscleGroup = exerciseDetails.muscleGroup
+                equipment = exerciseDetails.equipment
+                lastWeekWeight = exerciseDetails.lastWeekWeight
+                lastWeekReps = exerciseDetails.lastWeekReps
+                lastWeekSets = exerciseDetails.lastWeekSets
+            }
+                ?: copyToRealm(ExerciseDb().apply {
                     name = exerciseDetails.name
                     description = exerciseDetails.description
                     muscleGroup = exerciseDetails.muscleGroup
@@ -197,14 +196,13 @@ class RealmManager {
                     lastWeekReps = exerciseDetails.lastWeekReps
                     lastWeekSets = exerciseDetails.lastWeekSets
                 })
-            }
         }
     }
 
     suspend fun resetExerciseStats(exerciseName: String) {
         realm.write {
-            val exercise = query<Exercise>("name == $0", exerciseName).first().find()
-            exercise?.apply {
+            val exerciseDb = query<ExerciseDb>("name == $0", exerciseName).first().find()
+            exerciseDb?.apply {
                 lastWeekWeight = 0.0
                 lastWeekReps = 0
                 lastWeekSets = 0

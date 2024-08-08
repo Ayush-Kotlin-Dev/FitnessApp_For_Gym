@@ -234,7 +234,7 @@ fun ExercisesCard(workoutDay: WorkoutDayDb, isDragging: Boolean = false) {
                 color = SecondaryTextColor
             )
             Spacer(modifier = Modifier.height(8.dp))
-            workoutDay.exercises.forEachIndexed { index, exercise ->
+            workoutDay.exerciseDbs.forEachIndexed { index, exercise ->
                 if (index > 0) {
                     Divider(
                         color = DividerColor,

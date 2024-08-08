@@ -16,7 +16,7 @@ class WorkoutPlanDb : RealmObject {
 class WorkoutDayDb : RealmObject {
     var day: String = ""
     var focus: String = ""
-    var exercises: RealmList<String> = realmListOf()
+    var exerciseDbs: RealmList<ExerciseDb> = realmListOf()
 }
 
 class PersonalRecordDb :RealmObject {
@@ -28,7 +28,7 @@ class PersonalRecordDb :RealmObject {
 }
 
 
-class Exercise : RealmObject {
+class ExerciseDb : RealmObject {
     @PrimaryKey
     var _id: ObjectId = ObjectId()
     var name: String = ""
@@ -39,3 +39,13 @@ class Exercise : RealmObject {
     var lastWeekReps: Int? = null
     var lastWeekSets: Int? = null
 }
+
+data class Exercise(
+    val name: String,
+    val description: String,
+    val muscleGroup: String,
+    val equipment: String,
+    val lastWeekWeight: Double?,
+    val lastWeekReps: Int?,
+    val lastWeekSets: Int?
+)

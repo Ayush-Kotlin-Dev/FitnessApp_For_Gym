@@ -99,7 +99,7 @@ class SharedWorkoutViewModel(
                     WorkoutDayDb().apply {
                         this.day = day
                         this.focus = workoutPlans[planName]?.find { it.day == day }?.focus ?: ""
-                        this.exercises.addAll(exercises)
+                        this.exerciseDbs.addAll(exercises)
                     }
                 } ?: emptyList()))
             }
