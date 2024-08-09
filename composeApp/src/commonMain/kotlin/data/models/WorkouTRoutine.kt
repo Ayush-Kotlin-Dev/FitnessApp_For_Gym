@@ -5,6 +5,7 @@ import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey
 import org.mongodb.kbson.ObjectId
+import presentation.screens.plans.WorkoutDay
 
 class WorkoutPlanDb : RealmObject {
     @PrimaryKey
@@ -45,7 +46,12 @@ data class Exercise(
     val description: String,
     val muscleGroup: String,
     val equipment: String,
-    val lastWeekWeight: Double?,
-    val lastWeekReps: Int?,
-    val lastWeekSets: Int?
+    val lastWeekWeight: Double = 0.0,
+    val lastWeekReps: Int = 0,
+    val lastWeekSets: Int = 0
+)
+
+data class WorkoutPlan(
+    val name: String,
+    val days: List<WorkoutDay>
 )

@@ -106,7 +106,7 @@ class HomeScreen : Screen {
                             WorkoutSection(focus = homeScreenUiState.currentWorkoutDay!!.focus)
                             Spacer(modifier = Modifier.height(16.dp))
                             ExerciseSection(
-                                exercises = homeScreenUiState.currentWorkoutDay!!.exerciseDbs,
+                                exercises = homeScreenUiState.currentWorkoutDay!!.exerciseDbs.map { it.name },
                                 onReorder = { from, to ->
                                     homeScreenViewModel.reorderExercises(from, to)
                                 }
@@ -302,7 +302,7 @@ fun DraggableExerciseItem(
             description = description,
             isLast = isLast,
             onItemClick = { exerciseName ->
-                Navigator?.push(ExerciseDetailScreen(exerciseName, onBackClick = { Navigator.pop() }))
+                Navigator?.push(ExerciseDetailScreen( exerciseName, onBackClick = { Navigator.pop() }))
             }
         )
     }

@@ -174,7 +174,7 @@ class SelectedRoutineScreen : Screen {
 
 
 @Composable
-fun ExercisesCard(workoutDay: WorkoutDayDb, isDragging: Boolean = false) {
+fun ExercisesCard(workoutDay: WorkoutDay, isDragging: Boolean = false) {
     var isPressed by remember { mutableStateOf(false) }
 
     val elevation by animateDpAsState(
@@ -234,7 +234,7 @@ fun ExercisesCard(workoutDay: WorkoutDayDb, isDragging: Boolean = false) {
                 color = SecondaryTextColor
             )
             Spacer(modifier = Modifier.height(8.dp))
-            workoutDay.exerciseDbs.forEachIndexed { index, exercise ->
+            workoutDay.exercises.forEachIndexed { index, exercise ->
                 if (index > 0) {
                     Divider(
                         color = DividerColor,
@@ -254,7 +254,7 @@ fun ExercisesCard(workoutDay: WorkoutDayDb, isDragging: Boolean = false) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = exercise,
+                        text = exercise.name,
                         style = MaterialTheme.typography.bodyMedium,
                         color = PrimaryTextColor
                     )

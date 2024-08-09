@@ -1,23 +1,37 @@
 package presentation.screens.homescreen
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import data.local.getSelectedRoutineFlowFromPreferences
+import data.models.Exercise
 import domain.RealmManager
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ExerciseViewModel(private val realmManager: RealmManager) : ScreenModel {
+class ExerciseViewModel(private val realmManager: RealmManager,private val dataStore: DataStore<Preferences>) : ScreenModel {
 
-    private val _exerciseDetailsFlow = MutableStateFlow(ExerciseDetails())
-    val exerciseDetailsFlow: StateFlow<ExerciseDetails> = _exerciseDetailsFlow.asStateFlow()
+    private val _exerciseDetailsFlow = MutableStateFlow(Exercise(
+        name = "",
+        description = "",
+        muscleGroup = "",
+        equipment = ""
+    ))
+    val exerciseDetailsFlow: StateFlow<Exercise> = _exerciseDetailsFlow.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     fun loadExerciseDetails(exerciseName: String) {
         screenModelScope.launch {
+            _isLoading.value = true
             realmManager.getExerciseDetails(exerciseName).collect { exercise ->
                 if (exercise != null) {
-                    _exerciseDetailsFlow.value = ExerciseDetails(
+                    _exerciseDetailsFlow.value = Exercise(
                         name = exercise.name,
                         description = exercise.description,
                         muscleGroup = exercise.muscleGroup,
@@ -27,37 +41,35 @@ class ExerciseViewModel(private val realmManager: RealmManager) : ScreenModel {
                         lastWeekSets = exercise.lastWeekSets ?: 0
                     )
                 }
+                _isLoading.value = false
             }
         }
     }
-
-    fun updateExerciseDetails(exerciseDetails: ExerciseDetails) {
-        screenModelScope.launch {
-            realmManager.createOrUpdateExercise(exerciseDetails)
-            _exerciseDetailsFlow.value = exerciseDetails
-        }
+    fun getSelectedRoutineFlow(): Flow<String?> {
+        return getSelectedRoutineFlowFromPreferences(dataStore)
     }
 
-    fun updateWeight(exerciseName: String, newWeight: Double) {
+
+    fun updateWeight(planName: String, dayName: String, exerciseName: String, newWeight: Double) {
         screenModelScope.launch {
+            realmManager.updateExerciseWeight(planName, dayName, exerciseName, newWeight)
             val updatedDetails = _exerciseDetailsFlow.value.copy(lastWeekWeight = newWeight)
-            realmManager.createOrUpdateExercise(updatedDetails)
             _exerciseDetailsFlow.value = updatedDetails
         }
     }
 
-    fun updateReps(exerciseName: String, newReps: Int) {
+    fun updateReps(planName: String, dayName: String, exerciseName: String, newReps: Int) {
         screenModelScope.launch {
+            realmManager.updateExerciseReps(planName, dayName, exerciseName, newReps)
             val updatedDetails = _exerciseDetailsFlow.value.copy(lastWeekReps = newReps)
-            realmManager.createOrUpdateExercise(updatedDetails)
             _exerciseDetailsFlow.value = updatedDetails
         }
     }
 
-    fun updateSets(exerciseName: String, newSets: Int) {
+    fun updateSets(planName: String, dayName: String, exerciseName: String, newSets: Int) {
         screenModelScope.launch {
+            realmManager.updateExerciseSets(planName, dayName, exerciseName, newSets)
             val updatedDetails = _exerciseDetailsFlow.value.copy(lastWeekSets = newSets)
-            realmManager.createOrUpdateExercise(updatedDetails)
             _exerciseDetailsFlow.value = updatedDetails
         }
     }
@@ -74,12 +86,3 @@ class ExerciseViewModel(private val realmManager: RealmManager) : ScreenModel {
     }
 }
 
-data class ExerciseDetails(
-    val name: String = "",
-    val description: String = "",
-    val muscleGroup: String = "",
-    val equipment: String = "",
-    val lastWeekWeight: Double = 0.0,
-    val lastWeekReps: Int = 0,
-    val lastWeekSets: Int = 0
-)

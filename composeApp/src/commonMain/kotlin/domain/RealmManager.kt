@@ -4,6 +4,7 @@ import data.models.Exercise
 import data.models.ExerciseDb
 import data.models.PersonalRecordDb
 import data.models.WorkoutDayDb
+import data.models.WorkoutPlan
 import data.models.WorkoutPlanDb
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
@@ -12,7 +13,7 @@ import io.realm.kotlin.types.RealmObject
 import kotlinx.coroutines.flow.Flow
 import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.coroutines.flow.map
-import presentation.screens.homescreen.ExerciseDetails
+import presentation.screens.plans.WorkoutDay
 import presentation.screens.stats.PersonalRecord
 
 class Config : RealmObject {
@@ -42,11 +43,34 @@ class RealmManager {
         }
     }
 
-    fun getWorkoutPlan(planName: String): Flow<WorkoutPlanDb?> {
+    fun getWorkoutPlan(planName: String): Flow<WorkoutPlan?> {
         return realm.query<WorkoutPlanDb>("name == $0", planName)
             .first()
             .asFlow()
-            .map { it.obj }
+            .map { plan ->
+                plan.obj?.let { workoutPlanDb ->
+                    WorkoutPlan(
+                        name = workoutPlanDb.name,
+                        days = workoutPlanDb.days.map { workoutDayDb ->
+                            WorkoutDay(
+                                day = workoutDayDb.day,
+                                focus = workoutDayDb.focus,
+                                exercises = workoutDayDb.exerciseDbs.map { exerciseDb ->
+                                    Exercise(
+                                        name = exerciseDb.name,
+                                        description = exerciseDb.description,
+                                        muscleGroup = exerciseDb.muscleGroup,
+                                        equipment = exerciseDb.equipment,
+                                        lastWeekWeight = exerciseDb.lastWeekWeight ?: 0.0,
+                                        lastWeekReps = exerciseDb.lastWeekReps ?: 0,
+                                        lastWeekSets = exerciseDb.lastWeekSets ?: 0
+                                    )
+                                }.toMutableList()
+                            )
+                        }
+                    )
+                }
+            }
     }
 
     fun getWorkoutDayForDate(planName: String, dayName: String): Flow<WorkoutDayDb?> {
@@ -81,7 +105,17 @@ class RealmManager {
             val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
             plan?.days?.find { it.day == dayName }?.let { day ->
                 day.exerciseDbs.clear()
-                day.exerciseDbs.addAll(exerciseDbs)
+                day.exerciseDbs.addAll(exerciseDbs.map { exercise ->
+                    ExerciseDb().apply {
+                        name = exercise.name
+                        description = exercise.description
+                        muscleGroup = exercise.muscleGroup
+                        equipment = exercise.equipment
+                        lastWeekWeight = exercise.lastWeekWeight
+                        lastWeekReps = exercise.lastWeekReps
+                        lastWeekSets = exercise.lastWeekSets
+                    }
+                })
             }
         }
     }
@@ -161,41 +195,25 @@ class RealmManager {
             .asFlow()
             .map { it.obj }
     }
-
-    suspend fun updateExerciseWeight(exerciseName: String, newWeight: Double) {
+    suspend fun updateExerciseWeight(planName: String, dayName: String, exerciseName: String, newWeight: Double) {
+        println("updateExerciseWeight $planName $dayName $exerciseName $newWeight")
         realm.write {
-            val exerciseDb = query<ExerciseDb>("name == $0", exerciseName).first().find()
-            exerciseDb?.lastWeekWeight = newWeight
+            val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
+            plan?.days?.find { it.day == dayName }?.exerciseDbs?.find { it.name == exerciseName }?.lastWeekWeight = newWeight
         }
     }
 
-    suspend fun updateExerciseReps(exerciseName: String, newReps: Int) {
+    suspend fun updateExerciseReps(planName: String, dayName: String, exerciseName: String, newReps: Int) {
         realm.write {
-            val exerciseDb = query<ExerciseDb>("name == $0", exerciseName).first().find()
-            exerciseDb?.lastWeekReps = newReps
+            val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
+            plan?.days?.find { it.day == dayName }?.exerciseDbs?.find { it.name == exerciseName }?.lastWeekReps = newReps
         }
     }
 
-    suspend fun createOrUpdateExercise(exerciseDetails: ExerciseDetails) {
+    suspend fun updateExerciseSets(planName: String, dayName: String, exerciseName: String, newSets: Int) {
         realm.write {
-            val existingExerciseDb = query<ExerciseDb>("name == $0", exerciseDetails.name).first().find()
-            existingExerciseDb?.apply {
-                description = exerciseDetails.description
-                muscleGroup = exerciseDetails.muscleGroup
-                equipment = exerciseDetails.equipment
-                lastWeekWeight = exerciseDetails.lastWeekWeight
-                lastWeekReps = exerciseDetails.lastWeekReps
-                lastWeekSets = exerciseDetails.lastWeekSets
-            }
-                ?: copyToRealm(ExerciseDb().apply {
-                    name = exerciseDetails.name
-                    description = exerciseDetails.description
-                    muscleGroup = exerciseDetails.muscleGroup
-                    equipment = exerciseDetails.equipment
-                    lastWeekWeight = exerciseDetails.lastWeekWeight
-                    lastWeekReps = exerciseDetails.lastWeekReps
-                    lastWeekSets = exerciseDetails.lastWeekSets
-                })
+            val plan = query<WorkoutPlanDb>("name == $0", planName).first().find()
+            plan?.days?.find { it.day == dayName }?.exerciseDbs?.find { it.name == exerciseName }?.lastWeekSets = newSets
         }
     }
 

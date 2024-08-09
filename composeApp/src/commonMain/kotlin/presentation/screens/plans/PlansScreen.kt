@@ -126,13 +126,7 @@ class WorkoutPlanScreen : Screen {
                             WorkoutDayCard(
                                 workoutDay = workoutDay,
                                 onEditClick = { editingDay = workoutDay.day },
-                                onExercisesChanged = { newExercises ->
-                                    viewModel.updateSelectedExercises(
-                                        selectedPlan,
-                                        workoutDay.day,
-                                        newExercises
-                                    )
-                                }
+                                onExercisesChanged = { newExercises -> }
                             )
                         }
                     }
@@ -147,7 +141,7 @@ class WorkoutPlanScreen : Screen {
                     workoutDay = WorkoutDay(
                         editingDay!!,
                         workoutDay.focus,
-                        workoutDay.exerciseDbs.toMutableList()
+                        workoutDay.exercises.toMutableList()
                     ),
                     onDismiss = { editingDay = null },
                     onSave = {
