@@ -71,6 +71,8 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation("io.github.koalaplot:koalaplot-core:0.6.3")
             implementation("com.squareup.okio:okio:3.9.0")
+            implementation(compose.components.resources)
+
 
         }
 //        iosMain.dependencies {

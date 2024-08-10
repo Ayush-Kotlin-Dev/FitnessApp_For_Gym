@@ -1,169 +1,689 @@
 {
   "chestExercises": [
-    "Barbell Bench Press",
-    "Incline Dumbbell Bench Press",
-    "Decline Dumbbell Bench Press",
-    "Push-Ups",
-    "Diamond Push-Ups",
-    "Dips (Chest Version)",
-    "Cable Flyes",
-    "Dumbbell Flyes",
-    "Pec Deck Machine",
-    "Smith Machine Bench Press",
-    "Single-Arm Dumbbell Bench Press",
-    "Chest Dips",
-    "Hammer Strength Chest Press",
-    "Dumbbell Pullover",
-    "Cable Crossover",
-    "Incline Cable Flyes",
-    "Decline Barbell Bench Press"
+    {"name": "Barbell Bench Press", "description": "Compound exercise that targets the chest, shoulders, and triceps.", "muscleGroup": "Chest", "equipment": "Barbell"},
+    {"name": "Incline Dumbbell Bench Press", "description": "Compound exercise that targets the upper chest.", "muscleGroup": "Chest", "equipment": "Dumbbells"},
+    {"name": "Decline Dumbbell Bench Press", "description": "Compound exercise that targets the lower chest.", "muscleGroup": "Chest", "equipment": "Dumbbells"},
+    {"name": "Push-Ups", "description": "Bodyweight exercise that targets the chest, shoulders, and triceps.", "muscleGroup": "Chest", "equipment": "Bodyweight"},
+    {"name": "Diamond Push-Ups", "description": "Bodyweight exercise that targets the inner chest and triceps.", "muscleGroup": "Chest", "equipment": "Bodyweight"},
+    {"name": "Dips (Chest Version)", "description": "Compound exercise that targets the lower chest and triceps.", "muscleGroup": "Chest", "equipment": "Parallel Bars"},
+    {"name": "Cable Flyes", "description": "Isolation exercise that targets the chest muscles.", "muscleGroup": "Chest", "equipment": "Cable Machine"},
+    {"name": "Dumbbell Flyes", "description": "Isolation exercise that targets the chest muscles.", "muscleGroup": "Chest", "equipment": "Dumbbells"},
+    {"name": "Pec Deck Machine", "description": "Isolation exercise that targets the chest muscles.", "muscleGroup": "Chest", "equipment": "Pec Deck Machine"},
+    {"name": "Smith Machine Bench Press", "description": "Compound exercise that targets the chest, shoulders, and triceps.", "muscleGroup": "Chest", "equipment": "Smith Machine"},
+    {"name": "Single-Arm Dumbbell Bench Press", "description": "Unilateral exercise that targets the chest, shoulders, and triceps.", "muscleGroup": "Chest", "equipment": "Dumbbell"},
+    {"name": "Chest Dips", "description": "Compound exercise that targets the lower chest and triceps.", "muscleGroup": "Chest", "equipment": "Parallel Bars"},
+    {"name": "Hammer Strength Chest Press", "description": "Compound exercise that targets the chest, shoulders, and triceps.", "muscleGroup": "Chest", "equipment": "Hammer Strength Machine"},
+    {"name": "Dumbbell Pullover", "description": "Compound exercise that targets the chest and lats.", "muscleGroup": "Chest", "equipment": "Dumbbell"},
+    {"name": "Cable Crossover", "description": "Isolation exercise that targets the chest muscles.", "muscleGroup": "Chest", "equipment": "Cable Machine"},
+    {"name": "Incline Cable Flyes", "description": "Isolation exercise that targets the upper chest.", "muscleGroup": "Chest", "equipment": "Cable Machine"},
+    {"name": "Decline Barbell Bench Press", "description": "Compound exercise that targets the lower chest.", "muscleGroup": "Chest", "equipment": "Barbell"}
   ],
   "tricepsExercises": [
-    "Close-Grip Bench Press",
-    "Tricep Pushdowns",
-    "Overhead Tricep Extension",
-    "Dips",
-    "Skull Crushers",
-    "Rope Pushdowns",
-    "Bench Dips",
-    "Single-Arm Tricep Extensions",
-    "Tricep Push-Ups",
-    "Reverse Grip Tricep Pushdowns",
-    "Lying Tricep Extensions",
-    "Overhead Cable Tricep Extensions",
-    "Close-Grip Push-Ups",
-    "Tricep Dumbbell Pullover"
+    {"name": "Close-Grip Bench Press", "description": "Compound exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Barbell"},
+    {"name": "Tricep Pushdowns", "description": "Isolation exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Cables or Tricep Pushdown Machine"},
+    {"name": "Overhead Tricep Extension", "description": "Isolation exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Dumbbells or Barbell"},
+    {"name": "Dips", "description": "Compound exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Parallel Bars or Dips Machine"},
+    {"name": "Skull Crushers", "description": "Isolation exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Dumbbells"},
+    {"name": "Rope Pushdowns", "description": "Isolation exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Cables or Rope Pushdown Machine"},
+    {"name": "Bench Dips", "description": "Compound exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Bench or Dips Machine"},
+    {"name": "Single-Arm Tricep Extensions", "description": "Isolation exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Dumbbells"},
+    {"name": "Tricep Push-Ups", "description": "Bodyweight exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "No equipment"},
+    {"name": "Reverse Grip Tricep Pushdowns", "description": "Isolation exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Cables or Tricep Pushdown Machine"},
+    {"name": "Lying Tricep Extensions", "description": "Isolation exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Dumbbells"},
+    {"name": "Overhead Cable Tricep Extensions", "description": "Isolation exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Cables"},
+    {"name": "Close-Grip Push-Ups", "description": "Bodyweight exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "No equipment"},
+    {"name": "Tricep Dumbbell Pullover", "description": "Isolation exercise that targets the triceps.", "muscleGroup": "Triceps", "equipment": "Dumbbells"}
   ],
   "backExercises": [
-    "Deadlifts",
-    "Bent-Over Rows",
-    "Lat Pulldowns",
-    "T-Bar Rows",
-    "Single-Arm Dumbbell Rows",
-    "Seated Cable Rows",
-    "Face Pulls",
-    "Chin-Ups",
-    "Hyperextensions",
-    "Inverted Rows",
-    "Dumbbell Pullovers",
-    "Cable Pullovers",
-    "Low Rows",
-    "Barbell Shrugs",
-    "Dumbbell Shrugs",
-    "Reverse Flyes"
+    {"name": "Deadlifts", "description": "Compound exercise that targets the entire posterior chain, including the back, glutes, and hamstrings.", "muscleGroup": "Back", "equipment": "Barbell"},
+    {"name": "Bent-Over Rows", "description": "Compound exercise that targets the upper and middle back, as well as the lats and biceps.", "muscleGroup": "Back", "equipment": "Barbell or Dumbbells"},
+    {"name": "Lat Pulldowns", "description": "Isolation exercise that targets the latissimus dorsi muscles.", "muscleGroup": "Back", "equipment": "Cable Machine"},
+    {"name": "T-Bar Rows", "description": "Compound exercise that targets the middle back, lats, and biceps.", "muscleGroup": "Back", "equipment": "T-Bar Machine"},
+    {"name": "Single-Arm Dumbbell Rows", "description": "Isolation exercise that targets the lats and upper back.", "muscleGroup": "Back", "equipment": "Dumbbell"},
+    {"name": "Seated Cable Rows", "description": "Compound exercise that targets the middle back, lats, and biceps.", "muscleGroup": "Back", "equipment": "Cable Machine"},
+    {"name": "Face Pulls", "description": "Isolation exercise that targets the upper back and rear deltoids.", "muscleGroup": "Back", "equipment": "Cable Machine"},
+    {"name": "Chin-Ups", "description": "Bodyweight exercise that targets the lats, biceps, and upper back.", "muscleGroup": "Back", "equipment": "Pull-Up Bar"},
+    {"name": "Hyperextensions", "description": "Isolation exercise that targets the lower back, glutes, and hamstrings.", "muscleGroup": "Back", "equipment": "Hyperextension Bench"},
+    {"name": "Inverted Rows", "description": "Bodyweight exercise that targets the upper and middle back.", "muscleGroup": "Back", "equipment": "Smith Machine or Suspension Trainer"},
+    {"name": "Dumbbell Pullovers", "description": "Isolation exercise that targets the lats and chest.", "muscleGroup": "Back", "equipment": "Dumbbell"},
+    {"name": "Cable Pullovers", "description": "Isolation exercise that targets the lats and helps improve the mind-muscle connection.", "muscleGroup": "Back", "equipment": "Cable Machine"},
+    {"name": "Low Rows", "description": "Compound exercise that targets the middle back and lats.", "muscleGroup": "Back", "equipment": "Cable Machine"},
+    {"name": "Barbell Shrugs", "description": "Isolation exercise that targets the trapezius muscles.", "muscleGroup": "Back", "equipment": "Barbell"},
+    {"name": "Dumbbell Shrugs", "description": "Isolation exercise that targets the trapezius muscles.", "muscleGroup": "Back", "equipment": "Dumbbells"},
+    {"name": "Reverse Flyes", "description": "Isolation exercise that targets the rear deltoids and upper back.", "muscleGroup": "Back", "equipment": "Dumbbells or Cable Machine"}
   ],
   "bicepsExercises": [
-    "Barbell Curls",
-    "Dumbbell Curls",
-    "Hammer Curls",
-    "Preacher Curls",
-    "Incline Dumbbell Curls",
-    "Concentration Curls",
-    "EZ-Bar Curls",
-    "Cable Curls",
-    "Cross-Body Hammer Curls",
-    "Rope Hammer Curls",
-    "Alternating Dumbbell Curls",
-    "Seated Incline Curls",
-    "Standing Cable Curls",
-    "Bicep Curl to Press"
+    {
+      "name": "Barbell Curls",
+      "description": "Isolation exercise that targets the biceps.",
+      "muscleGroup": "Biceps",
+      "equipment": "Barbell"
+    },
+    {
+      "name": "Dumbbell Curls",
+      "description": "Isolation exercise that targets the biceps, allowing for unilateral training.",
+      "muscleGroup": "Biceps",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Hammer Curls",
+      "description": "Isolation exercise that targets the biceps and brachialis.",
+      "muscleGroup": "Biceps",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Preacher Curls",
+      "description": "Isolation exercise that targets the biceps with support for strict form.",
+      "muscleGroup": "Biceps",
+      "equipment": "EZ Curl Bar or Dumbbell"
+    },
+    {
+      "name": "Incline Dumbbell Curls",
+      "description": "Isolation exercise that targets the biceps, emphasizing the stretch at the bottom of the movement.",
+      "muscleGroup": "Biceps",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Concentration Curls",
+      "description": "Isolation exercise that targets the biceps with a focus on peak contraction.",
+      "muscleGroup": "Biceps",
+      "equipment": "Dumbbell"
+    },
+    {
+      "name": "EZ-Bar Curls",
+      "description": "Isolation exercise that targets the biceps with a more comfortable grip.",
+      "muscleGroup": "Biceps",
+      "equipment": "EZ Curl Bar"
+    },
+    {
+      "name": "Cable Curls",
+      "description": "Isolation exercise that targets the biceps with constant tension throughout the range of motion.",
+      "muscleGroup": "Biceps",
+      "equipment": "Cable Machine"
+    },
+    {
+      "name": "Cross-Body Hammer Curls",
+      "description": "Isolation exercise that targets the biceps and brachialis with an emphasis on the forearms.",
+      "muscleGroup": "Biceps",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Rope Hammer Curls",
+      "description": "Isolation exercise that targets the biceps and brachialis with a rope attachment for a neutral grip.",
+      "muscleGroup": "Biceps",
+      "equipment": "Cable Machine"
+    },
+    {
+      "name": "Alternating Dumbbell Curls",
+      "description": "Isolation exercise that targets the biceps with unilateral movement.",
+      "muscleGroup": "Biceps",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Seated Incline Curls",
+      "description": "Isolation exercise that targets the biceps with an incline bench to increase the stretch.",
+      "muscleGroup": "Biceps",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Standing Cable Curls",
+      "description": "Isolation exercise that targets the biceps with constant tension provided by the cable machine.",
+      "muscleGroup": "Biceps",
+      "equipment": "Cable Machine"
+    },
+    {
+      "name": "Bicep Curl to Press",
+      "description": "Combination exercise that targets the biceps and shoulders in a single movement.",
+      "muscleGroup": "Biceps",
+      "equipment": "Dumbbells"
+    }
   ],
   "legExercises": [
-    "Back Squats",
-    "Barbell Squats",
-    "Leg Press",
-    "Lunges",
-    "Walking Lunges",
-    "Step-Ups",
-    "Leg Extensions",
-    "Leg Curls",
-    "Calf Raises",
-    "Seated Calf Raises",
-    "Bulgarian Split Squats",
-    "Goblet Squats",
-    "Hack Squats",
-    "Box Jumps",
-    "Pistol Squats",
-    "Sumo Squats",
-    "Glute Bridges",
-    "Hip Thrusts",
-    "Leg Press Calf Raises",
-    "Wall Sits",
-    "Sled Pushes",
-    "Jump Squats",
-    "Farmer's Walks",
-    "Barbell Hip Thrusts",
-    "Reverse Lunges",
-    "Side Lunges",
-    "Curtsy Lunges",
-    "Smith Machine Squats",
-    "Dumbbell Squats",
-    "Kettlebell Swings"
+    {
+      "name": "Back Squats",
+      "description": "This is a compound exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Barbell Squats",
+      "description": "Another compound exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Barbell"
+    },
+    {
+      "name": "Leg Press",
+      "description": "This is a leg press exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Leg Press Machine"
+    },
+    {
+      "name": "Lunges",
+      "description": "This is a lunges exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Walking Lunges",
+      "description": "This is a walking lunges exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Step-Ups",
+      "description": "This is a step-ups exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Leg Extensions",
+      "description": "This is a leg extensions exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Leg Press Machine"
+    },
+    {
+      "name": "Leg Curls",
+      "description": "This is a leg curls exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Leg Press Machine"
+    },
+    {
+      "name": "Calf Raises",
+      "description": "This is a calf raises exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Seated Calf Raises",
+      "description": "This is a seated calf raises exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Bulgarian Split Squats",
+      "description": "This is a bulgarian split squats exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Goblet Squats",
+      "description": "This is a goblet squats exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Goblet"
+    },
+    {
+      "name": "Hack Squats",
+      "description": "This is a hack squats exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Hack Squat Machine"
+    },
+    {
+      "name": "Box Jumps",
+      "description": "This is a box jumps exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Box"
+    },
+    {
+      "name": "Pistol Squats",
+      "description": "This is a pistol squats exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Sumo Squats",
+      "description": "This is a sumo squats exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Glute Bridges",
+      "description": "This is a glute bridges exercise",
+      "muscleGroup": "Glutes",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Hip Thrusts",
+      "description": "This is a hip thrusts exercise",
+      "muscleGroup": "Glutes",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Leg Press Calf Raises",
+      "description": "This is a leg press calf raises exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Leg Press Machine"
+    },
+    {
+      "name": "Wall Sits",
+      "description": "This is a wall sits exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Sled Pushes",
+      "description": "This is a sled pushes exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Sled"
+    },
+    {
+      "name": "Jump Squats",
+      "description": "This is a jump squats exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Farmer's Walks",
+      "description": "This is a farmer's walks exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Barbell Hip Thrusts",
+      "description": "This is a barbell hip thrusts exercise",
+      "muscleGroup": "Glutes",
+      "equipment": "Barbell"
+    },
+    {
+      "name": "Reverse Lunges",
+      "description": "This is a reverse lunges exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Side Lunges",
+      "description": "This is a side lunges exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Curtsy Lunges",
+      "description": "This is a curtsy lunges exercise",
+      "muscleGroup": "Legs",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Smith Machine Squats",
+      "description": "This is a smith machine squats exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Smith Machine"
+    },
+    {
+      "name": "Dumbbell Squats",
+      "description": "This is a dumbbell squats exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Kettlebell Swings",
+      "description": "This is a kettlebell swings exercise",
+      "muscleGroup": "Legs",
+      "equipment": "Kettlebell"
+    }
   ],
   "shoulderExercises": [
-    "Overhead Press",
-    "Military Press",
-    "Dumbbell Shoulder Press",
-    "Arnold Press",
-    "Lateral Raises",
-    "Front Raises",
-    "Reverse Flyes",
-    "Face Pulls",
-    "Upright Rows",
-    "Shrugs",
-    "Cable Lateral Raises",
-    "Machine Shoulder Press",
-    "Bent-Over Lateral Raises",
-    "Plate Front Raises",
-    "Seated Dumbbell Press",
-    "Behind-the-Neck Press",
-    "Dumbbell Shoulder Circles",
-    "Bradford Press",
-    "Single-Arm Dumbbell Press",
-    "Kettlebell Upright Rows",
-    "Dumbbell Y-Raises",
-    "Battling Ropes",
-    "Cable Face Pulls",
-    "Resistance Band Lateral Raises"
+    {
+      "name": "Overhead Press",
+      "description": "This is an overhead press exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Barbell or Dumbbells"
+    },
+    {
+      "name": "Military Press",
+      "description": "This is a military press exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Barbell or Dumbbells"
+    },
+    {
+      "name": "Dumbbell Shoulder Press",
+      "description": "This is a dumbbell shoulder press exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Arnold Press",
+      "description": "This is an arnold press exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Barbell or Dumbbells"
+    },
+    {
+      "name": "Lateral Raises",
+      "description": "This is a lateral raises exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells or Cables"
+    },
+    {
+      "name": "Front Raises",
+      "description": "This is a front raises exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells or Cables"
+    },
+    {
+      "name": "Reverse Flyes",
+      "description": "This is a reverse flyes exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Cables or Resistance Bands"
+    },
+    {
+      "name": "Face Pulls",
+      "description": "This is a face pulls exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Cables"
+    },
+    {
+      "name": "Upright Rows",
+      "description": "This is an upright rows exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells or Cables"
+    },
+    {
+      "name": "Shrugs",
+      "description": "This is a shrugs exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells or Cables"
+    },
+    {
+      "name": "Cable Lateral Raises",
+      "description": "This is a cable lateral raises exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Cables"
+    },
+    {
+      "name": "Machine Shoulder Press",
+      "description": "This is a machine shoulder press exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Machine"
+    },
+    {
+      "name": "Bent-Over Lateral Raises",
+      "description": "This is a bent-over lateral raises exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells or Cables"
+    },
+    {
+      "name": "Plate Front Raises",
+      "description": "This is a plate front raises exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells or Cables"
+    },
+    {
+      "name": "Seated Dumbbell Press",
+      "description": "This is a seated dumbbell press exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Behind-the-Neck Press",
+      "description": "This is a behind-the-neck press exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Barbell or Dumbbells"
+    },
+    {
+      "name": "Dumbbell Shoulder Circles",
+      "description": "This is a dumbbell shoulder circles exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Bradford Press",
+      "description": "This is a bradford press exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Barbell or Dumbbells"
+    },
+    {
+      "name": "Single-Arm Dumbbell Press",
+      "description": "This is a single-arm dumbbell press exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Kettlebell Upright Rows",
+      "description": "This is a kettlebell upright rows exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Kettlebell"
+    },
+    {
+      "name": "Dumbbell Y-Raises",
+      "description": "This is a dumbbell y-raises exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Battling Ropes",
+      "description": "This is a battling ropes exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Battling Ropes"
+    },
+    {
+      "name": "Cable Face Pulls",
+      "description": "This is a cable face pulls exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Cables"
+    },
+    {
+      "name": "Resistance Band Lateral Raises",
+      "description": "This is a resistance band lateral raises exercise",
+      "muscleGroup": "Shoulders",
+      "equipment": "Resistance Bands"
+    }
   ],
   "forearmExercises": [
-    "Wrist Curls",
-    "Reverse Wrist Curls",
-    "Barbell Hold",
-    "Dumbbell Hold",
-    "Grip Strengthener",
-    "Plate Rotations",
-    "Dead Hangs",
-    "Forearm Roller",
-    "Dumbbell Wrist Rotations",
-    "Suitcase Carries",
-    "Bottoms-Up Kettlebell Hold",
-    "Cable Wrist Curls"
+    {
+      "name": "Wrist Curls",
+      "description": "This is a wrist curls exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Dumbbells or Wrist Curls Machine"
+    },
+    {
+      "name": "Reverse Wrist Curls",
+      "description": "This is a reverse wrist curls exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Dumbbells or Wrist Curls Machine"
+    },
+    {
+      "name": "Barbell Hold",
+      "description": "This is a barbell hold exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Barbell"
+    },
+    {
+      "name": "Dumbbell Hold",
+      "description": "This is a dumbbell hold exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Grip Strengthener",
+      "description": "This is a grip strengthener exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Grip Strengthener"
+    },
+    {
+      "name": "Plate Rotations",
+      "description": "This is a plate rotations exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Plate"
+    },
+    {
+      "name": "Dead Hangs",
+      "description": "This is a dead hangs exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Bar or Ring"
+    },
+    {
+      "name": "Forearm Roller",
+      "description": "This is a forearm roller exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Forearm Roller"
+    },
+    {
+      "name": "Dumbbell Wrist Rotations",
+      "description": "This is a dumbbell wrist rotations exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Dumbbells"
+    },
+    {
+      "name": "Suitcase Carries",
+      "description": "This is a suitcase carries exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Weight Plate or Kettlebell"
+    },
+    {
+      "name": "Bottoms-Up Kettlebell Hold",
+      "description": "This is a bottoms-up kettlebell hold exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Kettlebell"
+    },
+    {
+      "name": "Cable Wrist Curls",
+      "description": "This is a cable wrist curls exercise",
+      "muscleGroup": "Forearms",
+      "equipment": "Cables"
+    }
   ],
   "abdominalExercises": [
-    "Crunches",
-    "Sit-Ups",
-    "Planks",
-    "Russian Twists",
-    "Leg Raises",
-    "Dead Bug",
-    "Mountain Climbers",
-    "Hanging Leg Raises",
-    "Ab Wheel Rollouts",
-    "Cable Crunches",
-    "Pallof Press",
-    "Side Planks",
-    "Woodchoppers",
-    "Dragon Flags",
-    "Hollow Body Hold",
-    "Reverse Crunches",
-    "Flutter Kicks",
-    "Plank to Push-Up",
-    "Medicine Ball Slams",
-    "Windshield Wipers",
-    "Toe Touches",
-    "V-Ups",
-    "L-Sit Hold",
-    "Decline Bench Sit-Ups"
+    {
+      "name": "Crunches",
+      "description": "This is a crunches exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Sit-Ups",
+      "description": "This is a sit-ups exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Planks",
+      "description": "This is a planks exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Russian Twists",
+      "description": "This is a russian twists exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "Medicine Ball or Dumbbells"
+    },
+    {
+      "name": "Leg Raises",
+      "description": "This is a leg raises exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Dead Bug",
+      "description": "This is a dead bug exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Mountain Climbers",
+      "description": "This is a mountain climbers exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Hanging Leg Raises",
+      "description": "This is a hanging leg raises exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "Pull-Up Bar"
+    },
+    {
+      "name": "Ab Wheel Rollouts",
+      "description": "This is an ab wheel rollouts exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "Ab Wheel"
+    },
+    {
+      "name": "Cable Crunches",
+      "description": "This is a cable crunches exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "Cables"
+    },
+    {
+      "name": "Pallof Press",
+      "description": "This is a pallof press exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "Cables or Resistance Bands"
+    },
+    {
+      "name": "Side Planks",
+      "description": "This is a side planks exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Woodchoppers",
+      "description": "This is a woodchoppers exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "Medicine Ball or Dumbbells"
+    },
+    {
+      "name": "Dragon Flags",
+      "description": "This is a dragon flags exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Hollow Body Hold",
+      "description": "This is a hollow body hold exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Reverse Crunches",
+      "description": "This is a reverse crunches exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Flutter Kicks",
+      "description": "This is a flutter kicks exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Plank to Push-Up",
+      "description": "This is a plank to push-up exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Medicine Ball Slams",
+      "description": "This is a medicine ball slams exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "Medicine Ball"
+    },
+    {
+      "name": "Windshield Wipers",
+      "description": "This is a windshield wipers exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Toe Touches",
+      "description": "This is a toe touches exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "V-Ups",
+      "description": "This is a v-ups exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "L-Sit Hold",
+      "description": "This is a l-sit hold exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "No equipment"
+    },
+    {
+      "name": "Decline Bench Sit-Ups",
+      "description": "This is a decline bench sit-ups exercise",
+      "muscleGroup": "Abdominals",
+      "equipment": "Bench"
+    }
   ]
 }

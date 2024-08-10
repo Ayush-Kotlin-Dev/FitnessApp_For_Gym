@@ -4,6 +4,7 @@ import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey
+import kotlinx.serialization.Serializable
 import org.mongodb.kbson.ObjectId
 import presentation.screens.plans.WorkoutDay
 
@@ -41,6 +42,7 @@ class ExerciseDb : RealmObject {
     var lastWeekSets: Int? = null
 }
 
+@Serializable
 data class Exercise(
     val name: String,
     val description: String,
@@ -54,4 +56,16 @@ data class Exercise(
 data class WorkoutPlan(
     val name: String,
     val days: List<WorkoutDay>
+)
+
+@Serializable
+data class ExerciseList(
+    val chestExercises: List<Exercise>,
+    val tricepsExercises: List<Exercise>,
+    val backExercises: List<Exercise>,
+    val bicepsExercises: List<Exercise>,
+    val legExercises: List<Exercise>,
+    val shoulderExercises: List<Exercise>,
+    val forearmExercises: List<Exercise>,
+    val abdominalExercises: List<Exercise>,
 )

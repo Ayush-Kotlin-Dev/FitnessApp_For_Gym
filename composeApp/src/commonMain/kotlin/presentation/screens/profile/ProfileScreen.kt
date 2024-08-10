@@ -26,17 +26,27 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import avikfitness.composeapp.generated.resources.Res
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import data.models.Exercise
+import data.models.ExerciseList
+import kotlinx.serialization.json.Json
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import presentation.screens.plans.AccentColor
 import presentation.screens.plans.BackgroundColor
 import presentation.screens.plans.CardBackgroundColor
@@ -45,12 +55,18 @@ import presentation.screens.plans.SecondaryTextColor
 
 class ProfileScreen : Screen {
 
+    @OptIn(ExperimentalResourceApi::class)
     @Composable
     override fun Content() {
         val viewModel = koinScreenModel<ProfileScreenViewModel>()
         val navigator: Navigator = LocalNavigator.currentOrThrow
         val scrollState = rememberScrollState()
-
+        var bytes by remember {
+            mutableStateOf(ByteArray(0))
+        }
+        LaunchedEffect(Unit) {
+            bytes = Res.readBytes("drawable/exercises.json")
+        }
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -62,6 +78,14 @@ class ProfileScreen : Screen {
                     .verticalScroll(scrollState)
                     .padding(16.dp)
             ) {
+                val jsonString = bytes.decodeToString()
+
+                Text(
+                    text = jsonString,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = AccentColor,
+                    fontWeight = FontWeight.Bold
+                )
                 ProfileHeader(viewModel)
                 Spacer(modifier = Modifier.height(24.dp))
                 StatsSection(viewModel)
