@@ -64,8 +64,21 @@ class ProfileScreen : Screen {
         var bytes by remember {
             mutableStateOf(ByteArray(0))
         }
+        var exerciseList: ExerciseList? by remember { mutableStateOf(null) }
+
         LaunchedEffect(Unit) {
-            bytes = Res.readBytes("drawable/exercises.json")
+            try {
+                bytes = Res.readBytes("drawable/exercises.json")
+                val jsonString = bytes.decodeToString()
+
+                if (jsonString.isNotEmpty()) {
+                    exerciseList = Json.decodeFromString(ExerciseList.serializer(), jsonString)
+                } else {
+                    println("Content: JSON string is empty")
+                }
+            } catch (e: Exception) {
+                println("Content: Error reading JSON file: ${e.message}")
+            }
         }
         Box(
             modifier = Modifier
@@ -78,14 +91,12 @@ class ProfileScreen : Screen {
                     .verticalScroll(scrollState)
                     .padding(16.dp)
             ) {
-                val jsonString = bytes.decodeToString()
 
-                Text(
-                    text = jsonString,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = AccentColor,
-                    fontWeight = FontWeight.Bold
-                )
+                exerciseList?.chestExercises?.forEach {
+                    Text(text = it.name)
+                } ?: run {
+                    Text("Loading exercises...")
+                }
                 ProfileHeader(viewModel)
                 Spacer(modifier = Modifier.height(24.dp))
                 StatsSection(viewModel)
