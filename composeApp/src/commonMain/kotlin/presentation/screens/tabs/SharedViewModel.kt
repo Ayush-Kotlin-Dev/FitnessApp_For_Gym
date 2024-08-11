@@ -5,9 +5,11 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import data.local.ExerciseRepository
 import data.local.getSelectedRoutineFlowFromPreferences
 import data.local.saveSelectedRoutineToPreferences
 import data.models.Exercise
+import data.models.ExerciseList
 import data.models.WorkoutDayDb
 import data.models.WorkoutPlan
 import data.models.WorkoutPlanDb
@@ -19,33 +21,38 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import presentation.screens.plans.WorkoutDay
-import presentation.screens.plans.abdominalExercises
-import presentation.screens.plans.backExercises
-import presentation.screens.plans.bicepsExercises
-import presentation.screens.plans.chestExercises
-import presentation.screens.plans.forearmExercises
-import presentation.screens.plans.legExercises
-import presentation.screens.plans.shoulderExercises
-import presentation.screens.plans.tricepsExercises
 
 class SharedWorkoutViewModel(
     private val realmManager: RealmManager,
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val exerciseRepository: ExerciseRepository
+
 
 ) : ScreenModel {
+    private val _exerciseListState = MutableStateFlow<ExerciseListState>(ExerciseListState.Loading)
+    val exerciseListState: StateFlow<ExerciseListState> = _exerciseListState.asStateFlow()
+
+
     private val _selectedExercises =
         MutableStateFlow<Map<String, Map<String, List<Exercise>>>>(emptyMap())
     private val _currentWorkoutPlan = MutableStateFlow<WorkoutPlan?>(null)
     val currentWorkoutPlan: StateFlow<WorkoutPlan?> = _currentWorkoutPlan.asStateFlow()
 
     // Helper function to get exercises by name
+    private val allExercises: Map<String, Exercise>
+        get() = when (val state = _exerciseListState.value) {
+            is ExerciseListState.Loaded -> {
+                val list = state.exercises
+                (list.chestExercises + list.tricepsExercises + list.backExercises +
+                        list.bicepsExercises + list.forearmExercises + list.shoulderExercises +
+                        list.abdominalExercises + list.legExercises).associateBy { it.name }
+            }
+            else -> emptyMap()
+        }
+
     private fun getExercisesByName(names: List<String>): MutableList<Exercise> {
         return names.mapNotNull { allExercises[it] }.toMutableList()
     }
-
-    // Mapping exercises by name for easy lookup
-    private val allExercises = (chestExercises + tricepsExercises + backExercises + bicepsExercises+ forearmExercises + shoulderExercises + abdominalExercises + legExercises)
-        .associateBy { it.name }
 
     // Creating the workout plans
     private val workoutPlans = mapOf(
@@ -53,7 +60,17 @@ class SharedWorkoutViewModel(
             WorkoutDay(
                 "Day 1",
                 "Chest and Triceps",
-                getExercisesByName(listOf("Barbell Bench Press", "Incline Dumbbell Bench Press", "Cable Flyes", "Tricep Pushdowns", "Skull Crushers", "Dips"))),
+                getExercisesByName(
+                    listOf(
+                        "Barbell Bench Press",
+                        "Incline Dumbbell Bench Press",
+                        "Cable Flyes",
+                        "Tricep Pushdowns",
+                        "Skull Crushers",
+                        "Dips"
+                    )
+                )
+            ),
             WorkoutDay(
                 "Day 2",
                 "Back and Biceps",
@@ -371,6 +388,14 @@ class SharedWorkoutViewModel(
         _selectedExercises.value = workoutPlans.mapValues { (_, days) ->
             days.associate { it.day to it.exercises }
         }
+        screenModelScope.launch {
+            try {
+                val exercises = exerciseRepository.getExercisesFromJson()
+                _exerciseListState.value = ExerciseListState.Loaded(exercises)
+            } catch (e: Exception) {
+                _exerciseListState.value = ExerciseListState.Error(e.message ?: "Unknown error")
+            }
+        }
         println("SharedWorkoutViewModel init")
     }
 
@@ -467,4 +492,10 @@ class SharedWorkoutViewModel(
     override fun onDispose() {
         println("SharedWorkoutViewModel disposed")
     }
+}
+
+sealed class ExerciseListState {
+    object Loading : ExerciseListState()
+    data class Loaded(val exercises: ExerciseList) : ExerciseListState()
+    data class Error(val message: String) : ExerciseListState()
 }
