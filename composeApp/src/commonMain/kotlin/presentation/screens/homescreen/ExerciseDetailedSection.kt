@@ -110,25 +110,25 @@ data class ExerciseDetailScreen(
                         }
                     }
 
-//                    Card(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(vertical = 8.dp),
-//                        colors = CardDefaults.cardColors(containerColor = CardBackgroundColor)
-//
-//                    ) {
-//                        Column(modifier = Modifier.padding(16.dp)) {
-//                            Text(
-//                                text = "Last Week's Performance",
-//                                fontSize = 20.sp,
-//                                fontWeight = FontWeight.Bold,
-//                                modifier = Modifier.padding(bottom = 8.dp)
-//                            )
-//                            PerformanceMetric("Weight", exerciseDetails.lastWeekWeight, exerciseDetails.lastWeekWeight, "kg")
-//                            PerformanceMetric("Reps", exerciseDetails.lastWeekReps.toDouble(), exerciseDetails.lastWeekReps .toDouble(), "")
-//                            PerformanceMetric("Sets", exerciseDetails.lastWeekSets.toDouble(), exerciseDetails.lastWeekSets .toDouble(), "")
-//                        }
-//                    }
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBackgroundColor)
+
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Last Week's Performance",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                            PerformanceMetric("Weight", exerciseDetails.lastWeekWeight, exerciseDetails.lastWeekWeight, "kg")
+                            PerformanceMetric("Reps", exerciseDetails.lastWeekReps.toDouble(), exerciseDetails.lastWeekReps .toDouble(), "")
+                            PerformanceMetric("Sets", exerciseDetails.lastWeekSets.toDouble(), exerciseDetails.lastWeekSets .toDouble(), "")
+                        }
+                    }
 
                     Card(
                         modifier = Modifier
@@ -188,34 +188,34 @@ fun ExerciseDetailItem(label: String, value: String) {
     }
 }
 
-//@Composable
-//fun PerformanceMetric(label: String, currentValue: Double, previousValue: Double, unit: String) {
-//    Column(modifier = Modifier.padding(vertical = 4.dp)) {
-//        Text("$label: $currentValue $unit")
-//        LinearProgressIndicator(
-//            progress = { calculateProgress(currentValue, previousValue) },
-//            modifier = Modifier.fillMaxWidth(),
-//        )
-//        Text(
-//            text = if (currentValue > previousValue) "Improved by ${currentValue - previousValue} $unit"
-//            else if (currentValue < previousValue) "Decreased by ${previousValue - currentValue} $unit"
-//            else "No change",
-//            style = MaterialTheme.typography.bodySmall,
-//            color = when {
-//                currentValue > previousValue -> Color.Green
-//                currentValue < previousValue -> AccentColor
-//                else -> Color.Gray
-//            }
-//        )
-//    }
-//    // TODO: Add a graph component to show progress over time
-//
-//
-//}
+@Composable
+fun PerformanceMetric(label: String, currentValue: Double, previousValue: Double, unit: String) {
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+        Text("$label: $currentValue $unit")
+        LinearProgressIndicator(
+            progress = { calculateProgress(currentValue, previousValue) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Text(
+            text = if (currentValue > previousValue) "Improved by ${currentValue - previousValue} $unit"
+            else if (currentValue < previousValue) "Decreased by ${previousValue - currentValue} $unit"
+            else "No change",
+            style = MaterialTheme.typography.bodySmall,
+            color = when {
+                currentValue > previousValue -> Color.Green
+                currentValue < previousValue -> AccentColor
+                else -> Color.Gray
+            }
+        )
+    }
+    // TODO: Add a graph component to show progress over time
 
-//fun calculateProgress(current: Double, previous: Double): Float {
-//    return if (previous == 0.0) 0f else (current / previous).coerceIn(0.0, 1.0).toFloat()
-//}
+
+}
+
+fun calculateProgress(current: Double, previous: Double): Float {
+    return if (previous == 0.0) 0f else (current / previous).coerceIn(0.0, 1.0).toFloat()
+}
 
 @Composable
 fun UpdatePerformanceFields(

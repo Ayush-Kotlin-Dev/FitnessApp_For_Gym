@@ -61,25 +61,6 @@ class ProfileScreen : Screen {
         val viewModel = koinScreenModel<ProfileScreenViewModel>()
         val navigator: Navigator = LocalNavigator.currentOrThrow
         val scrollState = rememberScrollState()
-        var bytes by remember {
-            mutableStateOf(ByteArray(0))
-        }
-        var exerciseList: ExerciseList? by remember { mutableStateOf(null) }
-
-        LaunchedEffect(Unit) {
-            try {
-                bytes = Res.readBytes("drawable/exercises.json")
-                val jsonString = bytes.decodeToString()
-
-                if (jsonString.isNotEmpty()) {
-                    exerciseList = Json.decodeFromString(ExerciseList.serializer(), jsonString)
-                } else {
-                    println("Content: JSON string is empty")
-                }
-            } catch (e: Exception) {
-                println("Content: Error reading JSON file: ${e.message}")
-            }
-        }
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -91,12 +72,6 @@ class ProfileScreen : Screen {
                     .verticalScroll(scrollState)
                     .padding(16.dp)
             ) {
-
-                exerciseList?.chestExercises?.forEach {
-                    Text(text = it.name)
-                } ?: run {
-                    Text("Loading exercises...")
-                }
                 ProfileHeader(viewModel)
                 Spacer(modifier = Modifier.height(24.dp))
                 StatsSection(viewModel)
@@ -182,36 +157,51 @@ fun BMIStatItem(height: Float, weight: Float) {
     val bmiCategory = getBMICategory(bmi)
     val bmiColor = getBMIColor(bmiCategory)
 
-    Row(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column {
-            Text(
-                text = "BMI",
-                style = MaterialTheme.typography.bodyMedium,
-                color = SecondaryTextColor
-            )
-            Text(
-                text = bmiValue,
-                style = MaterialTheme.typography.titleLarge,
-                color = PrimaryTextColor,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        Text(
+            text = "BMI",
+            style = MaterialTheme.typography.bodyMedium,
+            color = SecondaryTextColor
+        )
+        Text(
+            text = bmiValue,
+            style = MaterialTheme.typography.titleLarge,
+            color = PrimaryTextColor,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         Box(
             modifier = Modifier
-                .background(bmiColor, shape = RoundedCornerShape(4.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .fillMaxWidth()
+                .height(8.dp)
+                .background(Color.LightGray, RoundedCornerShape(4.dp))
         ) {
-            Text(
-                text = bmiCategory,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(getBMIProgress(bmi))
+                    .height(8.dp)
+                    .background(bmiColor, RoundedCornerShape(4.dp))
             )
         }
+        Text(
+            text = bmiCategory,
+            style = MaterialTheme.typography.bodyMedium,
+            color = bmiColor,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+    }
+}
+
+private fun getBMIProgress(bmi: Float): Float {
+    return when {
+        bmi < 18.5 -> 0.25f
+        bmi < 24.9 -> 0.5f
+        bmi < 29.9 -> 0.75f
+        else -> 1f
     }
 }
 
