@@ -1,9 +1,11 @@
 package presentation.screens.auth_onboard.login
 
+import ContentWithMessageBar
 import UserInfoFormScreen
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,12 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,6 +41,7 @@ import presentation.components.CustomTextField
 import presentation.screens.homescreen.HomeScreen
 import presentation.screens.tabs.HomeTab
 import presentation.screens.tabs.TabsScreen
+import rememberMessageBarState
 
 class LoginScreen : Screen {
     @Composable
@@ -77,43 +82,46 @@ fun LoginContent(
     onForgotPasswordClick: () -> Unit,
     onAuthSuccess: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(Res.drawable.img),
-            contentDescription = null,
+    val state = rememberMessageBarState()
+
+    ContentWithMessageBar(errorMaxLines = 2, messageBarState = state) {
+        Column(
             modifier = Modifier
-                .size(320.dp)
-                .padding(30.dp)
-        )
+                .fillMaxSize()
+                .background(Color.Black)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(Res.drawable.img),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(320.dp)
+                    .padding(30.dp)
+            )
 
-        CustomTextField(
-            value = uiState.emailOrUsername,
-            onValueChange = onEmailOrUsernameChange,
-            label = "Email or Username",
-            keyboardType = KeyboardType.Email
-        )
+            CustomTextField(
+                value = uiState.emailOrUsername,
+                onValueChange = onEmailOrUsernameChange,
+                label = "Email or Username",
+                keyboardType = KeyboardType.Email
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        CustomTextField(
-            value = uiState.password,
-            onValueChange = onPasswordChange,
-            label = "Password",
-            visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            isPasswordTextField = true,
-            keyboardType = KeyboardType.Password,
-            isPasswordVisible = isPasswordVisible,
-            onPasswordVisibilityToggle = { onPasswordVisibilityChanged(!isPasswordVisible) }
-        )
+            CustomTextField(
+                value = uiState.password,
+                onValueChange = onPasswordChange,
+                label = "Password",
+                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                isPasswordTextField = true,
+                keyboardType = KeyboardType.Password,
+                isPasswordVisible = isPasswordVisible,
+                onPasswordVisibilityToggle = { onPasswordVisibilityChanged(!isPasswordVisible) }
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
         when {
             uiState.isAuthenticating -> {
@@ -138,18 +146,18 @@ fun LoginContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        TextButton(onClick = onForgotPasswordClick) {
-            Text(text = "Forgot password?")
+            TextButton(onClick = onForgotPasswordClick) {
+                Text(text = "Forgot password?")
+            }
         }
+    }
 
+
+    LaunchedEffect(uiState.authErrorMessage) {
         uiState.authErrorMessage?.let {
-            Text(
-                text = it,
-                color = Color.Red,
-                modifier = Modifier.padding(top = 16.dp)
-            )
+            state.addError(exception = Exception(it))
         }
     }
 }
