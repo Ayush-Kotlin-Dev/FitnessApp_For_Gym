@@ -135,6 +135,9 @@ class SignUpScreen : Screen {
             }
         }
 
+        // Handle error state
+        LaunchedEffect(errorKey.value) {
 
+        }
     }
 }
