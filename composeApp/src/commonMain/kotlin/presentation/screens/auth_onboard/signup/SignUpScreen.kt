@@ -137,7 +137,9 @@ class SignUpScreen : Screen {
 
         // Handle error state
         LaunchedEffect(errorKey.value) {
-
+            uiState.authErrorMessage?.let {
+                state.addError(exception = Exception(it))
+            }
         }
     }
 }
