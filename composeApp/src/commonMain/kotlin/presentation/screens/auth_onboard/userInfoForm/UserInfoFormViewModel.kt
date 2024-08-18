@@ -87,6 +87,12 @@ class UserInfoFormViewModel(
         }
     }
 
+    suspend fun getUserSettings(dataStore: DataStore<Preferences>) {
+        getUserSettingsFlow(dataStore).collectLatest { userSettings ->
+            userId = userSettings.userId
+        }
+    }
+
     fun submitUserData() {
         if (!isDataValid()) {
             updateUiState { it.copy(
@@ -98,9 +104,6 @@ class UserInfoFormViewModel(
 
         screenModelScope.launch {
             updateUiState { it.copy(isLoading = true) }
-            getUserSettingsFlow(dataStore).collectLatest { settings ->
-                userId = settings.userId
-            }
             val userInfoData = UserInfoData(
                 userId =  userId,
                 fullName = _uiState.value.fullName,

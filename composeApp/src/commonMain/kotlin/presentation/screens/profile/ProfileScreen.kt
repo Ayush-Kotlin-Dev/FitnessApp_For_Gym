@@ -282,7 +282,6 @@ fun ActionsSection(viewModel: ProfileScreenViewModel, navigator: Navigator) {
         Button(
             onClick = {
                 viewModel.clearRealmDb()
-                // TODO: Implement logic to change the visibility of the tab navigation
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = AccentColor)

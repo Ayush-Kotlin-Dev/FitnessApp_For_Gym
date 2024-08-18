@@ -7,12 +7,12 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import util.Result
 
-class SubmitUserInfoUseCase : KoinComponent {
-    private val repository: UserInfoRepository by inject()
+class UpdateUserInfoUseCase : KoinComponent{
 
+    private val repository: UserInfoRepository by inject()
     suspend operator fun invoke(
-            userInfoData: UserInfoData
+        userInfoData: UserInfoData
     ) : Result<UserInfoResponseData> {
-        return repository.addUserInfo(userInfoData)
+        return repository.updateUserInfo(userInfoData)
     }
 }

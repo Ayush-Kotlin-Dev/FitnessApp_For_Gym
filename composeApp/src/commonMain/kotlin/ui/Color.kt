@@ -33,7 +33,7 @@ val FadedBlack = Color(0xFF1A1A1A)
 
 // Dark Color Scheme
 internal val DarkColors = darkColorScheme(
-    primary = Red,
+    primary = Color(0xFFFF4444) ,
     background = Black.copy(alpha = 0.6f),
     surface = DarkGray,
     error = Red,

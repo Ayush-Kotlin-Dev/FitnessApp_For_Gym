@@ -141,9 +141,10 @@ class UserInfoFormScreen : Screen {
                             Text("Next")
                         }
                     } else {
-                        Button(onClick = {
-                            viewModel.submitUserData()
-                        }, enabled = !viewModel.uiState.value.isLoading) {
+                        Button(
+                            onClick = { viewModel.submitUserData() },
+                            enabled = !viewModel.uiState.value.isLoading
+                        ) {
                             Text(if (viewModel.uiState.value.isLoading) "Submitting..." else "Submit")
                         }
                     }
@@ -159,7 +160,7 @@ class UserInfoFormScreen : Screen {
             }
         }
 
-        LaunchedEffect(viewModel.uiState) {
+        LaunchedEffect(viewModel.uiState.value.submitSuccess) {
             if (viewModel.uiState.value.submitSuccess) {
                 navigator?.replace(TabsScreen())
             }
