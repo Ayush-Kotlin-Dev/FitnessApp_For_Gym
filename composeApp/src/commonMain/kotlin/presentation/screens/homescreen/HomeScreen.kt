@@ -33,6 +33,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -43,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -137,102 +139,186 @@ fun HeaderSection(
     currentDay: String = getCurrentDay(),
     fullName: String = ""
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
     ) {
-        Image(
-            imageVector = Icons.Default.Person,
-            contentDescription = "Profile Image",
-            modifier = Modifier.size(50.dp).clip(CircleShape),
-            colorFilter = ColorFilter.tint(Color.White)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Column {
-            Text(
-                text = "Welcome ${fullName.substringBefore(" ")}",
-                color = Color.White,
-                fontSize = 18.sp
-            )
-            Text(
-                text = "Way to go! You're on a hot 3-week workout streak",
-                color = Color.Gray,
-                fontSize = 14.sp
-            )
-        }
-    }
-    Spacer(modifier = Modifier.height(16.dp))
-    OutlinedButton(
-        onClick = { /* TODO */ },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-        ),
-        border = BorderStroke(1.dp, Color.Gray),
-        shape = RoundedCornerShape(50),
-
-        ) {
-        Text(
-            text = " $currentDay ",
-            color = Color.Black,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .background(Color(0xFFD4FC79), RoundedCornerShape(50))
-                .padding(horizontal = 8.dp, vertical = 2.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = "Time to workout", color = Color.White)
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .background(Color(0xFF2A2A2A), CircleShape)
+                    .clip(CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Profile Image",
+                    colorFilter = ColorFilter.tint(Color.White),
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column {
+                Text(
+                    text = "Welcome ${fullName.substringBefore(" ")}",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn() + expandVertically(),
+                    exit = fadeOut() + shrinkVertically()
+                ) {
+                    Text(
+                        text = "🔥 3-week streak",
+                        color = Color(0xFFD4FC79),
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        }
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF2A2A2A)
+            ),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = currentDay,
+                    color = Color(0xFFD4FC79),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .background(Color(0xFF1E1E1E), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Time to workout",
+                    color = Color.White,
+                    fontSize = 16.sp
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun WorkoutSection(focus: String) {
-    Column {
+    Column(
+        modifier = Modifier.padding(vertical = 16.dp)
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
         ) {
             Text(
-                text = "GUIDED TRAINING ", color = Color.Gray, fontSize = 14.sp
+                text = "TODAY'S FOCUS",
+                color = Color.Gray,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
             )
+            Spacer(modifier = Modifier.width(12.dp))
             HorizontalDivider(
+                modifier = Modifier.weight(1f),
                 color = Color.Gray.copy(alpha = 0.5f)
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp, end = 8.dp),
-            contentAlignment = Alignment.BottomStart
-        ) {
-            Image(
-                painter = painterResource(Res.drawable.chest_home),
-                contentDescription = "Workout Image",
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.Transparent
             )
-            Column {
-                Text(
-                    text = focus,
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(Res.drawable.chest_home),
+                    contentDescription = "Workout Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(16.dp))
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = " Recommended ",
-                    color = Color.Black,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.background(Color.Yellow, RoundedCornerShape(4.dp))
+
+                // Gradient overlay
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.7f)
+                                )
+                            )
+                        )
                 )
-                Text(
-                    text = "Dynamic Warmup | 22 Minutes",
-                    color = Color.White,
-                    fontSize = 14.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = focus.uppercase(),
+                        color = Color.White,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFD4FC79)
+                        ),
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            text = "RECOMMENDED",
+                            color = Color.Black,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "22 Minutes",
+                            color = Color.White,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
             }
         }
     }
@@ -243,31 +329,53 @@ fun ExerciseSection(
     exercises: List<String>,
     onReorder: (Int, Int) -> Unit
 ) {
-    val lazyListState = rememberLazyListState()
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(6.dp)
+            .padding(vertical = 16.dp)
     ) {
-        Text(
-            text = "NEXT EXERCISES",
-            color = Color.Gray,
-            fontSize = 14.sp,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            Text(
+                text = "EXERCISES",
+                color = Color.Gray,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            HorizontalDivider(
+                modifier = Modifier.weight(1f),
+                color = Color.Gray.copy(alpha = 0.5f)
+            )
+            Text(
+                text = "${exercises.size}",
+                color = Color(0xFFD4FC79),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 12.dp)
+            )
+        }
 
-        Box(modifier = Modifier.height(500.dp)) { //TODO: Fix height
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+        ) {
             DraggableLazyColumn(
                 items = exercises,
-                lazyListState = lazyListState,
+                lazyListState = rememberLazyListState(),
                 onMove = onReorder,
                 onDragEnd = { }
             ) { exercise, isDragging ->
                 DraggableExerciseItem(
                     number = exercises.indexOf(exercise) + 1,
                     title = exercise,
-                    description = "3 sets, 10 reps each set | 30 sec rest between sets | 1 min rest between exercises",
+                    description = "3 sets × 10 reps\n30s rest • 1m between exercises",
                     isLast = exercise == exercises.last(),
                     isDragging = isDragging
                 )
@@ -275,7 +383,6 @@ fun ExerciseSection(
         }
     }
 }
-
 @Composable
 fun DraggableExerciseItem(
     number: Int,

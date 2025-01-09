@@ -20,7 +20,11 @@ class UserInfoFormViewModel(
 
     private val _uiState = mutableStateOf(UserInfoDataUiState())
     val uiState: State<UserInfoDataUiState> = _uiState
-
+ init {
+        screenModelScope.launch {
+            getUserSettings()
+        }
+ }
     // Validation helpers
     private fun validateFullName(name: String): String? {
         return when {
@@ -182,7 +186,7 @@ class UserInfoFormViewModel(
         }
     }
 
-    suspend fun getUserSettings(dataStore: DataStore<Preferences>) {
+    private suspend fun getUserSettings() {
         getUserSettingsFlow(dataStore).collectLatest { userSettings ->
             userId = userSettings.userId
         }

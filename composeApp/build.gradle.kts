@@ -55,7 +55,7 @@ kotlin {
             implementation(libs.mongodb.realm)
             implementation(libs.kotlin.coroutines)
             implementation(libs.stately.common)
-
+            implementation("androidx.compose.material:material-icons-extended:1.7.6")
             //dependencies versions
             val coroutinesVersion = "1.6.4"
             val ktorVersion = "2.3.12"
