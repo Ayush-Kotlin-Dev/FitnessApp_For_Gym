@@ -35,12 +35,20 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import presentation.components.CustomTextField
 import presentation.screens.tabs.TabsScreen
 import rememberMessageBarState
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 
 class SignUpScreen : Screen {
     @Composable
@@ -50,20 +58,39 @@ class SignUpScreen : Screen {
         val isPasswordVisible = remember { mutableStateOf(false) }
         val uiState = viewModel.uiState.value
         val state = rememberMessageBarState()
-        val errorKey = remember { mutableStateOf(0) }
+        
+        // Add keyboard and focus management
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+        
+        // Create focus requesters
+        val usernameFocusRequester = remember { FocusRequester() }
+        val emailFocusRequester = remember { FocusRequester() }
+        val passwordFocusRequester = remember { FocusRequester() }
+
         ContentWithMessageBar(messageBarState = state) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color = Color.Black)
                     .padding(16.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                focusManager.clearFocus()
+                                keyboardController?.hide()
+                            }
+                        )
+                    },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
                     painter = painterResource(Res.drawable.img),
                     contentDescription = null,
-                    modifier = Modifier.size(320.dp).padding(30.dp)
+                    modifier = Modifier
+                        .size(320.dp)
+                        .padding(30.dp)
                 )
 
                 CustomTextField(
@@ -71,23 +98,39 @@ class SignUpScreen : Screen {
                     onValueChange = { viewModel.onFullNameChange(it) },
                     label = "Username",
                     keyboardType = KeyboardType.Text,
+                    modifier = Modifier.focusRequester(usernameFocusRequester),
+                    imeAction = ImeAction.Next,
+                    onImeAction = { emailFocusRequester.requestFocus() }
                 )
+
                 CustomTextField(
                     value = uiState.emailOrUsername,
                     onValueChange = { viewModel.onEmailOrUsernameChange(it) },
                     label = "Email",
                     keyboardType = KeyboardType.Email,
+                    modifier = Modifier.focusRequester(emailFocusRequester),
+                    imeAction = ImeAction.Next,
+                    onImeAction = { passwordFocusRequester.requestFocus() }
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 CustomTextField(
-                    value = viewModel.uiState.value.password,
+                    value = uiState.password,
                     onValueChange = { viewModel.onPasswordChange(it) },
                     label = "Password",
                     visualTransformation = if (isPasswordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                     isPasswordTextField = true,
                     keyboardType = KeyboardType.Password,
                     isPasswordVisible = isPasswordVisible.value,
-                    onPasswordVisibilityToggle = { isPasswordVisible.value = !isPasswordVisible.value }
+                    onPasswordVisibilityToggle = { isPasswordVisible.value = !isPasswordVisible.value },
+                    modifier = Modifier.focusRequester(passwordFocusRequester),
+                    imeAction = ImeAction.Done,
+                    onImeAction = {
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                        viewModel.signUp()
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -98,6 +141,7 @@ class SignUpScreen : Screen {
                     }
                     uiState.authenticationSucceed -> {
                         LaunchedEffect(Unit) {
+                            keyboardController?.hide()
                             if (uiState.isFormFilled) {
                                 navigator?.replaceAll(TabsScreen())
                             } else {
@@ -109,14 +153,9 @@ class SignUpScreen : Screen {
                         OutlinedButton(
                             enabled = !uiState.isAuthenticating,
                             onClick = {
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    viewModel.signUp()
-                                    if (viewModel.uiState.value.authenticationSucceed) {
-                                        navigator?.push(UserInfoFormScreen())
-                                    } else {
-                                        errorKey.value++
-                                    }
-                                }
+                                keyboardController?.hide()
+                                focusManager.clearFocus()
+                                viewModel.signUp()
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Transparent
@@ -124,19 +163,22 @@ class SignUpScreen : Screen {
                             border = BorderStroke(2.dp, Color.Gray)
                         ) {
                             Text(
-                                text = if(uiState.isAuthenticating) "Signing up..." else if (viewModel.uiState.value.authErrorMessage!=null) "Retry" else "Sign up",
+                                text = if (uiState.authErrorMessage != null) "Retry" else "Sign up",
                                 color = Color.Red.copy(0.9f)
                             )
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(20.dp))
             }
         }
 
-        // Handle error state
-        LaunchedEffect(errorKey.value) {
+        // Focus username field when screen is shown
+        LaunchedEffect(Unit) {
+            usernameFocusRequester.requestFocus()
+        }
+
+        // Handle error state with haptic feedback
+        LaunchedEffect(uiState.authErrorMessage) {
             uiState.authErrorMessage?.let {
                 state.addError(exception = Exception(it))
             }

@@ -16,6 +16,23 @@ class LoginScreenViewModel(
     private val _uiState = mutableStateOf(LoginUiState())
     val uiState: State<LoginUiState> = _uiState
 
+    // Add validation
+    private fun validateInput(): Boolean {
+        if (uiState.value.emailOrUsername.isBlank()) {
+            _uiState.value = _uiState.value.copy(
+                authErrorMessage = "Email or username cannot be empty"
+            )
+            return false
+        }
+        if (uiState.value.password.length < 6) {
+            _uiState.value = _uiState.value.copy(
+                authErrorMessage = "Password must be at least 6 characters"
+            )
+            return false
+        }
+        return true
+    }
+
     fun onEmailOrUsernameChange(newEmailOrUsername: String) {
         _uiState.value = _uiState.value.copy(emailOrUsername = newEmailOrUsername)
     }
@@ -25,33 +42,41 @@ class LoginScreenViewModel(
     }
 
     fun login() {
+        if (!validateInput()) return
+
         screenModelScope.launch {
-            _uiState.value = _uiState.value.copy(isAuthenticating = true)
-            val authResultData = signInUseCase(uiState.value.emailOrUsername, uiState.value.password)
-            _uiState.value = when (authResultData) {
-                is Result.Error -> {
-                    _uiState.value.copy(
+            try {
+                _uiState.value = _uiState.value.copy(
+                    isAuthenticating = true,
+                    authErrorMessage = null // Clear previous errors
+                )
+                
+                val authResultData = signInUseCase(uiState.value.emailOrUsername, uiState.value.password)
+                
+                _uiState.value = when (authResultData) {
+                    is Result.Error -> _uiState.value.copy(
                         isAuthenticating = false,
                         authErrorMessage = authResultData.message ?: "An error occurred"
                     )
-                }
-                is Result.Success -> {
-                    val isFormFilled = authResultData.data?.isFormFilled
-                    if(isFormFilled == true) {
-                        GetUserInfoUseCase(authResultData.data.userId)
-                    }else {
-                        // Show the form to fill the missing fields
+                    is Result.Success -> {
+                        val isFormFilled = authResultData.data?.isFormFilled
+                        if(isFormFilled == true) {
+                            GetUserInfoUseCase(authResultData.data.userId)
+                        }
+                        _uiState.value.copy(
+                            authenticationSucceed = true,
+                            isAuthenticating = false,
+                            isFormFilled = isFormFilled ?: false,
+                            authErrorMessage = null
+                        )
                     }
-                    _uiState.value.copy(
-                        authenticationSucceed = true,
-                        isAuthenticating = false,
-                        isFormFilled = isFormFilled ?: false
-                    )
-
+                    is Result.Loading -> _uiState.value.copy(isAuthenticating = true)
                 }
-                is Result.Loading -> {
-                    _uiState.value.copy(isAuthenticating = true)
-                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isAuthenticating = false,
+                    authErrorMessage = "An unexpected error occurred"
+                )
             }
         }
     }

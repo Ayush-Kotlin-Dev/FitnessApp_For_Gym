@@ -2,6 +2,7 @@ package presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuDefaults.textFieldColors
@@ -14,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -29,6 +31,7 @@ fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
+    modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
     isError: Boolean = false,
     errorMessage: String? = null,
@@ -37,12 +40,16 @@ fun CustomTextField(
     leadingIcon: ImageVector? = null,
     singleLine: Boolean = true,
     isPasswordVisible: Boolean = false,
-    onPasswordVisibilityToggle: () -> Unit = {}
+    onPasswordVisibilityToggle: () -> Unit = {},
+    // New parameters
+    imeAction: ImeAction = ImeAction.Default,
+    onImeAction: () -> Unit = {}
 ) {
     Column {
         TextField(
             value = value,
             onValueChange = onValueChange,
+            modifier = modifier,
             label = { Text(label) },
             colors = textFieldColors(
                 focusedTextColor = Color.White,
@@ -67,7 +74,14 @@ fun CustomTextField(
                     )
                 }
             },
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType,
+                imeAction = imeAction
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { onImeAction() },
+                onDone = { onImeAction() }
+            ),
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else visualTransformation,
             isError = isError,
             singleLine = singleLine
@@ -82,7 +96,6 @@ fun CustomTextField(
         }
     }
 }
-
 @Composable
 fun PasswordEyeIcon(
     isPasswordVisible: Boolean,

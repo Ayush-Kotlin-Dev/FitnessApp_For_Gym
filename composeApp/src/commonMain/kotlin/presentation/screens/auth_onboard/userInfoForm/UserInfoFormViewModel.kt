@@ -21,32 +21,82 @@ class UserInfoFormViewModel(
     private val _uiState = mutableStateOf(UserInfoDataUiState())
     val uiState: State<UserInfoDataUiState> = _uiState
 
-    // Basic Info
+    // Validation helpers
+    private fun validateFullName(name: String): String? {
+        return when {
+            name.isBlank() -> "Name cannot be empty"
+            name.length < 2 -> "Name must be at least 2 characters"
+            !name.matches("[a-zA-Z ]+".toRegex()) -> "Name can only contain letters"
+            else -> null
+        }
+    }
+
+    private fun validateAge(age: Int?): String? {
+        return when {
+            age == null -> "Age is required"
+            age < 13 -> "Must be at least 13 years old"
+            age > 100 -> "Please enter a valid age"
+            else -> null
+        }
+    }
+
+    private fun validateMeasurement(value: Float?, type: String): String? {
+        return when {
+            value == null -> "$type is required"
+            value <= 0f -> "Invalid $type"
+            when (type) {
+                "height" -> value > 250f
+                "weight" -> value > 250f
+                else -> false
+            } -> "Please enter a valid $type"
+            else -> null
+        }
+    }
+
+    // Updated input handlers with validation
     fun onFullNameChange(newFullName: String) {
-        updateUiState { it.copy(fullName = newFullName) }
+        updateUiState { 
+            it.copy(
+                fullName = newFullName,
+                fullNameError = validateFullName(newFullName)
+            )
+        }
     }
 
     fun onAgeChange(newAge: String) {
-        val age = newAge.toIntOrNull() ?: return
-        updateUiState { it.copy(age = age) }
+        val age = newAge.toIntOrNull()
+        updateUiState { 
+            it.copy(
+                age = age,
+                ageError = validateAge(age)
+            )
+        }
+    }
+
+    fun onHeightChange(height: String) {
+        val heightFloat = height.toFloatOrNull()
+        updateUiState { 
+            it.copy(
+                height = heightFloat,
+                heightError = validateMeasurement(heightFloat, "height")
+            )
+        }
+    }
+
+    fun onWeightChange(weight: String) {
+        val weightFloat = weight.toFloatOrNull()
+        updateUiState { 
+            it.copy(
+                weight = weightFloat,
+                weightError = validateMeasurement(weightFloat, "weight")
+            )
+        }
     }
 
     fun setGender(gender: String) {
         updateUiState { it.copy(gender = gender) }
     }
 
-    // Physical Measurements
-    fun onHeightChange(height: String) {
-        val heightFloat = height.toFloatOrNull() ?: return
-        updateUiState { it.copy(height = heightFloat) }
-    }
-
-    fun onWeightChange(weight: String) {
-        val weightFloat = weight.toFloatOrNull() ?: return
-        updateUiState { it.copy(weight = weightFloat) }
-    }
-
-    // Fitness Goals and Activity Level
     fun setFitnessGoals(fitnessGoals: String) {
         updateUiState { it.copy(fitnessGoals = fitnessGoals) }
     }
@@ -55,7 +105,6 @@ class UserInfoFormViewModel(
         updateUiState { it.copy(activityLevel = activityLevel) }
     }
 
-    // Dietary and Workout Preferences
     fun setDietaryPreferences(dietaryPreferences: String) {
         updateUiState { it.copy(dietaryPreferences = dietaryPreferences) }
     }
@@ -64,13 +113,59 @@ class UserInfoFormViewModel(
         updateUiState { it.copy(workoutPreferences = workoutPreferences) }
     }
 
+    // Add validation state to UI state
+    data class UserInfoDataUiState(
+        val fullName: String = "",
+        val age: Int? = null,
+        val gender: String = "",
+        val height: Float? = null,
+        val weight: Float? = null,
+        val fitnessGoals: String = "",
+        val activityLevel: String = "",
+        val dietaryPreferences: String = "",
+        val workoutPreferences: String = "",
+        val fullNameError: String? = null,
+        val ageError: String? = null,
+        val heightError: String? = null,
+        val weightError: String? = null,
+        val currentStep: Int = 0,
+        val canProceedToNextStep: Boolean = false,
+        val isLoading: Boolean = false,
+        val submitSuccess: Boolean = false,
+        val errorMessage: String = ""
+    )
+
     private fun updateUiState(update: (UserInfoDataUiState) -> UserInfoDataUiState) {
         _uiState.value = update(_uiState.value)
+    }
+
+    private fun isBasicInfoValid() = validateFullName(_uiState.value.fullName) == null &&
+            validateAge(_uiState.value.age) == null &&
+            _uiState.value.gender.isNotEmpty()
+
+    private fun isPhysicalMeasurementsValid() = validateMeasurement(_uiState.value.height, "height") == null &&
+            validateMeasurement(_uiState.value.weight, "weight") == null
+
+    private fun isFitnessGoalsValid() = _uiState.value.fitnessGoals.isNotEmpty() &&
+            _uiState.value.activityLevel.isNotEmpty()
+
+    private fun isDietaryPreferencesValid() = _uiState.value.dietaryPreferences.isNotEmpty() &&
+            _uiState.value.workoutPreferences.isNotEmpty()
+
+    fun canProceedToNextStep(currentStep: Int): Boolean {
+        return when (currentStep) {
+            0 -> isBasicInfoValid()
+            1 -> isPhysicalMeasurementsValid()
+            2 -> isFitnessGoalsValid()
+            3 -> isDietaryPreferencesValid()
+            else -> false
+        }
     }
 
     fun clearUserData() {
         _uiState.value = UserInfoDataUiState()
     }
+
     private var userId: Long = -1
 
     private fun isDataValid(): Boolean {
@@ -138,18 +233,3 @@ class UserInfoFormViewModel(
         }
     }
 }
-
-data class UserInfoDataUiState(
-    val fullName: String = "",
-    val age: Int? = null,
-    val gender: String = "",
-    val height: Float? = null,
-    val weight: Float? = null,
-    val fitnessGoals: String = "",
-    val activityLevel: String = "",
-    val dietaryPreferences: String = "",
-    val workoutPreferences: String = "",
-    val isLoading: Boolean = false,
-    val submitSuccess: Boolean = false,
-    val errorMessage: String = ""
-)

@@ -1,6 +1,7 @@
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,7 +38,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -133,11 +140,19 @@ class UserInfoFormScreen : Screen {
                         .align(Alignment.CenterHorizontally)
                 ) {
                     if (pagerState.currentPage < pagerState.pageCount - 1) {
-                        Button(onClick = {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                            }
-                        }) {
+                        Button(
+                            onClick = {
+                                if (viewModel.canProceedToNextStep(pagerState.currentPage)) {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                    }
+                                } else {
+                                    // Show error feedback
+                                    // You can add error feedback here, e.g., HapticFeedback.defaultVibrate()
+                                }
+                            },
+                            enabled = viewModel.canProceedToNextStep(pagerState.currentPage) && !viewModel.uiState.value.isLoading
+                        ) {
                             Text("Next")
                         }
                     } else {
@@ -167,17 +182,28 @@ class UserInfoFormScreen : Screen {
         }
     }
 
-    @OptIn(ExperimentalResourceApi::class)
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalResourceApi::class)
     @Composable
     fun BasicInfoStep(viewModel: UserInfoFormViewModel) {
-        var genderExpanded by remember { mutableStateOf(false) }
-        var ageInput by remember { mutableStateOf(viewModel.uiState.value.age?.toString() ?: "") }
-        var ageError by remember { mutableStateOf(false) }
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+        
+        // Create focus requesters
+        val nameFocusRequester = remember { FocusRequester() }
+        val ageFocusRequester = remember { FocusRequester() }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                        }
+                    )
+                },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val composition by rememberLottieComposition {
@@ -199,22 +225,33 @@ class UserInfoFormScreen : Screen {
                 value = viewModel.uiState.value.fullName,
                 onValueChange = { viewModel.onFullNameChange(it) },
                 label = "Full Name",
-                keyboardType = KeyboardType.Text
+                keyboardType = KeyboardType.Text,
+                modifier = Modifier.focusRequester(nameFocusRequester),
+                imeAction = ImeAction.Next,
+                onImeAction = { ageFocusRequester.requestFocus() },
+                isError = viewModel.uiState.value.fullNameError != null,
+                errorMessage = viewModel.uiState.value.fullNameError
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             CustomTextField(
-                value = ageInput,
-                onValueChange = {
-                    ageInput = it
-                    ageError = it.toIntOrNull() == null || it.toInt() > 100
-                    if (!ageError) viewModel.onAgeChange(it)
-                },
+                value = viewModel.uiState.value.age?.toString() ?: "",
+                onValueChange = { viewModel.onAgeChange(it) },
                 label = "Age",
                 keyboardType = KeyboardType.Number,
-                isError = ageError,
-                errorMessage = "Please enter a valid age"
+                modifier = Modifier.focusRequester(ageFocusRequester),
+                imeAction = ImeAction.Done,
+                onImeAction = {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                },
+                isError = viewModel.uiState.value.ageError != null,
+                errorMessage = viewModel.uiState.value.ageError
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            
+            var genderExpanded by remember { mutableStateOf(false) }
+            val genders = listOf("Male", "Female", "Transgender")
 
             Row(
                 modifier = Modifier
@@ -222,8 +259,6 @@ class UserInfoFormScreen : Screen {
                     .padding(start = 8.dp),
                 horizontalArrangement = Arrangement.Start,
             ) {
-                val genders = listOf("Male", "Female", "Transgender")
-
                 Text("Gender", modifier = Modifier.padding(start = 8.dp))
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Button(onClick = { genderExpanded = true }) {
@@ -246,51 +281,64 @@ class UserInfoFormScreen : Screen {
                 }
             }
         }
+
+        LaunchedEffect(Unit) {
+            nameFocusRequester.requestFocus()
+        }
     }
 
     @Composable
     fun PhysicalMeasurementsStep(viewModel: UserInfoFormViewModel) {
-        var heightInput by remember {
-            mutableStateOf(
-                viewModel.uiState.value.height?.toString() ?: ""
-            )
-        }
-        var weightInput by remember {
-            mutableStateOf(
-                viewModel.uiState.value.weight?.toString() ?: ""
-            )
-        }
-        var heightError by remember { mutableStateOf(false) }
-        var weightError by remember { mutableStateOf(false) }
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+        
+        val heightFocusRequester = remember { FocusRequester() }
+        val weightFocusRequester = remember { FocusRequester() }
 
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                        }
+                    )
+                }
+        ) {
             CustomTextField(
-                value = heightInput,
-                onValueChange = {
-                    heightInput = it
-                    heightError = it.toFloatOrNull() == null || it.toFloat() > 200.0
-                    if (!heightError) viewModel.onHeightChange(it)
-                },
+                value = viewModel.uiState.value.height?.toString() ?: "",
+                onValueChange = { viewModel.onHeightChange(it) },
                 label = "Height (cm)",
                 keyboardType = KeyboardType.Decimal,
-                isError = heightError,
-                errorMessage = "Please enter a valid height"
+                modifier = Modifier.focusRequester(heightFocusRequester),
+                imeAction = ImeAction.Next,
+                onImeAction = { weightFocusRequester.requestFocus() },
+                isError = viewModel.uiState.value.heightError != null,
+                errorMessage = viewModel.uiState.value.heightError
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             CustomTextField(
-                value = weightInput,
-                onValueChange = {
-                    weightInput = it
-                    weightError = it.toFloatOrNull() == null || it.toFloat() > 200.0
-                    if (!weightError) viewModel.onWeightChange(it)
-                },
+                value = viewModel.uiState.value.weight?.toString() ?: "",
+                onValueChange = { viewModel.onWeightChange(it) },
                 label = "Weight (kg)",
                 keyboardType = KeyboardType.Decimal,
-                isError = weightError,
-                errorMessage = "Please enter a valid weight"
+                modifier = Modifier.focusRequester(weightFocusRequester),
+                imeAction = ImeAction.Done,
+                onImeAction = {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                },
+                isError = viewModel.uiState.value.weightError != null,
+                errorMessage = viewModel.uiState.value.weightError
             )
+        }
+
+        LaunchedEffect(Unit) {
+            heightFocusRequester.requestFocus()
         }
     }
 

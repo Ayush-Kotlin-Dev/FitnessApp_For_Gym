@@ -1,10 +1,10 @@
 package presentation.screens.auth_onboard.login
 
 import ContentWithMessageBar
-import UserInfoFormScreen
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +26,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -64,7 +71,7 @@ class LoginScreen : Screen {
                 if (uiState.isFormFilled) {
                     navigator?.replaceAll(TabsScreen())
                 } else {
-                    navigator?.replaceAll(UserInfoFormScreen())
+                    navigator?.replaceAll(HomeScreen())
                 }
             }
         }
@@ -83,6 +90,11 @@ fun LoginContent(
     onAuthSuccess: () -> Unit
 ) {
     val state = rememberMessageBarState()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
+    val emailFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
 
     ContentWithMessageBar(errorMaxLines = 2, messageBarState = state) {
         Column(
@@ -90,7 +102,15 @@ fun LoginContent(
                 .fillMaxSize()
                 .background(Color.Black)
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                        }
+                    )
+                },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
@@ -105,7 +125,10 @@ fun LoginContent(
                 value = uiState.emailOrUsername,
                 onValueChange = onEmailOrUsernameChange,
                 label = "Email or Username",
-                keyboardType = KeyboardType.Email
+                keyboardType = KeyboardType.Email,
+                modifier = Modifier.focusRequester(emailFocusRequester),
+                imeAction = ImeAction.Next,
+                onImeAction = { passwordFocusRequester.requestFocus() }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -118,33 +141,40 @@ fun LoginContent(
                 isPasswordTextField = true,
                 keyboardType = KeyboardType.Password,
                 isPasswordVisible = isPasswordVisible,
-                onPasswordVisibilityToggle = { onPasswordVisibilityChanged(!isPasswordVisible) }
+                onPasswordVisibilityToggle = { onPasswordVisibilityChanged(!isPasswordVisible) },
+                modifier = Modifier.focusRequester(passwordFocusRequester),
+                imeAction = ImeAction.Done,
+                onImeAction = {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                    onLoginClick()
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-        when {
-            uiState.isAuthenticating -> {
-                CircularProgressIndicator()
-            }
-            uiState.authenticationSucceed -> {
-                onAuthSuccess()
-            }
-            else -> {
-                OutlinedButton(
-                    onClick = onLoginClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent
-                    ),
-                    border = BorderStroke(2.dp, Color.Gray)
-                ) {
-                    Text(
-                        text = if (uiState.authErrorMessage != null) "Retry" else "Login",
-                        color = Color.Red.copy(0.9f)
-                    )
+            when {
+                uiState.isAuthenticating -> {
+                    CircularProgressIndicator()
+                }
+                uiState.authenticationSucceed -> {
+                    onAuthSuccess()
+                }
+                else -> {
+                    OutlinedButton(
+                        onClick = onLoginClick,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent
+                        ),
+                        border = BorderStroke(2.dp, Color.Gray)
+                    ) {
+                        Text(
+                            text = if (uiState.authErrorMessage != null) "Retry" else "Login",
+                            color = Color.Red.copy(0.9f)
+                        )
+                    }
                 }
             }
-        }
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -154,10 +184,21 @@ fun LoginContent(
         }
     }
 
+    LaunchedEffect(Unit) {
+        emailFocusRequester.requestFocus()
+    }
 
     LaunchedEffect(uiState.authErrorMessage) {
         uiState.authErrorMessage?.let {
             state.addError(exception = Exception(it))
+        }
+    }
+
+    LaunchedEffect(uiState.authenticationSucceed) {
+        if (uiState.authenticationSucceed) {
+            keyboardController?.hide()
+            focusManager.clearFocus()
+            onAuthSuccess()
         }
     }
 }
